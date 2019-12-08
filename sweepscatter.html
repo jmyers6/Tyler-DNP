@@ -1,0 +1,582 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Graphing Microwave Sweep Data and Calculating Polarisation Frequencies</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-07"><meta name="DC.source" content="sweepscatter.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Graphing Microwave Sweep Data and Calculating Polarisation Frequencies</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#5">Alternative Inputs for When <i>x</i> and <i>y</i> are not Available (Hypersense)</a></li><li><a href="#7">Alternative Inputs for When <i>x</i> and <i>y</i> are not Available (Alpha System)</a></li><li><a href="#13">Outputs</a></li><li><a href="#16">Child Functions</a></li><li><a href="#21">Checking if <i>x</i> and <i>y</i> are Valid</a></li><li><a href="#22">Calling the User if There is Insufficient Data to Calculate the <i>x</i> and <i>y</i> Arrays</a></li><li><a href="#23">Establishing the Dimensions of the Outputted Arrays</a></li><li><a href="#24">Generating the Microwave Sweep Plot</a></li><li><a href="#26">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>x</i>: is a column vector of the microwave frequencies sweeped</p><p><i>y</i>: is an array of the signal for each microwave frequency sweeped. Each NMR peak is in a different column</p><p><i>titl</i>: is the title of the microwave sweep plot and should be a character vector</p><p><i>peaknames</i>: is a cell containing the names of each NMR peak</p><h2 id="5">Alternative Inputs for When <i>x</i> and <i>y</i> are not Available (Hypersense)</h2><p><i>sys</i>: should be set to 'N' indicating the data originated from the Hypersense System</p><p><i>dat</i>: is the file that contains the sweep data. It is the exported .dat file from the Hypersense</p><h2 id="7">Alternative Inputs for When <i>x</i> and <i>y</i> are not Available (Alpha System)</h2><p><i>sys</i>: should be set to 'Y' indicating the data originated from the Alpha System</p><p><i>dat</i>: is a cell that contains the data file(s). The first set of data should correspond to positive amplitudes, while the second set should correspond to negative amplitudes. If the amplitudes were calculated from MestReNova, <i>dat</i> should be a character vector (file name)</p><p><i>mic</i>: can either be a .csv file containing the frequencies used in GHz or a column vector</p><p><i>inp</i>: should be set to either 'A' or 'M' depending on if the amplitudes of the data were calculated using the AMARES algorithm in JMRUI ('A') or peak integration in MestReNova ('M')</p><p><i>coilnum</i>: is the number of coils used to measure the data. This variable should always be set to '[]' unless <i>inp</i> has been set to 'M'.</p><p><i>field</i>: is a cell containing the names of the peaks quanitified from the data. It should always be set to '[]' unless <i>inp</i> has been set to 'M', since the AMARES algorithm names the peaks.</p><h2 id="13">Outputs</h2><p><i>f</i>: is an eight term fourier function fitted to the microwave data used to calculate the optimum polarisation frequencies</p><p><i>val1</i>: is an array containing the optimum frequencies to positively polarise each species</p><p><i>val2</i>: is an array containing the optimum frequencies to negatively polarise each species</p><h2 id="16">Child Functions</h2><p><i>checkYN</i>: checks if an input is 'Y', 'y', 'N', 'n' or something else</p><p><i>alphaparse</i>: parses data collected from the Alpha System and/or 300MHz magnet into the <i>x</i> and <i>y</i> arrays</p><p><i>isdatfile</i>: checks if an input is a readible file</p><p><i>parsedat</i>: parses data collected from the Hypersense into the <i>x</i> and <i>y</i> arrays</p><pre class="codeinput"><span class="keyword">function</span> [f,val1,val2] = sweepscatter(x,y,sys,dat,mic,inp,coilnum,field,titl,peaknames)
+</pre><pre class="codeinput">    alg = 0;
+
+    <span class="keyword">if</span> nargin &lt; 10
+        peaknames = {<span class="string">'Data'</span>};
+    <span class="keyword">end</span>
+</pre><h2 id="21">Checking if <i>x</i> and <i>y</i> are Valid</h2><p>If no <i>x</i> or <i>y</i> arrays are entered, or if they are invalid, such as if they have inconsistent dimensions, they must be calculated using the alternative inputs.</p><pre class="codeinput">    xlen = length(x);
+    ylen = length(y);
+
+    <span class="keyword">if</span> nargin &lt; 2
+        alg = 1;
+    <span class="keyword">elseif</span> isempty(x) == 1
+        alg = 1;
+    <span class="keyword">elseif</span> isempty(y) == 1
+        alg = 1;
+    <span class="keyword">elseif</span> xlen ~= ylen
+        alg = 1;
+
+    <span class="keyword">end</span>
+</pre><h2 id="22">Calling the User if There is Insufficient Data to Calculate the <i>x</i> and <i>y</i> Arrays</h2><p>If the inputted <i>x</i> and <i>y</i> arrays are not valid, they will need to be calculated from the other inputs. If the other inputs are insufficient or invalid, the user will be called to enter the missing information.</p><pre class="codeinput">    <span class="keyword">if</span> alg == 1
+
+        prompt = <span class="string">'Was the data collected using the Alpha System (Y) or the Hypersense (N)? (Y/N): '</span>;
+
+        <span class="keyword">if</span> nargin &lt; 3
+            sys = input(prompt,<span class="string">'s'</span>);
+        <span class="keyword">end</span>
+
+        sysbool = checkYN(sys);
+
+        <span class="keyword">while</span> sysbool == 0
+            sys = input(<span class="string">'Please enter Y if the data was collected using the Alpha System or N if the data was collected using the Hypersense (Y/N): '</span>,<span class="string">'s'</span>);
+            sysbool = checkYN(sys);
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> sysbool == 1
+            <span class="keyword">if</span> nargin &gt;= 8
+                [x,y,peaknames] = alphaparse(mic,inp,<span class="string">'Y'</span>,dat,coilnum,field);
+            <span class="keyword">elseif</span> nargin &gt;= 7
+                [x,y,peaknames] = alphaparse(mic,inp,<span class="string">'Y'</span>,dat,coilnum);
+            <span class="keyword">elseif</span> nargin &gt;= 6
+                [x,y,peaknames] = alphaparse(mic,inp,<span class="string">'Y'</span>,dat);
+            <span class="keyword">elseif</span> nargin &gt;= 5
+                [x,y,peaknames] = alphaparse(mic,[],<span class="string">'Y'</span>,dat);
+            <span class="keyword">elseif</span> nargin &gt;= 4
+                [x,y,peaknames] = alphaparse([],[],<span class="string">'Y'</span>,dat);
+            <span class="keyword">else</span>
+                [x,y,peaknames] = alphaparse([],[],<span class="string">'Y'</span>);
+            <span class="keyword">end</span>
+        <span class="keyword">elseif</span> sysbool == 2
+
+            <span class="keyword">if</span> nargin &lt; 4
+                dat = input(<span class="string">'Enter the .dat file containing the Microwave Sweep data: '</span>,<span class="string">'s'</span>);
+            <span class="keyword">end</span>
+
+            datbool = isdatfile(dat);
+
+            <span class="keyword">while</span> datbool == 0
+                dat = input(<span class="string">'Error: Please enter a valid .dat file'</span>,<span class="string">'s'</span>);
+                datbool = isdatfile(dat);
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span> datbool == 1
+                data = parsedat(dat);
+                x = data(:,1);
+                y = data(:,2);
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="23">Establishing the Dimensions of the Outputted Arrays</h2><p>There should be one value each to negatively and positively polarise each species in a sample. The <i>val1</i> and <i>val2</i> arrays are intialised here with the proper dimensions.</p><pre class="codeinput">    nums = length(peaknames);
+    val1 = zeros(nums,1);
+    val2 = zeros(nums,1);
+</pre><h2 id="24">Generating the Microwave Sweep Plot</h2><p>The microwave sweep raw data is first plotted An eight term fourier function is then fit to the data, and it is solved over the domain of the frequencies. The absolute minimums and maxiumums of the fourier function are calculated, which are the values of <i>val2</i> and val1_ respectively The fitted fourier function is then plotted over the data. If there are multiple data sets, they are plotted on top of each other in the same figure.</p><pre class="codeinput">    figure(<span class="string">'Position'</span>,[0 0 800 600])
+
+    scatter(x,y(:,1),<span class="string">'filled'</span>)
+    xlim([min(x) max(x)])
+    ylim([(1.1*min(y(:))) (1.1*max(y(:)))])
+    hold <span class="string">on</span>
+
+    f = fit(x,y(:,1),<span class="string">'fourier8'</span>);
+    plot(f,<span class="string">'k'</span>)
+
+    rangeint = (max(x)-min(x))/1000;
+    range = min(x):rangeint:max(x);
+    yarray = f(range);
+
+    ymin = min(yarray);
+    ymax = max(yarray);
+
+    inl = yarray == ymin;
+    inh = yarray == ymax;
+
+    val1(1) = range(inl);
+    val2(1) = range(inh);
+
+    val1disp = num2str(val1(1));
+    val2disp = num2str(val2(1));
+
+    vardisp = strcat(<span class="string">'This sample species should be negatively polarised at'</span>, {<span class="string">' '</span>}, val2disp, <span class="string">'GHz or positively polarised at'</span>, {<span class="string">' '</span>}, val1disp, <span class="string">'GHz'</span>);
+
+    leny = length(y(1,:));
+
+    <span class="keyword">if</span> leny &gt; 1
+
+        <span class="keyword">for</span> el = 2:leny
+
+            scatter(x,y(:,el),<span class="string">'filled'</span>)
+
+            f = fit(x,y(:,el),<span class="string">'fourier8'</span>);
+            plot(f,<span class="string">'k'</span>)
+
+            rangeint = (max(x)-min(x))/1000;
+            range = min(x):rangeint:max(x);
+            yarray = f(range);
+
+            ymin = min(yarray);
+            ymax = max(yarray);
+
+            inl = yarray == ymin;
+            inh = yarray == ymax;
+
+            val1(el) = range(inl);
+            val2(el) = range(inh);
+
+            val1disp = num2str(val1(el));
+            val2disp = num2str(val2(el));
+
+            vardisp = strcat(<span class="string">'This sample species should be negatively polarised at'</span>, {<span class="string">' '</span>}, val2disp, <span class="string">'GHz or positively polarised at'</span>, {<span class="string">' '</span>}, val1disp, <span class="string">'GHz'</span>);
+
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    len = length(x);
+    y1 = zeros(len,1);
+    plot(x,y1,<span class="string">'k'</span>)
+    grid <span class="string">on</span>
+    grid <span class="string">minor</span>
+
+    <span class="keyword">if</span> leny == 1
+        dim = [.13 0 .3 .17];
+        annotation(<span class="string">'textbox'</span>,dim,<span class="string">'String'</span>,vardisp,<span class="string">'FitBoxToText'</span>,<span class="string">'on'</span>);
+        hLeg = legend(vardisp);
+        set(hLeg,<span class="string">'visible'</span>,<span class="string">'off'</span>)
+    <span class="keyword">end</span>
+
+    xlabel(<span class="string">'Frequency /GHz'</span>)
+    ylabel(<span class="string">'Signal Strength /Arbitrary Units'</span>)
+
+    <span class="keyword">if</span> nargin &lt; 9
+        titl = <span class="string">'Microwave Sweep'</span>;
+    <span class="keyword">elseif</span> isempty(titl) == 1
+        titl = <span class="string">'Microwave Sweep'</span>;
+    <span class="keyword">elseif</span> string(class(titl)) ~= <span class="string">"char"</span>
+        titl = <span class="string">'Microwave Sweep'</span>;
+    <span class="keyword">end</span>
+
+    title(titl)
+
+    <span class="keyword">if</span> length(peaknames) &gt; 1
+
+        numlen = length(peaknames)*2;
+        legpeaks = cell(numlen,1);
+
+        <span class="keyword">for</span> el = 1:length(peaknames)
+            inda = el*2;
+            ind = inda-1;
+            legpeaks{ind} = peaknames{el};
+        <span class="keyword">end</span>
+
+        legend(legpeaks)
+
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="sweepscatter_01.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+f = 
+
+     General model Fourier8:
+     f(x) = 
+               a0 + a1*cos(x*w) + b1*sin(x*w) + 
+               a2*cos(2*x*w) + b2*sin(2*x*w) + a3*cos(3*x*w) + b3*sin(3*x*w) + 
+               a4*cos(4*x*w) + b4*sin(4*x*w) + a5*cos(5*x*w) + b5*sin(5*x*w) + 
+               a6*cos(6*x*w) + b6*sin(6*x*w) + a7*cos(7*x*w) + b7*sin(7*x*w) + 
+               a8*cos(8*x*w) + b8*sin(8*x*w)
+     Coefficients (with 95% confidence bounds):
+       a0 =  -3.019e+13  (-1.103e+14, 4.987e+13)
+       a1 =   4.706e+13  (-7.82e+15, 7.914e+15)
+       b1 =  -2.814e+13  (-1.312e+16, 1.307e+16)
+       a2 =  -1.885e+13  (-2.017e+16, 2.013e+16)
+       b2 =   3.614e+13  (-1.044e+16, 1.051e+16)
+       a3 =  -2.201e+12  (-2.026e+16, 2.026e+16)
+       b3 =  -2.425e+13  (-1.886e+15, 1.838e+15)
+       a4 =    7.18e+12  (-9.778e+15, 9.793e+15)
+       b4 =   8.793e+12  (-7.997e+15, 8.015e+15)
+       a5 =  -3.819e+12  (-1.471e+15, 1.463e+15)
+       b5 =  -1.057e+12  (-5.318e+15, 5.316e+15)
+       a6 =   9.077e+11  (-5.793e+14, 5.811e+14)
+       b6 =  -3.468e+11  (-1.516e+15, 1.515e+15)
+       a7 =  -7.861e+10  (-2.47e+14, 2.469e+14)
+       b7 =   1.267e+11  (-1.529e+14, 1.532e+14)
+       a8 =   -1.16e+09  (-2.385e+13, 2.384e+13)
+       b8 =  -1.071e+10  (-2.602e+12, 2.581e+12)
+       w =       6.545  (3.579, 9.511)
+
+val1 =
+
+   93.9949
+
+
+val2 =
+
+   93.9335
+
+</pre><h2 id="26">Notes</h2><p>The inputs used in the example are:</p><p><i>x</i>: []</p><p><i>y</i>: []</p><p><i>sys</i>: 'N'</p><p><i>dat</i>: '1Pyr_7_10_sweep.dat'</p><p><i>mic</i>: []</p><p><i>inp</i>: []</p><p><i>coilnum</i>: []</p><p><i>field</i>: []</p><p><i>titl</i>: 'Microwave Sweep of ^{13}C 1-Pyruvate Using OX063 7/10/19'</p><p>The example was run by putting:</p><p>[f,val1,val2] = sweepscatter([],[],'N','1Pyr_7_10_sweep.dat',[],[],[],[], 'Microwave Sweep of ^{13}C 1-Pyruvate Using OX063 7/10/19')</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Graphing Microwave Sweep Data and Calculating Polarisation Frequencies
+%%
+%% Inputs
+% _x_: is a column vector of the microwave frequencies sweeped
+%%
+% _y_: is an array of the signal for each microwave frequency
+% sweeped. Each NMR peak is in a different column
+%%
+% _titl_: is the title of the microwave sweep plot and should be a
+% character vector
+%%
+% _peaknames_: is a cell containing the names of each NMR peak
+%% Alternative Inputs for When _x_ and _y_ are not Available (Hypersense)
+% _sys_: should be set to 'N' indicating the data originated from the
+% Hypersense System
+%%
+% _dat_: is the file that contains the sweep data. It is the exported .dat
+% file from the Hypersense
+%% Alternative Inputs for When _x_ and _y_ are not Available (Alpha System)
+% _sys_: should be set to 'Y' indicating the data originated from the Alpha
+% System
+%%
+% _dat_: is a cell that contains the data file(s). The first set
+% of data should correspond to positive amplitudes, while the second set
+% should correspond to negative amplitudes. If the amplitudes were
+% calculated from MestReNova, _dat_ should be a character vector (file
+% name)
+%%
+% _mic_: can either be a .csv file containing the frequencies used in GHz 
+% or a column vector
+%%
+% _inp_: should be set to either 'A' or 'M' depending on if the
+% amplitudes of the data were calculated using the AMARES algorithm in
+% JMRUI ('A') or peak integration in MestReNova ('M')
+%%
+% _coilnum_: is the number of coils used to measure the data.
+% This variable should always be set to '[]' unless _inp_ has been set to
+% 'M'.
+%%
+% _field_: is a cell containing the names of the peaks quanitified
+% from the data. It should always be set to '[]' unless _inp_ has been set
+% to 'M', since the AMARES algorithm names the peaks.
+%% Outputs
+% _f_: is an eight term fourier function fitted to the microwave data used
+% to calculate the optimum polarisation frequencies
+%%
+% _val1_: is an array containing the optimum frequencies to positively
+% polarise each species
+%%
+% _val2_: is an array containing the optimum frequencies to negatively
+% polarise each species
+%% Child Functions
+% _checkYN_: checks if an input is 'Y', 'y', 'N', 'n' or something else
+%%
+% _alphaparse_: parses data collected from the Alpha System and/or 300MHz
+% magnet into the _x_ and _y_ arrays
+%%
+% _isdatfile_: checks if an input is a readible file
+%%
+% _parsedat_: parses data collected from the Hypersense into the _x_ and
+% _y_ arrays
+
+function [f,val1,val2] = sweepscatter(x,y,sys,dat,mic,inp,coilnum,field,titl,peaknames)
+    
+    alg = 0;
+    
+    if nargin < 10
+        peaknames = {'Data'};
+    end
+    
+    %% Checking if _x_ and _y_ are Valid
+    % If no _x_ or _y_ arrays are entered, or if they are invalid, such as
+    % if they have inconsistent dimensions, they must be calculated using
+    % the alternative inputs.
+    
+    xlen = length(x);
+    ylen = length(y);
+    
+    if nargin < 2
+        alg = 1;
+    elseif isempty(x) == 1
+        alg = 1;
+    elseif isempty(y) == 1
+        alg = 1;
+    elseif xlen ~= ylen
+        alg = 1;
+        
+    end
+    
+    %% Calling the User if There is Insufficient Data to Calculate the _x_ and _y_ Arrays
+    % If the inputted _x_ and _y_ arrays are not valid, they will need to
+    % be calculated from the other inputs. If the other inputs are
+    % insufficient or invalid, the user will be called to enter the missing
+    % information.
+    
+    if alg == 1
+        
+        prompt = 'Was the data collected using the Alpha System (Y) or the Hypersense (N)? (Y/N): ';
+        
+        if nargin < 3
+            sys = input(prompt,'s');
+        end
+        
+        sysbool = checkYN(sys);
+        
+        while sysbool == 0
+            sys = input('Please enter Y if the data was collected using the Alpha System or N if the data was collected using the Hypersense (Y/N): ','s');
+            sysbool = checkYN(sys);
+        end
+        
+        if sysbool == 1
+            if nargin >= 8
+                [x,y,peaknames] = alphaparse(mic,inp,'Y',dat,coilnum,field);
+            elseif nargin >= 7
+                [x,y,peaknames] = alphaparse(mic,inp,'Y',dat,coilnum);
+            elseif nargin >= 6
+                [x,y,peaknames] = alphaparse(mic,inp,'Y',dat);
+            elseif nargin >= 5
+                [x,y,peaknames] = alphaparse(mic,[],'Y',dat);
+            elseif nargin >= 4
+                [x,y,peaknames] = alphaparse([],[],'Y',dat);
+            else
+                [x,y,peaknames] = alphaparse([],[],'Y');
+            end
+        elseif sysbool == 2
+            
+            if nargin < 4
+                dat = input('Enter the .dat file containing the Microwave Sweep data: ','s');
+            end
+            
+            datbool = isdatfile(dat);
+                
+            while datbool == 0
+                dat = input('Error: Please enter a valid .dat file','s');
+                datbool = isdatfile(dat);
+            end
+                
+            if datbool == 1
+                data = parsedat(dat);
+                x = data(:,1);
+                y = data(:,2);
+            end
+                
+        end
+        
+    end
+    
+    %% Establishing the Dimensions of the Outputted Arrays
+    % There should be one value each to negatively and positively polarise
+    % each species in a sample. The _val1_ and _val2_ arrays are intialised
+    % here with the proper dimensions.
+    
+    nums = length(peaknames);
+    val1 = zeros(nums,1);
+    val2 = zeros(nums,1);
+    
+    %% Generating the Microwave Sweep Plot
+    % The microwave sweep raw data is first plotted
+    % An eight term fourier function is then fit to the data, and it is
+    % solved over the domain of the frequencies.
+    % The absolute minimums and maxiumums of the fourier function are
+    % calculated, which are the values of _val2_ and val1_ respectively
+    % The fitted fourier function is then plotted over the data. If there
+    % are multiple data sets, they are plotted on top of each other in the
+    % same figure.
+    
+
+    figure('Position',[0 0 800 600]) 
+    
+    scatter(x,y(:,1),'filled')
+    xlim([min(x) max(x)])
+    ylim([(1.1*min(y(:))) (1.1*max(y(:)))])
+    hold on
+    
+    f = fit(x,y(:,1),'fourier8');
+    plot(f,'k')
+    
+    rangeint = (max(x)-min(x))/1000; 
+    range = min(x):rangeint:max(x);
+    yarray = f(range); 
+    
+    ymin = min(yarray); 
+    ymax = max(yarray);
+    
+    inl = yarray == ymin;
+    inh = yarray == ymax;
+    
+    val1(1) = range(inl);
+    val2(1) = range(inh);
+    
+    val1disp = num2str(val1(1));
+    val2disp = num2str(val2(1));
+    
+    vardisp = strcat('This sample species should be negatively polarised at', {' '}, val2disp, 'GHz or positively polarised at', {' '}, val1disp, 'GHz');
+    
+    leny = length(y(1,:));
+    
+    if leny > 1
+        
+        for el = 2:leny
+            
+            scatter(x,y(:,el),'filled')
+    
+            f = fit(x,y(:,el),'fourier8');
+            plot(f,'k')
+    
+            rangeint = (max(x)-min(x))/1000; 
+            range = min(x):rangeint:max(x);
+            yarray = f(range); 
+    
+            ymin = min(yarray); 
+            ymax = max(yarray);
+    
+            inl = yarray == ymin;
+            inh = yarray == ymax;
+    
+            val1(el) = range(inl);
+            val2(el) = range(inh);
+    
+            val1disp = num2str(val1(el));
+            val2disp = num2str(val2(el));
+    
+            vardisp = strcat('This sample species should be negatively polarised at', {' '}, val2disp, 'GHz or positively polarised at', {' '}, val1disp, 'GHz');
+            
+        end
+    end
+    
+    len = length(x); 
+    y1 = zeros(len,1);
+    plot(x,y1,'k')
+    grid on
+    grid minor
+    
+    if leny == 1
+        dim = [.13 0 .3 .17]; 
+        annotation('textbox',dim,'String',vardisp,'FitBoxToText','on');
+        hLeg = legend(vardisp);
+        set(hLeg,'visible','off')
+    end
+    
+    xlabel('Frequency /GHz')
+    ylabel('Signal Strength /Arbitrary Units')
+    
+    if nargin < 9
+        titl = 'Microwave Sweep';
+    elseif isempty(titl) == 1
+        titl = 'Microwave Sweep';
+    elseif string(class(titl)) ~= "char"
+        titl = 'Microwave Sweep'; 
+    end
+    
+    title(titl)
+    
+    if length(peaknames) > 1
+        
+        numlen = length(peaknames)*2;
+        legpeaks = cell(numlen,1);
+        
+        for el = 1:length(peaknames)
+            inda = el*2;
+            ind = inda-1;
+            legpeaks{ind} = peaknames{el};
+        end
+        
+        legend(legpeaks)
+        
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _x_: []
+%%
+% _y_: []
+%%
+% _sys_: 'N'
+%%
+% _dat_: '1Pyr_7_10_sweep.dat'
+%%
+% _mic_: []
+%%
+% _inp_: []
+%%
+% _coilnum_: []
+%%
+% _field_: []
+%%
+% _titl_: 'Microwave Sweep of ^{13}C 1-Pyruvate Using OX063 7/10/19'
+%%
+% The example was run by putting:
+%%
+% [f,val1,val2] = sweepscatter([],[],'N','1Pyr_7_10_sweep.dat',[],[],[],[],
+% 'Microwave Sweep of ^{13}C 1-Pyruvate Using OX063 7/10/19') 
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

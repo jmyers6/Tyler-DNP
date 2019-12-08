@@ -1,0 +1,554 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Fitting an Exponential to the Buildup of Polarisation</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-08"><meta name="DC.source" content="BuildupParamCalc.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Fitting an Exponential to the Buildup of Polarisation</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#5">Inputs</a></li><li><a href="#9">Alternative Inputs</a></li><li><a href="#18">Outputs</a></li><li><a href="#23">Child Functions</a></li><li><a href="#28">Verifying <i>x</i> and <i>y</i> Exist and are Valid</a></li><li><a href="#29">Generating <i>x</i> and <i>y</i> if Invalid or Non-Existent Inputs</a></li><li><a href="#30">Generating Arrays to Hold the Estimated Calculated Parameters</a></li><li><a href="#31">Iterating <i>Mmax</i> to Find the Best Estimated Fit</a></li><li><a href="#34">Calculating the Estimated Buildup Curve</a></li><li><a href="#35">Calculated the Parameters for the Buildup Curve</a></li><li><a href="#39">Notes</a></li></ul></div><p>When a sample is undergoing DNP, using:</p><p><img src="BuildupParamCalc_eq05054287844261885889.png" alt="$$ dMz = (Mmax-Mz)/T1 $$" style="width:129px;height:11px;"></p><p>signal strength can be modelled as a function of:</p><p><img src="BuildupParamCalc_eq14019099650623270123.png" alt="$$ Mmax+[M0-Mmax]exp(-t/T1) $$" style="width:174px;height:11px;"></p><h2 id="5">Inputs</h2><p><i>x</i>: is a column vector containing the times each measurement was taken</p><p><i>y</i>: is an array containing the signal strength at each time measured. Values for different peaks go in different columns</p><p><i>peaknames</i>: is a cell containing the names of each NMR peak measured</p><p><i>titl</i>: is the title of the scatter plot (character vector)</p><h2 id="9">Alternative Inputs</h2><p><i>sys</i>: is 'Y' if the data was collected using the Alpha System or 'N' if the data was collected using the Hypersense</p><p><i>dat</i>: depending on how the data was collected, <i>dat</i> is:</p><p>a cell containing the .txt output of AMARES (Alpha System)</p><p>a .csv output file using the custom integration output using counts and values comma delimited from MestReNova (Alpha System)</p><p>a .dat file outputted from using the Hypersense containing comma delimited data</p><p><i>proc</i>: is the procpar file, which is used to find the times measured (Alpha System only)</p><p><i>inp</i>: is 'A' if the data was processed with JMRUI AMARES or is 'M' if the data was processed using MestReNova (Alpha System only)</p><p><i>coilnum</i>: if the data was processed using MestReNova, it is the number of coils used to collect the data</p><p><i>field</i>: is a cell containing the names of the peaks from which data was collected if the data was processed using MestReNova</p><h2 id="18">Outputs</h2><p><i>T1</i>: is the longitudinal relaxation constant that describes buildup of the signal to its equilibrium in the hyperpolariser magnet</p><p><i>Mmax</i>: is the maxmimum signal strength achievable from the conditions used to hyperpolarise the sample</p><p><i>M0: is the signal strength at the start of the buildup. It is proportional to the polarisation of the sample at 1.5K rather than the polarisation achieved from the transfer of electron spin to the sample nuclei (_Mmax</i>)</p><p><i>CODs</i>: is a column vector containing the coefficients of determination describing how well the other calculated outputs fit the raw data, where the relationship is as follows:</p><p><img src="BuildupParamCalc_eq10382683205495919960.png" alt="$$ Signal = Mmax + (M0 - Mmax) \times exp(- \frac{t}{T1}) $$" style="width:230px;height:22px;"></p><h2 id="23">Child Functions</h2><p><i>checkYN</i>: checks if an input is 'Y', 'y', 'N', 'n' or something else</p><p><i>alphaparse</i>: parses data collected using the Alpha System and/or 300MHz Magnet into the <i>x</i> and <i>y</i> column vectors, so it can be analysed</p><p><i>isdatfile</i>: checks if an input is a readible file</p><p><i>parsedat</i>: parses data collected using the Hypersense into the <i>x</i> and <i>y</i> column vectors</p><pre class="codeinput"><span class="keyword">function</span> [T1,Mmax,M0,CODs,x,y] = BuildupParamCalc(x,y,sys,dat,proc,inp,coilnum,field)
+</pre><pre class="codeinput">    boolxy = 1;
+</pre><h2 id="28">Verifying <i>x</i> and <i>y</i> Exist and are Valid</h2><p><i>x</i> and <i>y</i> must both be populated arrays that contain the same number of rows</p><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 2
+        boolxy = 0;
+    <span class="keyword">elseif</span> isempty(x) == 1
+        boolxy = 0;
+    <span class="keyword">elseif</span> isempty(y) == 1
+        boolxy = 0;
+    <span class="keyword">elseif</span> length(x) ~= length(y)
+        boolxy = 0;
+    <span class="keyword">end</span>
+</pre><h2 id="29">Generating <i>x</i> and <i>y</i> if Invalid or Non-Existent Inputs</h2><p>Depending on the system the data was collected on, the outputted raw data will be in a different format. If the data was collected using the Alpha System, <i>alphaparse</i> is suited to process the data. Otherwise, if the data was collected using the Hypersense, <i>parsedat</i> is better suited to process the data.</p><pre class="codeinput">    <span class="keyword">if</span> boolxy == 0
+
+        prompt = <span class="string">'Was the data collected on the Alpha System (Y) or the Hypersense (N)? (Y/N): '</span>;
+
+        <span class="keyword">if</span> nargin &lt; 3
+            sys = input(prompt,<span class="string">'s'</span>);
+        <span class="keyword">end</span>
+
+        sysbool = checkYN(sys);
+
+        <span class="keyword">while</span> sysbool == 0
+            sys = input(<span class="string">'Please enter Y if the data was collected on the Alpha System or N if the data was collected on the Hypersense (Y/N): '</span>,<span class="string">'s'</span>);
+            sysbool = checkYN(sys);
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> sysbool == 1
+            <span class="keyword">if</span> nargin &gt;= 8
+                [x,y] = alphaparse([],inp,<span class="string">'N'</span>,dat,coilnum,field,proc);
+            <span class="keyword">elseif</span> nargin &gt;= 7
+                [x,y] = alphaparse([],inp,<span class="string">'N'</span>,dat,coilnum,[],proc);
+            <span class="keyword">elseif</span> nargin &gt;= 6
+                [x,y] = alphaparse([],inp,<span class="string">'N'</span>,dat,[],[],proc);
+            <span class="keyword">elseif</span> nargin &gt;= 7
+                [x,y] = alphaparse([],[],<span class="string">'N'</span>,dat,[],[],proc);
+            <span class="keyword">elseif</span> nargin &gt;= 6
+                [x,y] = alphaparse([],[],<span class="string">'N'</span>,dat,[],[]);
+            <span class="keyword">elseif</span> nargin &gt;= 5
+                [x,y] = alphaparse([],[],<span class="string">'N'</span>);
+            <span class="keyword">end</span>
+        <span class="keyword">elseif</span> sysbool == 2
+
+            <span class="keyword">if</span> nargin &lt; 4
+                dat = input(<span class="string">'Enter the .dat file containing the Buildup data: '</span>,<span class="string">'s'</span>);
+            <span class="keyword">end</span>
+
+            datbool = isdatfile(dat);
+
+            <span class="keyword">while</span> datbool == 0
+                dat = input(<span class="string">'Error: Please enter a valid .dat file'</span>,<span class="string">'s'</span>);
+                datbool = isdatfile(dat);
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span> datbool == 1
+                data = parsedat(dat);
+                x = data(:,1);
+                y = data(:,2);
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="30">Generating Arrays to Hold the Estimated Calculated Parameters</h2><p>Parameters are collected for each peak of data quantified from the raw buildup data. At this point, estimates are generated to be fed into the <i>lsqcurvefit</i> function</p><pre class="codeinput">    count = 1;
+
+    numpeak = length(y(1,:));
+
+    cod = zeros(1,numpeak);
+
+    eMmax = zeros(1,numpeak);
+    eM0 = zeros(1,numpeak);
+
+    mdl = cell(1,numpeak);
+
+    <span class="keyword">for</span> el = 1:numpeak
+        eMmax(el) = max(y(:,el))*1.01;
+    <span class="keyword">end</span>
+</pre><h2 id="31">Iterating <i>Mmax</i> to Find the Best Estimated Fit</h2><p>The raw data is linearised using:</p><p><img src="BuildupParamCalc_eq03806305458717358418.png" alt="$$ ln(Mmax-y) = -\frac{t}{T1} + ln(Mmax-M0) $$" style="width:207px;height:22px;"></p><p>The <i>fitlm</i> function is then used to calculate the gradient and intercept of the linearised data. <i>Mmax</i> is iterated 100 times to minimise the coefficient of determination</p><pre class="codeinput">    <span class="keyword">while</span> count &lt; 100
+
+        yada = eMmax-y;
+        yad = log(yada);
+
+        <span class="keyword">for</span> el = 1:numpeak
+
+            mdl{el} = fitlm(x,yad(:,el));
+
+            codd = mdl{el}.Rsquared.Adjusted;
+
+            <span class="keyword">if</span> codd &gt; cod
+                cod(el) = codd;
+                eMmax(el) = eMmax(el)*1.01;
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        count = count+1;
+
+    <span class="keyword">end</span>
+</pre><h2 id="34">Calculating the Estimated Buildup Curve</h2><p>From the linearised data, the estimated  <i>T1</i> is -1/gradient from the fit, while the estimated <i>M0</i> is <i>Mmax</i>-intercept</p><pre class="codeinput">    eT1s = zeros(numpeak,1);
+
+
+    <span class="keyword">for</span> el = 1:numpeak
+
+        T1ada = mdl{el}.Coefficients(2,1);
+        T1ad = table2array(T1ada);
+        eT1 = -1/T1ad;
+        eT1s(el) = eT1;
+
+        intada = mdl{el}.Coefficients(1,1);
+        intad = table2array(intada);
+        inta = exp(intad);
+        eM0(el) = eMmax(el)-inta;
+
+    <span class="keyword">end</span>
+</pre><h2 id="35">Calculated the Parameters for the Buildup Curve</h2><p>The estimated parameters are fed into <i>lsqcurvefit</i> to calcualte the buildup curve. The coefficient of determination is calculated using:</p><p><img src="BuildupParamCalc_eq13114948684301455241.png" alt="$$ Rsquared = 1 - \frac{SSres}{SStot} $$" style="width:113px;height:23px;"></p><p>where <i>SSres</i> is the squared sum of the residuals between the model and raw data and <i>SStot</i> is the sample variance of the signal strength raw data multiplied by the number of points measured minus 1</p><pre class="codeinput">    f = @(xn,x)xn(1)+((xn(2)-xn(1))*exp(-x/xn(3)));
+
+    Mmax = zeros(numpeak,1);
+    M0 = zeros(numpeak,1);
+    T1 = zeros(numpeak,1);
+    CODs = zeros(numpeak,1);
+
+    <span class="keyword">for</span> el = 1:numpeak
+        x0 = [eMmax(el) eM0(el) eT1s(el)];
+        lb = [0 0 0];
+        ub = [inf inf inf];
+        options = optimoptions(<span class="string">'lsqcurvefit'</span>, <span class="keyword">...</span>
+            <span class="string">'MaxFunctionEvaluations'</span>, 3000,<span class="string">'TolFun'</span>,1e-9);
+        [xn,~,residual] = lsqcurvefit(f,x0,x,y(:,el),lb,ub,options);
+        sqresidual = residual.*residual;
+        SSres = sum(sqresidual);
+        Variance = var(y(:,el));
+        nums = length(x);
+        SStot = (nums-1)*Variance;
+        CODs(el) = 1-(SSres/SStot);
+        Mmax(el) = xn(1);
+        M0(el) = xn(2);
+        T1(el) = xn(3);
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">
+Local minimum possible.
+
+lsqcurvefit stopped because the final change in the sum of squares relative to 
+its initial value is less than the value of the function tolerance.
+
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+T1 =
+
+   2.8290e+03
+
+
+Mmax =
+
+   7.3413e+03
+
+
+M0 =
+
+   3.4527e-09
+
+
+CODs =
+
+    0.9618
+
+
+x =
+
+         300
+         600
+         900
+        1200
+        1500
+        1800
+        2100
+        2400
+        2700
+        3000
+        3300
+        3600
+        3900
+        4200
+
+
+y =
+
+   1.0e+03 *
+
+    0.0051
+    0.6040
+    1.7244
+    2.6963
+    3.3472
+    3.7616
+    4.0765
+    4.2891
+    4.5378
+    4.7641
+    5.0509
+    5.2612
+    5.4195
+    5.5210
+
+</pre><h2 id="39">Notes</h2><p>The inputs used in the example are:</p><p><i>x</i>: []</p><p><i>y</i>: []</p><p><i>sys</i>: 'Y'</p><p><i>dat</i>: {'Buildup_1Pyr_28_11_19.txt'}</p><p><i>proc</i>: 'procpar28_11_19'</p><p><i>inp</i>: 'A'</p><p>The example was run by putting: [T1,Mmax,M0,CODs,x,y] = BuildupParamCalc([],[],'Y',{'Buildup_1Pyr_28_11_19.txt'},'procpar28_11_19','A')</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Fitting an Exponential to the Buildup of Polarisation
+%%
+% When a sample is undergoing DNP, using: 
+%%
+% $$ dMz = (Mmax-Mz)/T1 $$
+%%
+% signal strength can be modelled as a function of:
+%%
+% $$ Mmax+[M0-Mmax]exp(-t/T1) $$
+%% Inputs
+% _x_: is a column vector containing the times each measurement was taken
+%%
+% _y_: is an array containing the signal strength at each time measured.
+% Values for different peaks go in different columns
+%%
+% _peaknames_: is a cell containing the names of each NMR peak measured
+%%
+% _titl_: is the title of the scatter plot (character vector)
+%% Alternative Inputs
+% _sys_: is 'Y' if the data was collected using the Alpha System or 'N' if
+% the data was collected using the Hypersense
+%%
+% _dat_: depending on how the data was collected, _dat_ is:
+%%
+% a cell containing the .txt output of AMARES (Alpha System)
+%%
+% a .csv output file using the custom integration output using counts and
+% values comma delimited from MestReNova (Alpha System)
+%%
+% a .dat file outputted from using the Hypersense containing comma
+% delimited data
+%%
+% _proc_: is the procpar file, which is used to find the times measured
+% (Alpha System only)
+%%
+% _inp_: is 'A' if the data was processed with JMRUI AMARES or is 'M' if
+% the data was processed using MestReNova (Alpha System only)
+%%
+% _coilnum_: if the data was processed using MestReNova, it is the number
+% of coils used to collect the data
+%%
+% _field_: is a cell containing the names of the peaks from which data was
+% collected if the data was processed using MestReNova
+%% Outputs
+% _T1_: is the longitudinal relaxation constant that describes buildup of
+% the signal to its equilibrium in the hyperpolariser magnet
+%%
+% _Mmax_: is the maxmimum signal strength achievable from the conditions
+% used to hyperpolarise the sample
+%%
+% _M0: is the signal strength at the start of the buildup. It is
+% proportional to the polarisation of the sample at 1.5K rather than the
+% polarisation achieved from the transfer of electron spin to the sample
+% nuclei (_Mmax_)
+%%
+% _CODs_: is a column vector containing the coefficients of determination
+% describing how well the other calculated outputs fit the raw data, where
+% the relationship is as follows:
+%%
+% $$ Signal = Mmax + (M0 - Mmax) \times exp(- \frac{t}{T1}) $$
+%% Child Functions
+% _checkYN_: checks if an input is 'Y', 'y', 'N', 'n' or something else
+%%
+% _alphaparse_: parses data collected using the Alpha System and/or 300MHz 
+% Magnet into the _x_ and _y_ column vectors, so it can be analysed
+%%
+% _isdatfile_: checks if an input is a readible file
+%%
+% _parsedat_: parses data collected using the Hypersense into the _x_ and
+% _y_ column vectors
+
+function [T1,Mmax,M0,CODs,x,y] = BuildupParamCalc(x,y,sys,dat,proc,inp,coilnum,field)
+
+    boolxy = 1;
+    
+    %% Verifying _x_ and _y_ Exist and are Valid
+    % _x_ and _y_ must both be populated arrays that contain the same
+    % number of rows
+    
+    if nargin < 2
+        boolxy = 0;
+    elseif isempty(x) == 1
+        boolxy = 0;
+    elseif isempty(y) == 1
+        boolxy = 0;
+    elseif length(x) ~= length(y)
+        boolxy = 0;
+    end
+   
+    
+    %% Generating _x_ and _y_ if Invalid or Non-Existent Inputs
+    % Depending on the system the data was collected on, the outputted raw
+    % data will be in a different format. If the data was collected using
+    % the Alpha System, _alphaparse_ is suited to process the data.
+    % Otherwise, if the data was collected using the Hypersense, _parsedat_
+    % is better suited to process the data.
+    
+    if boolxy == 0
+        
+        prompt = 'Was the data collected on the Alpha System (Y) or the Hypersense (N)? (Y/N): ';
+        
+        if nargin < 3
+            sys = input(prompt,'s');
+        end
+        
+        sysbool = checkYN(sys);
+        
+        while sysbool == 0
+            sys = input('Please enter Y if the data was collected on the Alpha System or N if the data was collected on the Hypersense (Y/N): ','s');
+            sysbool = checkYN(sys);
+        end
+        
+        if sysbool == 1
+            if nargin >= 8
+                [x,y] = alphaparse([],inp,'N',dat,coilnum,field,proc);
+            elseif nargin >= 7
+                [x,y] = alphaparse([],inp,'N',dat,coilnum,[],proc);
+            elseif nargin >= 6
+                [x,y] = alphaparse([],inp,'N',dat,[],[],proc);
+            elseif nargin >= 7
+                [x,y] = alphaparse([],[],'N',dat,[],[],proc);
+            elseif nargin >= 6
+                [x,y] = alphaparse([],[],'N',dat,[],[]);
+            elseif nargin >= 5
+                [x,y] = alphaparse([],[],'N');
+            end
+        elseif sysbool == 2
+            
+            if nargin < 4
+                dat = input('Enter the .dat file containing the Buildup data: ','s');
+            end
+            
+            datbool = isdatfile(dat);
+                
+            while datbool == 0
+                dat = input('Error: Please enter a valid .dat file','s');
+                datbool = isdatfile(dat);
+            end
+                
+            if datbool == 1
+                data = parsedat(dat);
+                x = data(:,1);
+                y = data(:,2);
+            end
+            
+        end
+        
+    end
+    
+    %% Generating Arrays to Hold the Estimated Calculated Parameters
+    % Parameters are collected for each peak of data quantified from the
+    % raw buildup data. At this point, estimates are generated to be fed
+    % into the _lsqcurvefit_ function
+    
+    count = 1;
+    
+    numpeak = length(y(1,:));
+    
+    cod = zeros(1,numpeak);
+    
+    eMmax = zeros(1,numpeak);
+    eM0 = zeros(1,numpeak);
+    
+    mdl = cell(1,numpeak);
+    
+    for el = 1:numpeak
+        eMmax(el) = max(y(:,el))*1.01;
+    end
+    
+    %% Iterating _Mmax_ to Find the Best Estimated Fit
+    % The raw data is linearised using:
+    %%
+    % $$ ln(Mmax-y) = -\frac{t}{T1} + ln(Mmax-M0) $$
+    %%
+    % The _fitlm_ function is then used to calculate the gradient and
+    % intercept of the linearised data. _Mmax_ is iterated 100 times to 
+    % minimise the coefficient of determination
+    
+    while count < 100
+        
+        yada = eMmax-y;
+        yad = log(yada);
+        
+        for el = 1:numpeak
+        
+            mdl{el} = fitlm(x,yad(:,el));
+        
+            codd = mdl{el}.Rsquared.Adjusted;
+        
+            if codd > cod
+                cod(el) = codd;
+                eMmax(el) = eMmax(el)*1.01;
+            end
+            
+        end
+        
+        count = count+1;
+        
+    end
+    
+    %% Calculating the Estimated Buildup Curve
+    % From the linearised data, the estimated  _T1_ is -1/gradient from 
+    % the fit, while the estimated _M0_ is _Mmax_-intercept
+    
+    eT1s = zeros(numpeak,1);
+    
+    
+    for el = 1:numpeak
+    
+        T1ada = mdl{el}.Coefficients(2,1);
+        T1ad = table2array(T1ada);
+        eT1 = -1/T1ad;
+        eT1s(el) = eT1;
+    
+        intada = mdl{el}.Coefficients(1,1);
+        intad = table2array(intada);
+        inta = exp(intad);
+        eM0(el) = eMmax(el)-inta;
+        
+    end
+    
+    %% Calculated the Parameters for the Buildup Curve
+    % The estimated parameters are fed into _lsqcurvefit_ to calcualte the
+    % buildup curve. The coefficient of determination is calculated using: 
+    %%
+    % $$ Rsquared = 1 - \frac{SSres}{SStot} $$
+    %%
+    % where _SSres_ is the squared sum of the residuals between the model
+    % and raw data and _SStot_ is the sample variance of the signal 
+    % strength raw data multiplied by the number of points measured minus 1
+    
+    f = @(xn,x)xn(1)+((xn(2)-xn(1))*exp(-x/xn(3)));
+    
+    Mmax = zeros(numpeak,1);
+    M0 = zeros(numpeak,1);
+    T1 = zeros(numpeak,1);
+    CODs = zeros(numpeak,1);
+    
+    for el = 1:numpeak
+        x0 = [eMmax(el) eM0(el) eT1s(el)];
+        lb = [0 0 0];
+        ub = [inf inf inf];
+        options = optimoptions('lsqcurvefit', ...
+            'MaxFunctionEvaluations', 3000,'TolFun',1e-9);
+        [xn,~,residual] = lsqcurvefit(f,x0,x,y(:,el),lb,ub,options);
+        sqresidual = residual.*residual;
+        SSres = sum(sqresidual);
+        Variance = var(y(:,el));
+        nums = length(x);
+        SStot = (nums-1)*Variance;
+        CODs(el) = 1-(SSres/SStot);
+        Mmax(el) = xn(1);
+        M0(el) = xn(2);
+        T1(el) = xn(3);
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _x_: []
+%%
+% _y_: []
+%%
+% _sys_: 'Y'
+%%
+% _dat_: {'Buildup_1Pyr_28_11_19.txt'}
+%%
+% _proc_: 'procpar28_11_19'
+%%
+% _inp_: 'A'
+%%
+% The example was run by putting:
+% [T1,Mmax,M0,CODs,x,y] = BuildupParamCalc([],[],'Y',{'Buildup_1Pyr_28_11_19.txt'},'procpar28_11_19','A')
+%%
+% into the command window
+    
+                
+           
+##### SOURCE END #####
+--></body></html>
