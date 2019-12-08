@@ -1,0 +1,411 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Plotting Data Collected from the Alpha System and/or 300MHz Magnet</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-07"><meta name="DC.source" content="alphascatter.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Plotting Data Collected from the Alpha System and/or 300MHz Magnet</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#8">Alternative Inputs</a></li><li><a href="#14">Output</a></li><li><a href="#15">Child Functions</a></li><li><a href="#19">Verifying the Existence and Validity of <i>x</i> and <i>y</i></a></li><li><a href="#20">Generating <i>x</i> and <i>y</i> if Inputs have not been Entered or are Invalid</a></li><li><a href="#21">Selecting the Defaults for the X-Axis Label, Y-Axis Label and Title</a></li><li><a href="#22">Generating a Scatter Plot of the Data</a></li><li><a href="#24">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>x</i>: is a column vector containing the x-values of the plotted data</p><p><i>y</i>: is a column vector containing the y-values of the plotted data</p><p><i>peaknames</i>: is a cell containing the names of each plotted peak in each element</p><p><i>mbool</i>: is 'Y' if the data is from a microwave sweep, or 'N' otherwise</p><p><i>xlab</i>: is an alternative x-axis label (character vector) than the default</p><p><i>ylab</i>: is an alternative y-axis label (character vector) than the default</p><p><i>titl</i>: is an alternative title (character vector) than the default</p><h2 id="8">Alternative Inputs</h2><p><i>dat</i>: is a cell that contains the data file(s). If the data is from a microwave sweep processed using AMARES from JMRUI, the first set of data should correspond to positive amplitudes, while the second set should correspond to negative amplitudes. If the amplitudes were calculated from MestReNova, <i>dat</i> should be a character vector (file name)</p><p><i>inp</i>: should be set to either 'A' or 'M' depending on if the amplitudes of the data were calculated using the AMARES algorithm in JMRUI ('A') or peak integration in MestReNova ('M')</p><p><i>coilnum</i>: is the number of coils used to measure the data. This variable should always be set to '[]' unless <i>inp</i> has been set to 'M'.</p><p><i>field</i>: is a cell containing the names of the peaks quanitified from the data. It should always be set to '[]' unless <i>inp</i> has been set to 'M', since the AMARES algorithm names the peaks.</p><p><i>mic</i>: If the data is from a microwave sweep, <i>mic</i> can either be a .csv file containing the frequencies used in GHz or a column vector</p><p><i>proc</i>: is the procpar file associated with the data. If <i>mbool</i> is set to 'Y', <i>proc</i> is not necessary and can be set to '[]'.</p><h2 id="14">Output</h2><p>The function outputs a scatter plot of the raw data generated from the Alpha System and/or 300MHz Magnet</p><h2 id="15">Child Functions</h2><p><i>alphaparse</i>: parses the alternative inputs into the <i>x</i> and <i>y</i> arrays, which are plotted</p><p><i>checkYN</i>: checks if an input is 'Y', 'y', 'N', 'n' or something else</p><p><i>ischarvec</i>: checks if an input is a character vector</p><pre class="codeinput"><span class="keyword">function</span> alphascatter(x,y,peaknames,mbool,dat,inp,coilnum,field,mic,proc,xlab,ylab,titl)
+</pre><h2 id="19">Verifying the Existence and Validity of <i>x</i> and <i>y</i></h2><pre class="codeinput">    scatterbool = 0;
+
+    <span class="keyword">if</span> nargin &gt;= 2
+        <span class="keyword">if</span> isempty(x) == 0
+            <span class="keyword">if</span> isempty(y) == 0
+                <span class="keyword">if</span> string(class(x)) == <span class="string">"double"</span>
+                    <span class="keyword">if</span> string(class(y)) == <span class="string">"double"</span>
+                        <span class="keyword">if</span> length(x) == length(y)
+                            scatterbool = 1;
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2 id="20">Generating <i>x</i> and <i>y</i> if Inputs have not been Entered or are Invalid</h2><pre class="codeinput">    <span class="keyword">if</span> scatterbool == 0
+        <span class="keyword">if</span> nargin &gt;= 10
+            [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field,proc);
+        <span class="keyword">elseif</span> nargin &gt;= 9
+            [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field);
+        <span class="keyword">elseif</span> nargin &gt;= 8
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat,coilnum,field);
+        <span class="keyword">elseif</span> nargin &gt;= 7
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat,coilnum);
+        <span class="keyword">elseif</span> nargin &gt;= 6
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat);
+        <span class="keyword">elseif</span> nargin &gt;= 5
+            [x,y,peaknames] = alphaparse([],[],mbool,dat);
+        <span class="keyword">elseif</span> nargin &gt;= 4
+            [x,y,peaknames] = alphaparse([],[],mbool);
+        <span class="keyword">else</span>
+            [x,y,peaknames] = alphaparse;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2 id="21">Selecting the Defaults for the X-Axis Label, Y-Axis Label and Title</h2><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 4
+        bool = input(<span class="string">'Is the data from a microwave sweep? (Y/N): '</span>,<span class="string">'s'</span>);
+        mboolean = checkYN(bool);
+    <span class="keyword">elseif</span> isempty(mbool) == 1
+        bool = input(<span class="string">'Is the data from a microwave sweep? (Y/N): '</span>,<span class="string">'s'</span>);
+        mboolean = checkYN(bool);
+    <span class="keyword">elseif</span> checkYN(mbool) == 0
+        bool = input(<span class="string">'Is the data from a microwave sweep? (Y/N): '</span>,<span class="string">'s'</span>);
+        mboolean = checkYN(bool);
+    <span class="keyword">else</span>
+        mboolean = checkYN(mbool);
+    <span class="keyword">end</span>
+</pre><h2 id="22">Generating a Scatter Plot of the Data</h2><pre class="codeinput">    figure(<span class="string">'Position'</span>,[0 0 600 450])
+    scatter(x,y(:,1),<span class="string">'filled'</span>)
+
+    xlabbool = 0;
+    ylabbool = 0;
+    titlbool = 0;
+
+    <span class="keyword">if</span> nargin &gt;= 11
+        <span class="keyword">if</span> ischarvec(xlab) == 1
+            xlabbool = 1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin &gt;= 12
+        <span class="keyword">if</span> ischarvec(ylab) == 1
+            ylabbool = 1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin &gt;= 13
+        <span class="keyword">if</span> ischarvec(titl) == 1
+            titlbool = 1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> xlabbool == 0
+        <span class="keyword">if</span> mboolean == 1
+            xlab = <span class="string">'Frequency /GHz'</span>;
+        <span class="keyword">else</span>
+            xlab = <span class="string">'Time /s'</span>;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ylabbool == 0
+        ylab = <span class="string">'Signal Strength /Aribitrary Units'</span>;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> titlbool == 0
+        <span class="keyword">if</span> mboolean == 1
+            titl = <span class="string">'Signal Strength vs. Microwave Frequency'</span>;
+        <span class="keyword">else</span>
+            titl = <span class="string">'Signal Strength vs. Time'</span>;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    xlabel(xlab)
+    ylabel(ylab)
+
+    hold <span class="string">on</span>
+
+    numpeak = length(y(1,:));
+
+    <span class="keyword">if</span> numpeak &gt;= 2
+        <span class="keyword">for</span> el = 2:numpeak
+            scatter(x,y(:,el),<span class="string">'filled'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin &lt; 4
+        peaknames = [];
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> length(peaknames) &gt; 1
+        legend(peaknames)
+    <span class="keyword">end</span>
+
+    title(titl)
+</pre><img vspace="5" hspace="5" src="alphascatter_01.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="24">Notes</h2><p>The inputs used in the example are:</p><p><i>x</i>: []</p><p><i>y</i>: []</p><p>_peaknames: []</p><p><i>dat</i>: {'Microwave_Sweep_27_11_19_pos.txt', 'Microwave_Sweep_27_11_19_neg.txt'}</p><p><i>inp</i>: 'A'</p><p><i>coilnum</i>: []</p><p><i>field</i>: []</p><p><i>mbool</i>: 'Y'</p><p><i>mic</i>: 'micval27_11_19.csv'</p><p><i>proc</i>: []</p><p><i>xlab</i>: []</p><p><i>ylab</i>: []</p><p><i>titl</i>: 'Microwave Sweep of ^{13}C 1-Pyurvate using OX063 27/11/19'</p><p>The example was run by putting:</p><pre>alphascatter([],[],[],'Y',{'Microwave_Sweep_27_11_19_pos.txt',
+'Microwave_Sweep_27_11_19_neg.txt'},'A',[],[],'micval27_11_19.csv',[],[],
+[],'Microwave Sweep of ^{13}C 1-Pyurvate using OX063 27/11/19')</pre><p>into the command window.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Plotting Data Collected from the Alpha System and/or 300MHz Magnet
+%%
+%% Inputs
+% _x_: is a column vector containing the x-values of the plotted data
+%%
+% _y_: is a column vector containing the y-values of the plotted data
+%%
+% _peaknames_: is a cell containing the names of each plotted peak in each
+% element
+%%
+% _mbool_: is 'Y' if the data is from a microwave sweep, or 'N' otherwise
+%%
+% _xlab_: is an alternative x-axis label (character vector) than the
+% default
+%%
+% _ylab_: is an alternative y-axis label (character vector) than the
+% default
+%%
+% _titl_: is an alternative title (character vector) than the default
+%% Alternative Inputs
+% _dat_: is a cell that contains the data file(s). If the data is
+% from a microwave sweep processed using AMARES from JMRUI, the first set
+% of data should correspond to positive amplitudes, while the second set
+% should correspond to negative amplitudes. If the amplitudes were
+% calculated from MestReNova, _dat_ should be a character vector (file
+% name)
+%%
+% _inp_: should be set to either 'A' or 'M' depending on if the
+% amplitudes of the data were calculated using the AMARES algorithm in
+% JMRUI ('A') or peak integration in MestReNova ('M')
+%%
+% _coilnum_: is the number of coils used to measure the data.
+% This variable should always be set to '[]' unless _inp_ has been set to
+% 'M'.
+%%
+% _field_: is a cell containing the names of the peaks quanitified
+% from the data. It should always be set to '[]' unless _inp_ has been set
+% to 'M', since the AMARES algorithm names the peaks.
+%%
+% _mic_: If the data is from a microwave sweep, _mic_ can either be a .csv
+% file containing the frequencies used in GHz or a column vector
+%%
+% _proc_: is the procpar file associated with the data. If _mbool_
+% is set to 'Y', _proc_ is not necessary and can be set to '[]'.
+%% Output
+% The function outputs a scatter plot of the raw data generated from the
+% Alpha System and/or 300MHz Magnet
+%% Child Functions
+% _alphaparse_: parses the alternative inputs into the _x_ and _y_ arrays,
+% which are plotted
+%%
+% _checkYN_: checks if an input is 'Y', 'y', 'N', 'n' or something else
+%%
+% _ischarvec_: checks if an input is a character vector
+
+function alphascatter(x,y,peaknames,mbool,dat,inp,coilnum,field,mic,proc,xlab,ylab,titl)
+
+    %% Verifying the Existence and Validity of _x_ and _y_
+
+    scatterbool = 0;
+    
+    if nargin >= 2
+        if isempty(x) == 0
+            if isempty(y) == 0
+                if string(class(x)) == "double"
+                    if string(class(y)) == "double"
+                        if length(x) == length(y)
+                            scatterbool = 1;
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    %% Generating _x_ and _y_ if Inputs have not been Entered or are Invalid
+   
+    if scatterbool == 0
+        if nargin >= 10
+            [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field,proc);
+        elseif nargin >= 9
+            [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field);
+        elseif nargin >= 8
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat,coilnum,field);
+        elseif nargin >= 7
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat,coilnum);
+        elseif nargin >= 6
+            [x,y,peaknames] = alphaparse([],inp,mbool,dat);
+        elseif nargin >= 5
+            [x,y,peaknames] = alphaparse([],[],mbool,dat);
+        elseif nargin >= 4
+            [x,y,peaknames] = alphaparse([],[],mbool);
+        else
+            [x,y,peaknames] = alphaparse;
+        end
+    end
+    
+    %% Selecting the Defaults for the X-Axis Label, Y-Axis Label and Title
+    
+    if nargin < 4
+        bool = input('Is the data from a microwave sweep? (Y/N): ','s');
+        mboolean = checkYN(bool);
+    elseif isempty(mbool) == 1
+        bool = input('Is the data from a microwave sweep? (Y/N): ','s');
+        mboolean = checkYN(bool);
+    elseif checkYN(mbool) == 0
+        bool = input('Is the data from a microwave sweep? (Y/N): ','s');
+        mboolean = checkYN(bool);
+    else
+        mboolean = checkYN(mbool);
+    end
+    
+    %% Generating a Scatter Plot of the Data
+    
+    figure('Position',[0 0 600 450])
+    scatter(x,y(:,1),'filled')
+    
+    xlabbool = 0;
+    ylabbool = 0;
+    titlbool = 0;
+    
+    if nargin >= 11
+        if ischarvec(xlab) == 1
+            xlabbool = 1;
+        end
+    end
+    
+    if nargin >= 12
+        if ischarvec(ylab) == 1
+            ylabbool = 1;
+        end
+    end
+    
+    if nargin >= 13
+        if ischarvec(titl) == 1
+            titlbool = 1;
+        end
+    end
+        
+    if xlabbool == 0
+        if mboolean == 1
+            xlab = 'Frequency /GHz';
+        else
+            xlab = 'Time /s';
+        end
+    end
+    
+    if ylabbool == 0
+        ylab = 'Signal Strength /Aribitrary Units';
+    end
+    
+    if titlbool == 0
+        if mboolean == 1
+            titl = 'Signal Strength vs. Microwave Frequency';
+        else
+            titl = 'Signal Strength vs. Time';
+        end
+    end
+        
+    xlabel(xlab)
+    ylabel(ylab)
+        
+    hold on
+    
+    numpeak = length(y(1,:));
+    
+    if numpeak >= 2  
+        for el = 2:numpeak
+            scatter(x,y(:,el),'filled')
+        end
+    end
+    
+    if nargin < 4
+        peaknames = [];
+    end
+    
+    if length(peaknames) > 1   
+        legend(peaknames)
+    end
+        
+    title(titl)
+        
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _x_: []
+%%
+% _y_: []
+%%
+% _peaknames: []
+%%
+% _dat_: {'Microwave_Sweep_27_11_19_pos.txt',
+% 'Microwave_Sweep_27_11_19_neg.txt'}
+%%
+% _inp_: 'A'
+%%
+% _coilnum_: []
+%%
+% _field_: []
+%%
+% _mbool_: 'Y'
+%%
+% _mic_: 'micval27_11_19.csv'
+%%
+% _proc_: []
+%%
+% _xlab_: []
+%%
+% _ylab_: []
+%%
+% _titl_: 'Microwave Sweep of ^{13}C 1-Pyurvate using OX063 27/11/19'
+%%
+% The example was run by putting:
+%%
+%  alphascatter([],[],[],'Y',{'Microwave_Sweep_27_11_19_pos.txt',
+% 'Microwave_Sweep_27_11_19_neg.txt'},'A',[],[],'micval27_11_19.csv',[],[],
+% [],'Microwave Sweep of ^{13}C 1-Pyurvate using OX063 27/11/19')
+%%
+% into the command window.
+                
+##### SOURCE END #####
+--></body></html>

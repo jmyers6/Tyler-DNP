@@ -1,0 +1,351 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Generating a Scatter Plot from Comma Delimited Data</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-07"><meta name="DC.source" content="hyperscatter.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Generating a Scatter Plot from Comma Delimited Data</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#6">Outputs</a></li><li><a href="#8">Child Functions</a></li><li><a href="#12">Calling the User if There are Insufficient or Invalid Inputs</a></li><li><a href="#13">Parsing a File with Comma Delimited Data</a></li><li><a href="#14">Creating a Scatter Plot</a></li><li><a href="#16">Notes</a></li></ul></div><p>Generates a scatter plot from a .dat file (<i>dat</i> variable) (works for any comma delimited data) from Oxford Hypersense to show signal strength as a function of time</p><h2 id="2">Inputs</h2><p><i>dat</i>: is a file containing lines with comma delimited data</p><p><i>xlab</i>: is the x-axis label on the outputted scatter plot (character vector)</p><p><i>ylab</i>: is the y-axis label on the ouputted scatter plot (character vector)</p><p><i>titl</i>: is the title on the outputted scatter plot (character vector)</p><h2 id="6">Outputs</h2><p><i>x</i>: is a column vector containing the x-values of the plotted data</p><p><i>y</i>: is a column vector containing the y-values of the plotted data</p><h2 id="8">Child Functions</h2><p><i>isdatfil</i>: checks if an input is a readible file</p><p><i>parsedat</i>: parses files containing data that is comma delimited</p><p><i>ischarvec</i>: checks if an input is a character vector</p><pre class="codeinput"><span class="keyword">function</span> [x,y] = hyperscatter(dat,xlab,ylab,titl)
+</pre><h2 id="12">Calling the User if There are Insufficient or Invalid Inputs</h2><p>The function requires a file from which data will be plotted from, so it will call for user input if the input is invalid or not entered</p><pre class="codeinput">    trut = 1;
+
+    <span class="keyword">while</span> trut == 1
+
+        trut = 0;
+
+        <span class="keyword">if</span> nargin &lt; 1
+
+            prompt = <span class="string">'Enter a comma delimited data file to plot: '</span>;
+            dat = input(prompt,<span class="string">'s'</span>);
+
+            bool = isdatfile(dat);
+
+            <span class="keyword">if</span> bool == 0
+                trut = 1;
+            <span class="keyword">end</span>
+
+        <span class="keyword">elseif</span> isempty(dat) == 1
+
+            prompt = <span class="string">'Enter a comma delimited data file to plot: '</span>;
+            dat = input(prompt,<span class="string">'s'</span>);
+
+            bool = isdatfile(dat);
+
+            <span class="keyword">if</span> bool == 0
+                trut = 1;
+            <span class="keyword">end</span>
+
+        <span class="keyword">else</span>
+
+            bool = isdatfile(dat);
+
+            <span class="keyword">if</span> bool == 0
+
+                prompt = <span class="string">'Enter a valid comma delimited data file to plot: '</span>;
+                dat = input(prompt,<span class="string">'s'</span>);
+
+                booln = isdatfile(dat);
+
+                <span class="keyword">if</span> booln == 0
+                    trut = 1;
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="13">Parsing a File with Comma Delimited Data</h2><p><i>dat</i> is parsed using the <i>parsedat</i> function</p><pre class="codeinput">    data = parsedat(dat);
+    x = data(:,1);
+    y = data(:,2);
+</pre><h2 id="14">Creating a Scatter Plot</h2><p>Creates a scatter plot of the second column of data in the file vs. the first column. If valid values (character vectors) have been assigned to <i>xlab</i>, <i>ylab</i> and/or <i>titl</i>, they will appear on the plot as the x-axis label, y-axis label and title respectively.</p><pre class="codeinput">    <span class="keyword">if</span> nargin &gt;= 2
+        xlabbool = ischarvec(xlab);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin &gt;= 3
+        ylabbool = ischarvec(ylab);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin == 4
+        titlbool = ischarvec(titl);
+    <span class="keyword">end</span>
+
+    figure(<span class="string">'Position'</span>,[0 0 600 450])
+    scatter(x,y,<span class="string">'filled'</span>)
+
+    <span class="keyword">if</span> xlabbool == 1
+        xlabel(xlab)
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ylabbool == 1
+        ylabel(ylab)
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> titlbool == 1
+        title(titl)
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="hyperscatter_01.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+x =
+
+   93.9000
+   93.9050
+   93.9100
+   93.9150
+   93.9200
+   93.9250
+   93.9300
+   93.9350
+   93.9400
+   93.9450
+   93.9500
+   93.9550
+   93.9600
+   93.9650
+   93.9700
+   93.9750
+   93.9800
+   93.9850
+   93.9900
+   93.9950
+   94.0000
+   94.0050
+   94.0100
+   94.0150
+   94.0200
+
+
+y =
+
+   38.3715
+   52.1952
+   67.9495
+   84.8678
+   97.2640
+  106.0330
+  113.2150
+  113.7580
+  105.0550
+   97.8689
+   76.4604
+   62.7577
+   30.1231
+  -12.1400
+  -49.8548
+  -87.6549
+ -121.1570
+ -144.2630
+ -159.6080
+ -163.2270
+ -155.4340
+ -126.0610
+  -87.4791
+  -56.5965
+  -34.0178
+
+</pre><h2 id="16">Notes</h2><p>The inputs used in the example are:</p><p><i>dat</i>: '1Pyr_7_10_sweep.dat'</p><p><i>xlab</i>: 'Frequency /GHz'</p><p><i>ylab</i>: 'Signal Strength / Arbitrary Units'</p><p><i>titl</i>: 'Frequency Sweep of ^{13}C 1-Pyruvate 7/10/19'</p><p>The above example was run by putting:</p><p>[x,y] = hyperscatter('1Pyr_7_10_sweep.dat','Frequency /GHz','Signal Strength / Arbitrary Units', 'Frequency Sweep of ^{13}C 1-Pyruvate 7/10/19')</p><p>in the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Generating a Scatter Plot from Comma Delimited Data
+%%
+% Generates a scatter plot from a .dat file (_dat_ variable)
+% (works for any comma delimited data) from Oxford Hypersense to show 
+% signal strength as a function of time
+%% Inputs
+% _dat_: is a file containing lines with comma delimited data
+%%
+% _xlab_: is the x-axis label on the outputted scatter plot (character
+% vector)
+%%
+% _ylab_: is the y-axis label on the ouputted scatter plot (character
+% vector)
+%%
+% _titl_: is the title on the outputted scatter plot (character vector)
+%% Outputs
+% _x_: is a column vector containing the x-values of the plotted data
+%%
+% _y_: is a column vector containing the y-values of the plotted data
+%% Child Functions
+% _isdatfil_: checks if an input is a readible file
+%%
+% _parsedat_: parses files containing data that is comma delimited
+%%
+% _ischarvec_: checks if an input is a character vector
+
+function [x,y] = hyperscatter(dat,xlab,ylab,titl)
+
+    %% Calling the User if There are Insufficient or Invalid Inputs
+    % The function requires a file from which data will be plotted from, 
+    % so it will call for user input if the input is invalid or not entered
+    
+    trut = 1;
+    
+    while trut == 1
+        
+        trut = 0;
+    
+        if nargin < 1
+            
+            prompt = 'Enter a comma delimited data file to plot: ';
+            dat = input(prompt,'s');
+            
+            bool = isdatfile(dat);
+            
+            if bool == 0
+                trut = 1;
+            end
+    
+        elseif isempty(dat) == 1 
+            
+            prompt = 'Enter a comma delimited data file to plot: ';
+            dat = input(prompt,'s');
+            
+            bool = isdatfile(dat);
+            
+            if bool == 0
+                trut = 1;
+            end
+            
+        else
+            
+            bool = isdatfile(dat);
+            
+            if bool == 0
+                
+                prompt = 'Enter a valid comma delimited data file to plot: ';
+                dat = input(prompt,'s');
+                
+                booln = isdatfile(dat);
+                
+                if booln == 0
+                    trut = 1;
+                end
+                
+            end
+            
+        end
+        
+    end
+    
+    %% Parsing a File with Comma Delimited Data
+    % _dat_ is parsed using the _parsedat_ function
+    
+    data = parsedat(dat);
+    x = data(:,1); 
+    y = data(:,2);
+    
+    %% Creating a Scatter Plot
+    % Creates a scatter plot of the second column of data in the file vs. 
+    % the first column. If valid values (character vectors) have been
+    % assigned to _xlab_, _ylab_ and/or _titl_, they will appear on the 
+    % plot as the x-axis label, y-axis label and title respectively.
+        
+    if nargin >= 2
+        xlabbool = ischarvec(xlab);
+    end
+        
+    if nargin >= 3
+        ylabbool = ischarvec(ylab);
+    end
+        
+    if nargin == 4
+        titlbool = ischarvec(titl);
+    end
+        
+    figure('Position',[0 0 600 450])
+    scatter(x,y,'filled')
+        
+    if xlabbool == 1
+        xlabel(xlab)
+    end
+        
+    if ylabbool == 1
+        ylabel(ylab)
+    end
+        
+    if titlbool == 1
+        title(titl)
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _dat_: '1Pyr_7_10_sweep.dat'
+%%
+% _xlab_: 'Frequency /GHz'
+%%
+% _ylab_: 'Signal Strength / Arbitrary Units'
+%%
+% _titl_: 'Frequency Sweep of ^{13}C 1-Pyruvate 7/10/19'
+%%
+% The above example was run by putting:
+%%
+% [x,y] = hyperscatter('1Pyr_7_10_sweep.dat','Frequency /GHz','Signal 
+% Strength / Arbitrary Units',
+% 'Frequency Sweep of ^{13}C 1-Pyruvate 7/10/19')
+%%
+% in the command window
+
+##### SOURCE END #####
+--></body></html>
