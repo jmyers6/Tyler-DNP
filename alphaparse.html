@@ -1,0 +1,815 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Parsing Data Collected from the Alpha System and/or 300MHz Magnet</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="alphaparse.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Parsing Data Collected from the Alpha System and/or 300MHz Magnet</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#8">Outputs</a></li><li><a href="#11">Child Functions</a></li><li><a href="#24">Calling the User if There is Insufficient Information to Process the Files in <i>dat</i></a></li><li><a href="#26">Processing the Data into a Structure Array</a></li><li><a href="#28">Sorting Data Based on Peak into <i>y</i></a></li><li><a href="#32">Generating the <i>x-data</i></a></li><li><a href="#37">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>mic</i>: If the data is from a microwave sweep, <i>mic</i> can either be a .csv file containing the frequencies used in GHz or a column vector</p><p><i>inp</i>: should be set to either 'A' or 'M' depending on if the amplitudes of the data were calculated using the AMARES algorithm in JMRUI ('A') or peak integration in MestReNova ('M')</p><p><i>mbool</i>: should be set to 'Y' if the data is from a microwave sweep. Otherwise, it can be set to anything else.</p><p><i>dat</i>: is a cell that contains the data file(s). If the data is from a microwave sweep processed using AMARES from JMRUI, the first set of data should correspond to positive amplitudes, while the second set should correspond to negative amplitudes. If the amplitudes were calculated from MestReNova, <i>dat</i> should be a character vector (file name)</p><p><i>coilnum</i>: is the number of coils used to measure the data. This variable should always be set to '[]' unless <i>inp</i> has been set to 'M'.</p><p><i>field</i>: is a cell containing the names of the peaks quanitified from the data. It should always be set to '[]' unless <i>inp</i> has been set to 'M', since the AMARES algorithm names the peaks.</p><p><i>proc</i>: is the procpar file associated with the data. If <i>mbool</i> is set to 'Y', <i>proc</i> is not necessary and can be set to '[]'.</p><h2 id="8">Outputs</h2><p><i>x</i>: is a column vector containing the x-data.</p><p><i>y</i>: is a column vector containing the y-data.</p><p><i>peaknames</i>: _peaknames is a cell, where each element contains the name of one of the peaks from the data</p><h2 id="11">Child Functions</h2><p><i>checkinp</i>: checks if an input is 'A', 'a, 'M', 'm' or something else</p><p><i>checkYN</i>: checks if an input is 'Y', 'y', 'N', 'n' or something else</p><p><i>processAMARESSweep</i>: parses .txt AMARES outputs from a frequency sweep into structure arrays</p><p><i>isdatfile</i>: verifies an input is a readible file</p><p><i>processAMARES</i>: parses .txt AMARES outputs into a structure array</p><p><i>summestrenova</i>: parses the custom integral .csv output from MestReNova into a structure array</p><p><i>isint</i>: checks if an input is an integer</p><p><i>readmatrixrig</i>: is a more rigorous version of the readmatrix function that does not throw exceptions</p><p><i>ampsfromfitted</i>: parses the amplitudes from process raw data in a structure array into an array</p><p><i>timeFromProcpar</i>: creates an array of times where measurements were taken using the TR (repetition time(s)) from the procpar file for an NMR experiment</p><p><i>createColumnNum</i>: allows for manual entry of values to create a column vector</p><p><i>zeroToNaN</i>: converts all zeros within an array to NaN (Not a Number)</p><pre class="codeinput"><span class="keyword">function</span> [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field,proc)
+</pre><h2 id="24">Calling the User if There is Insufficient Information to Process the Files in <i>dat</i></h2><p>Depending on if the data came from AMARES or MestReNova, its type etc., it needs to processed differently to extract the y-data. If insufficient or invalid inputs have been entered, the user will be called to enter the information needed to correctly process the data.</p><pre class="codeinput">    inpbool = 0;
+
+    <span class="keyword">while</span> inpbool == 0
+
+        <span class="keyword">if</span> nargin &lt; 2
+
+            prompt = <span class="string">'Is the data the output .txt AMARES from JMRUI or the Integration from MestReNova? (A/M): '</span>;
+            inp = input(prompt,<span class="string">'s'</span>);
+
+            inpbool = checkinp(inp);
+
+        <span class="keyword">else</span>
+
+            inpbool = checkinp(inp);
+
+            <span class="keyword">if</span> inpbool == 0
+
+                prompt = <span class="string">'Is the data the output .txt AMARES from JMRUI or the Integration from MestReNova? (A/M): '</span>;
+                inp = input(prompt,<span class="string">'s'</span>);
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> inpbool == 1
+
+        mboolean = 0;
+
+        <span class="keyword">while</span> mboolean == 0
+
+            <span class="keyword">if</span> nargin &lt; 3
+
+                prompt1 = <span class="string">'Is this set of data from a microwave sweep? (Y/N): '</span>;
+                mbool = input(prompt1,<span class="string">'s'</span>);
+                mboolean = checkYN(mbool);
+
+            <span class="keyword">else</span>
+
+                mboolean = checkYN(mbool);
+
+                <span class="keyword">if</span> mboolean == 0
+                    prompt1 = <span class="string">'Is this set of data from a microwave sweep? (Y/N): '</span>;
+                    mbool = input(prompt1,<span class="string">'s'</span>);
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> mboolean == 1
+</pre><pre class="codeinput">            datbool = 0;
+
+            <span class="keyword">if</span> nargin &gt;= 4
+                <span class="keyword">if</span> string(class(dat)) == <span class="string">"cell"</span>
+                    <span class="keyword">if</span> length(dat) == 2
+                        <span class="keyword">if</span> isdatfile(dat{1}) == 1
+                            <span class="keyword">if</span> isdatfile(dat{2}) == 1
+                                datbool = 1;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+</pre><h2 id="26">Processing the Data into a Structure Array</h2><p>The files in <i>dat</i> are processed into a structure array allowing access to the y data using the <i>ampsfromfitted</i> function. How <i>dat</i> is processed depends on if the data is from a microwave sweep and whether AMARES or MestReNova was used to quantify the peaks in <i>dat</i>.</p><pre class="codeinput">            <span class="keyword">if</span> datbool == 1
+                [fitted,fittedneg] = processAMARESSweep(dat{1},dat{2});
+            <span class="keyword">else</span>
+                [fitted,fittedneg] = processAMARESSweep;
+            <span class="keyword">end</span>
+</pre><pre class="codeinput">        <span class="keyword">elseif</span> mboolean == 2
+
+            datbool = 0;
+
+            <span class="keyword">if</span> nargin &gt;= 4
+
+                <span class="keyword">if</span> string(class(dat)) == <span class="string">"cell"</span>
+
+                    lendat = length(dat);
+                    datval = 1;
+
+                    <span class="keyword">for</span> el = 1:lendat
+
+                        datboolh = isdatfile(dat{el});
+
+                        <span class="keyword">if</span> datboolh == 0
+                            datval = 0;
+                        <span class="keyword">end</span>
+
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> datval == 1
+                        datbool = 1;
+                    <span class="keyword">end</span>
+
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span> datbool == 1
+                fitted = processAMARES(dat);
+            <span class="keyword">else</span>
+                fitted = processAMARES;
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">elseif</span> inpbool == 2
+
+        mboolean = 2;
+
+        datbool = 0;
+        coilbool = 0;
+        fieldbool = 0;
+
+        <span class="keyword">if</span> nargin &gt;= 4
+            <span class="keyword">if</span> isdatfile(dat) == 1
+                datbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> nargin &gt;= 5
+            <span class="keyword">if</span> isint(coilnum) == 1
+                coilbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> nargin &gt;= 6
+            <span class="keyword">if</span> string(class(field)) == <span class="string">"cell"</span>
+                fieldbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> datbool == 1
+
+            <span class="keyword">if</span> coilbool == 1
+
+                <span class="keyword">if</span> fieldbool == 1
+                    fitted = summestrenova(dat,coilnum,field);
+                <span class="keyword">else</span>
+                    fitted = summestrenova(dat,coilnum);
+                <span class="keyword">end</span>
+
+            <span class="keyword">else</span>
+
+                <span class="keyword">if</span> fieldbool == 1
+                    fitted = summestrenova(dat,[],field);
+                <span class="keyword">else</span>
+                    fitted = summestrenova(dat);
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">else</span>
+
+            <span class="keyword">if</span> coilbool == 1
+
+                <span class="keyword">if</span> fieldbool == 1
+                    fitted = summestrenova([],coilnum,field);
+                <span class="keyword">else</span>
+                    fitted = summestrenova([],coilnum);
+                <span class="keyword">end</span>
+
+            <span class="keyword">else</span>
+
+                <span class="keyword">if</span> fieldbool == 1
+                    fitted = summestrenova([],[],field);
+                <span class="keyword">else</span>
+                    fitted = summestrenova;
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="28">Sorting Data Based on Peak into <i>y</i></h2><p>The data in the structure array is processed into <i>y-data</i> by:</p><p>Summing data from different coils in the case of AMARES data</p><p>Concatenating data corresponding to negative polarisation to data corresponding to positive polarisation and ensuring the signs of the amplitudes in the negative data is negative in the case of microwave sweep data processed by AMARES</p><pre class="codeinput">    [amps,peaknames,numpeak] = ampsfromfitted(fitted);
+    numchs = length(amps);
+
+    <span class="keyword">if</span> mboolean == 1
+        ampnega = ampsfromfitted(fittedneg);
+        ampneg = -1.*ampnega;
+        numchs = numchs+length(ampneg);
+    <span class="keyword">end</span>
+
+    y = zeros(numchs,numpeak);
+
+    <span class="keyword">if</span> mboolean == 1
+
+        <span class="keyword">for</span> el = 1:numpeak
+            aampn = ampsfromfitted(fitted,1,el);
+            aampnnega = ampsfromfitted(fittedneg,1,el);
+            aampnneg = -1.*aampnnega;
+            amps = [aampn;aampnneg];
+            y(:,el) = amps;
+        <span class="keyword">end</span>
+
+    <span class="keyword">else</span>
+</pre><h2 id="32">Generating the <i>x-data</i></h2><p>Depending on the type of the data, the <i>x-data</i> is generated by:</p><p>Summing the repetition times (TR) in experiments where time is the independent variable</p><p>In the case of microwave sweep data, the <i>x-data</i> is the frequencies sweeped, so it has to be imported from a .csv file or entered as set of frequencies in a column vector.</p><pre class="codeinput">        numamar = length(fitted);
+
+        procbool = 0;
+
+        <span class="keyword">if</span> nargin &gt;= 7
+            <span class="keyword">if</span> isdatfile(proc) == 1
+                procbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> procbool == 1
+            x = timeFromProcpar(proc,numchs);
+        <span class="keyword">else</span>
+            x = timeFromProcpar([],numchs);
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> el = 1:numpeak
+            <span class="keyword">for</span> ele = 1:numamar
+                aampn = ampsfromfitted(fitted,ele,el);
+                y(:,el) = y(:,el)+aampn;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> mboolean == 1
+
+        micbool = 1;
+
+        <span class="keyword">if</span> nargin &lt; 1
+            micbool = 0;
+        <span class="keyword">elseif</span> isdatfile(mic) ~= 1
+            micbool = 0;
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> string(class(mic)) == <span class="string">"double"</span>
+            <span class="keyword">if</span> length(mic) == numchs
+                micbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> micbool == 0
+
+            prompt = <span class="string">'Would you like to enter the x-data individually (Y) or in a .csv file (N)? (Y/N): '</span>;
+
+            xmboole = 0;
+
+            <span class="keyword">while</span> xmboole == 0
+                xmbool = input(prompt,<span class="string">'s'</span>);
+                xmboole = checkYN(xmbool);
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span> xmboole == 1
+                mic = createcolumnNum(numchs);
+            <span class="keyword">elseif</span> xmboole == 2
+                mic = readmatrixrig;
+            <span class="keyword">end</span>
+
+        <span class="keyword">else</span>
+
+            <span class="keyword">if</span> string(class(mic)) == <span class="string">"double"</span>
+                <span class="keyword">if</span> length(mic) ~= numchs
+                    mic = createcolumnNum(numchs);
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                mic = readmatrixrig(mic);
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        x = mic;
+
+    <span class="keyword">end</span>
+
+    y = zeroToNaN(y);
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+x =
+
+   93.9250
+   93.9300
+   93.9350
+   93.9400
+   93.9450
+   93.9500
+   93.9550
+   93.9600
+   93.9650
+   93.9700
+   93.9750
+   93.9800
+   93.9850
+   93.9900
+   93.9950
+   94.0000
+   94.0050
+   94.0100
+   94.0150
+   94.0200
+
+
+y =
+
+   1.0e+03 *
+
+    0.4679
+    0.8422
+    1.3320
+    1.9414
+    2.5693
+    3.2089
+    3.7608
+    3.9302
+    3.9132
+    3.5743
+    2.8656
+    2.1162
+    1.2109
+    0.1479
+   -1.0384
+   -2.1718
+   -3.1752
+   -3.9364
+   -4.4303
+   -1.6699
+
+
+peaknames =
+
+  1&times;1 cell array
+
+    {'PYRUVATE'}
+
+</pre><h2 id="37">Notes</h2><p>The inputs used in the example are:</p><p><i>mic</i>: 'micval27_11_19.csv'</p><p><i>inp</i>: 'A'</p><p><i>mbool</i>: 'Y'</p><p><i>dat</i>: {'Microwave_Sweep_27_11_19_pos.txt', 'Microwave_Sweep_27_11_19_neg.txt'}</p><p>The outputs in the example are:</p><p><i>x</i>: The microwave frequencies sweeped in GHz</p><p><i>y</i>: The amplitudes of the signal at each microwave frequency for each peak</p><p><i>peaknames</i>: The name of the peak quantified</p><p>The example was run by putting:</p><p>[x,y,peaknames] = alphaparse('micval27_11_19.csv','A','Y', {'Microwave_Sweep_27_11_19_pos.txt','Microwave_Sweep_27_11_19_neg.txt'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Parsing Data Collected from the Alpha System and/or 300MHz Magnet
+%%
+%% Inputs
+% _mic_: If the data is from a microwave sweep, _mic_ can either be a .csv
+% file containing the frequencies used in GHz or a column vector
+%%
+% _inp_: should be set to either 'A' or 'M' depending on if the
+% amplitudes of the data were calculated using the AMARES algorithm in
+% JMRUI ('A') or peak integration in MestReNova ('M')
+%%
+% _mbool_: should be set to 'Y' if the data is from a microwave
+% sweep. Otherwise, it can be set to anything else.
+%%
+% _dat_: is a cell that contains the data file(s). If the data is
+% from a microwave sweep processed using AMARES from JMRUI, the first set
+% of data should correspond to positive amplitudes, while the second set
+% should correspond to negative amplitudes. If the amplitudes were
+% calculated from MestReNova, _dat_ should be a character vector (file
+% name)
+%%
+% _coilnum_: is the number of coils used to measure the data.
+% This variable should always be set to '[]' unless _inp_ has been set to
+% 'M'.
+%%
+% _field_: is a cell containing the names of the peaks quanitified
+% from the data. It should always be set to '[]' unless _inp_ has been set
+% to 'M', since the AMARES algorithm names the peaks.
+%%
+% _proc_: is the procpar file associated with the data. If _mbool_
+% is set to 'Y', _proc_ is not necessary and can be set to '[]'.
+%% Outputs
+% _x_: is a column vector containing the x-data.
+%%
+% _y_: is a column vector containing the y-data.
+%%
+% _peaknames_: _peaknames is a cell, where each element contains the name of
+% one of the peaks from the data
+%% Child Functions
+% _checkinp_: checks if an input is 'A', 'a, 'M', 'm' or something else
+%%
+% _checkYN_: checks if an input is 'Y', 'y', 'N', 'n' or something else
+%%
+% _processAMARESSweep_: parses .txt AMARES outputs from a frequency sweep
+% into structure arrays
+%%
+% _isdatfile_: verifies an input is a readible file
+%%
+% _processAMARES_: parses .txt AMARES outputs into a structure array
+%%
+% _summestrenova_: parses the custom integral .csv output from MestReNova
+% into a structure array
+%%
+% _isint_: checks if an input is an integer
+%%
+% _readmatrixrig_: is a more rigorous version of the readmatrix function
+% that does not throw exceptions
+%%
+% _ampsfromfitted_: parses the amplitudes from process raw data in a
+% structure array into an array
+%%
+% _timeFromProcpar_: creates an array of times where measurements were
+% taken using the TR (repetition time(s)) from the procpar file for an NMR
+% experiment
+%%
+% _createColumnNum_: allows for manual entry of values to create a column
+% vector
+%%
+% _zeroToNaN_: converts all zeros within an array to NaN (Not a Number)
+
+function [x,y,peaknames] = alphaparse(mic,inp,mbool,dat,coilnum,field,proc)
+    
+    %% Calling the User if There is Insufficient Information to Process the Files in _dat_
+    % Depending on if the data came from AMARES or MestReNova, its type
+    % etc., it needs to processed differently to extract the y-data. If
+    % insufficient or invalid inputs have been entered, the user will be
+    % called to enter the information needed to correctly process the data.
+    
+    inpbool = 0;
+    
+    while inpbool == 0
+        
+        if nargin < 2
+            
+            prompt = 'Is the data the output .txt AMARES from JMRUI or the Integration from MestReNova? (A/M): ';
+            inp = input(prompt,'s');
+            
+            inpbool = checkinp(inp);
+            
+        else
+            
+            inpbool = checkinp(inp);
+            
+            if inpbool == 0
+                
+                prompt = 'Is the data the output .txt AMARES from JMRUI or the Integration from MestReNova? (A/M): ';
+                inp = input(prompt,'s');
+                
+            end
+            
+        end
+        
+    end
+    
+    if inpbool == 1
+        
+        mboolean = 0;
+        
+        while mboolean == 0
+            
+            if nargin < 3
+                
+                prompt1 = 'Is this set of data from a microwave sweep? (Y/N): ';
+                mbool = input(prompt1,'s');
+                mboolean = checkYN(mbool);
+                
+            else
+                
+                mboolean = checkYN(mbool);
+                
+                if mboolean == 0
+                    prompt1 = 'Is this set of data from a microwave sweep? (Y/N): ';
+                    mbool = input(prompt1,'s');
+                end
+                
+            end
+            
+        end
+        
+        if mboolean == 1
+            
+            datbool = 0;
+            
+            if nargin >= 4
+                if string(class(dat)) == "cell"
+                    if length(dat) == 2
+                        if isdatfile(dat{1}) == 1
+                            if isdatfile(dat{2}) == 1
+                                datbool = 1;
+                            end
+                        end
+                    end
+                end
+            end
+            
+            %% Processing the Data into a Structure Array
+            % The files in _dat_ are processed into a structure array 
+            % allowing access to the y data using the _ampsfromfitted_ 
+            % function. How _dat_ is processed depends on if the data is
+            % from a microwave sweep and whether AMARES or MestReNova was
+            % used to quantify the peaks in _dat_.
+            
+            if datbool == 1
+                [fitted,fittedneg] = processAMARESSweep(dat{1},dat{2});
+            else
+                [fitted,fittedneg] = processAMARESSweep;
+            end
+            
+        elseif mboolean == 2
+            
+            datbool = 0;
+            
+            if nargin >= 4
+                
+                if string(class(dat)) == "cell"
+                    
+                    lendat = length(dat);
+                    datval = 1;
+                    
+                    for el = 1:lendat
+                        
+                        datboolh = isdatfile(dat{el});
+                        
+                        if datboolh == 0
+                            datval = 0;
+                        end
+                        
+                    end
+                    
+                    if datval == 1
+                        datbool = 1;
+                    end
+                    
+                end
+                
+            end
+            
+            if datbool == 1
+                fitted = processAMARES(dat);
+            else
+                fitted = processAMARES;
+            end
+            
+        end
+        
+    elseif inpbool == 2
+        
+        mboolean = 2;
+        
+        datbool = 0;
+        coilbool = 0;
+        fieldbool = 0;
+        
+        if nargin >= 4
+            if isdatfile(dat) == 1
+                datbool = 1;
+            end
+        end
+        
+        if nargin >= 5
+            if isint(coilnum) == 1
+                coilbool = 1;
+            end
+        end
+        
+        if nargin >= 6
+            if string(class(field)) == "cell"
+                fieldbool = 1;
+            end
+        end
+        
+        if datbool == 1
+            
+            if coilbool == 1
+                
+                if fieldbool == 1
+                    fitted = summestrenova(dat,coilnum,field);
+                else
+                    fitted = summestrenova(dat,coilnum);
+                end
+                
+            else
+                
+                if fieldbool == 1
+                    fitted = summestrenova(dat,[],field);
+                else
+                    fitted = summestrenova(dat);
+                end
+                
+            end
+            
+        else
+            
+            if coilbool == 1
+                
+                if fieldbool == 1
+                    fitted = summestrenova([],coilnum,field);
+                else
+                    fitted = summestrenova([],coilnum);
+                end
+                
+            else
+                
+                if fieldbool == 1
+                    fitted = summestrenova([],[],field);
+                else
+                    fitted = summestrenova;
+                end
+                
+            end
+            
+        end
+        
+    end
+    
+    %% Sorting Data Based on Peak into _y_
+    % The data in the structure array is processed into _y-data_ by:
+    %%
+    % Summing data from different coils in the case of AMARES data
+    %%
+    % Concatenating data corresponding to negative polarisation to data
+    % corresponding to positive polarisation and ensuring the signs of the
+    % amplitudes in the negative data is negative in the case of microwave
+    % sweep data processed by AMARES
+    
+    [amps,peaknames,numpeak] = ampsfromfitted(fitted);
+    numchs = length(amps);
+    
+    if mboolean == 1
+        ampnega = ampsfromfitted(fittedneg);
+        ampneg = -1.*ampnega;
+        numchs = numchs+length(ampneg);  
+    end
+    
+    y = zeros(numchs,numpeak);
+    
+    if mboolean == 1
+    
+        for el = 1:numpeak
+            aampn = ampsfromfitted(fitted,1,el);
+            aampnnega = ampsfromfitted(fittedneg,1,el);
+            aampnneg = -1.*aampnnega;
+            amps = [aampn;aampnneg];
+            y(:,el) = amps;
+        end
+        
+    else
+        
+        %% Generating the _x-data_
+        % Depending on the type of the data, the _x-data_ is generated by:
+        %%
+        % Summing the repetition times (TR) in experiments where time is
+        % the independent variable
+        %%
+        % In the case of microwave sweep data, the _x-data_ is the
+        % frequencies sweeped, so it has to be imported from a .csv file 
+        % or entered as set of frequencies in a column vector.
+        
+        numamar = length(fitted);
+        
+        procbool = 0;
+        
+        if nargin >= 7
+            if isdatfile(proc) == 1
+                procbool = 1;
+            end
+        end
+        
+        if procbool == 1
+            x = timeFromProcpar(proc,numchs);
+        else
+            x = timeFromProcpar([],numchs);
+        end
+        
+        for el = 1:numpeak
+            for ele = 1:numamar 
+                aampn = ampsfromfitted(fitted,ele,el);
+                y(:,el) = y(:,el)+aampn;
+            end
+        end
+        
+    end
+    
+    if mboolean == 1
+        
+        micbool = 1;
+    
+        if nargin < 1
+            micbool = 0;
+        elseif isdatfile(mic) ~= 1
+            micbool = 0;
+        end
+        
+        if string(class(mic)) == "double"
+            if length(mic) == numchs
+                micbool = 1;
+            end
+        end
+        
+        if micbool == 0
+        
+            prompt = 'Would you like to enter the x-data individually (Y) or in a .csv file (N)? (Y/N): ';
+        
+            xmboole = 0;
+        
+            while xmboole == 0
+                xmbool = input(prompt,'s');
+                xmboole = checkYN(xmbool);
+            end
+        
+            if xmboole == 1
+                mic = createcolumnNum(numchs);
+            elseif xmboole == 2
+                mic = readmatrixrig;
+            end
+             
+        else
+            
+            if string(class(mic)) == "double"
+                if length(mic) ~= numchs
+                    mic = createcolumnNum(numchs);
+                end
+            else
+                mic = readmatrixrig(mic);
+            end
+                
+        end
+    
+        x = mic;
+    
+    end
+    
+    y = zeroToNaN(y);
+        
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _mic_: 'micval27_11_19.csv'
+%%
+% _inp_: 'A'
+%%
+% _mbool_: 'Y'
+%%
+% _dat_: {'Microwave_Sweep_27_11_19_pos.txt', 'Microwave_Sweep_27_11_19_neg.txt'}
+%%
+% The outputs in the example are:
+%%
+% _x_: The microwave frequencies sweeped in GHz
+%%
+% _y_: The amplitudes of the signal at each microwave frequency for each
+% peak
+%%
+% _peaknames_: The name of the peak quantified
+%%
+% The example was run by putting:
+%%
+% [x,y,peaknames] =
+% alphaparse('micval27_11_19.csv','A','Y',
+% {'Microwave_Sweep_27_11_19_pos.txt','Microwave_Sweep_27_11_19_neg.txt'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

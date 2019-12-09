@@ -1,0 +1,479 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>loadJmruiAmares</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="loadJmruiAmares.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Child Function</a></li><li><a href="#4">Import data</a></li><li><a href="#5">Read each line of the file in turn and process</a></li><li><a href="#7">Debug</a></li><li><a href="#8">Test whether this line is "numeric"</a></li><li><a href="#10">Numeric header</a></li><li><a href="#13">Peak names</a></li><li><a href="#16">Results block - waiting for name</a></li><li><a href="#19">Results block - reading in data values</a></li></ul></div><pre class="codeinput"><span class="comment">% loadJmruiAmares - Import jMRUI AMARES text output</span>
+<span class="comment">%</span>
+<span class="comment">% [output] = loadJmruiAmares(strFilename)</span>
+<span class="comment">%</span>
+<span class="comment">% OR:</span>
+<span class="comment">% [output] = loadJmruiAmares(strFilename,'jmrui4_crlb_fix')</span>
+<span class="comment">% which rescales the amplitude SDs to correct a bug in JMRUI4's AMARES</span>
+<span class="comment">% implementation.</span>
+<span class="comment">%</span>
+<span class="comment">% OR:</span>
+<span class="comment">% [output] = loadJmruiAmares(strFilename, 1)</span>
+<span class="comment">% for compatibility with version 1 output format.</span>
+<span class="comment">%</span>
+<span class="comment">% Import the AMARES results from jMRUI batch job output specified in</span>
+<span class="comment">% strFilename.</span>
+<span class="comment">%</span>
+<span class="comment">% Example:</span>
+<span class="comment">%</span>
+<span class="comment">% fitted = loadJmruiAmares('Decay_Dissolution_28_11_19_even.txt')</span>
+
+<span class="comment">% Copyright Chris Rodgers, University of Oxford, 2008-11.</span>
+<span class="comment">% $Id: loadJmruiAmares.m 7516 2014-03-17 13:34:08Z crodgers $</span>
+</pre><h2 id="2">Child Function</h2><p><i>strsplit_pja.m</i>: splits a string into pieces at every occurence of its input</p><pre class="codeinput"><span class="keyword">function</span> [output] = loadJmruiAmares(strFilename, nVersion)
+</pre><pre class="codeinput"><span class="comment">% Check input</span>
+error(nargchk(1, 2, nargin, <span class="string">'struct'</span>))
+
+<span class="keyword">if</span> ~ischar(strFilename)
+    error(<span class="string">'strFilename must be a string (not a %s).'</span>, class(strFilename))
+<span class="keyword">end</span>
+
+bFixJmrui4CrlbBug = false;
+<span class="keyword">if</span> nargin &lt; 2
+    nVersion = 2;
+<span class="keyword">elseif</span> ischar(nVersion)
+    <span class="keyword">if</span> strcmp(nVersion,<span class="string">'jmrui4_crlb_fix'</span>)
+        bFixJmrui4CrlbBug = true;
+        nVersion = 2;
+    <span class="keyword">else</span>
+        error(<span class="string">'Unknown format for nVersion.'</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2 id="4">Import data</h2><p>names = cell(voxelCount,1); amplitudes = zeros(voxelCount,1); frequencies = zeros(voxelCount,1);</p><pre class="codeinput">[fid, msg] = fopen(strFilename,<span class="string">'r'</span>);
+
+<span class="comment">% Skip this file if we can't open it</span>
+<span class="keyword">if</span> fid==-1
+    error(<span class="string">'Could not open data file %s (%s)!'</span>,strFilename,msg);
+<span class="keyword">end</span>
+</pre><h2 id="5">Read each line of the file in turn and process</h2><pre class="codeinput"><span class="comment">% Initialise output</span>
+output.headers = cell(0,2);
+output.data = cell(0,0);
+
+<span class="comment">% Initialise state of reader code</span>
+bState = 0;
+bRerunLine = 0;
+
+<span class="comment">% Main loop for reading file</span>
+<span class="keyword">while</span> 1
+</pre><pre class="codeinput">    <span class="keyword">if</span> bRerunLine
+        bRerunLine = 0;
+    <span class="keyword">else</span>
+        strLine = fgetl(fid);
+    <span class="keyword">end</span>
+</pre><h2 id="7">Debug</h2><pre>   fprintf('DBG: bState = %d, strLine = "%s"\n',bState,strLine)</pre><h2 id="8">Test whether this line is "numeric"</h2><pre class="codeinput">    <span class="keyword">if</span> bState == 0
+</pre><pre class="codeinput">        <span class="keyword">if</span> any(regexp(strLine,<span class="string">'^\s*Points'</span>, <span class="string">'once'</span>))
+            bState  = 1; <span class="comment">% Header done - into body now?</span>
+            tmpNumericHeaderNames = strsplit_pja(char(9),strLine);
+        <span class="keyword">else</span>
+            thisHeader = regexp(strLine,<span class="string">'^\s*([ A-Za-z0-9_,#-]*): (.*)$'</span>,<span class="string">'tokens'</span>);
+            <span class="keyword">if</span> numel(thisHeader)&gt;0
+                output.headers(end+1,:) = thisHeader{1};
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2 id="10">Numeric header</h2><pre class="codeinput">    <span class="keyword">elseif</span> bState == 1
+</pre><pre class="codeinput">        <span class="keyword">if</span> any(regexp(strLine,<span class="string">'^\s*[-0-9]'</span>, <span class="string">'once'</span>))
+            tmpNumericHeaderVals = str2double(strsplit_pja(char(9),strLine));
+
+            tmp(:,1) = tmpNumericHeaderNames;
+            tmp(:,2) = num2cell(tmpNumericHeaderVals);
+
+            output.headers = [ output.headers; tmp];
+
+        <span class="keyword">elseif</span> any(regexp(strLine,<span class="string">'^Name of Algorithm: AMARES$'</span>, <span class="string">'once'</span>))
+            bState = 2;
+        <span class="keyword">end</span>
+</pre><h2 id="13">Peak names</h2><pre class="codeinput">    <span class="keyword">elseif</span> bState == 2
+</pre><pre class="codeinput">        <span class="keyword">if</span> ~isempty(strLine)
+            <span class="comment">% There's an extra TAB on the end, chop it off</span>
+            <span class="keyword">if</span> strLine(end) == 9
+                strLine(end) = [];
+            <span class="keyword">end</span>
+
+            output.peakNames = strsplit_pja(char(9),strLine);
+
+            bState = 3;
+        <span class="keyword">end</span>
+</pre><h2 id="16">Results block - waiting for name</h2><pre class="codeinput">    <span class="keyword">elseif</span> bState == 3
+</pre><pre class="codeinput">        <span class="keyword">if</span> ~isempty(strLine)
+            tmpCurrBlockName = strLine;
+            tmpCurrBlockVals = [];
+            bState = 4;
+        <span class="keyword">end</span>
+</pre><h2 id="19">Results block - reading in data values</h2><pre class="codeinput">    <span class="keyword">elseif</span> bState == 4
+
+        <span class="comment">% If there's an extra TAB on the end, chop it off</span>
+        <span class="keyword">if</span> ~isempty(strLine) &amp;&amp; strLine(end) == 9
+            strLine(end) = [];
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> any(regexp(strLine,<span class="string">'^(\s*[-0-9&#65533;]|Not known)'</span>, <span class="string">'once'</span>))
+            tmpCurrBlockVals(end+1,:) = str2double(strsplit_pja(char(9),strLine)); <span class="comment">%#ok&lt;AGROW&gt;</span>
+        <span class="keyword">else</span>
+            <span class="comment">% Finished results block</span>
+            output.data(end+1).name = tmpCurrBlockName;
+            output.data(end).vals = tmpCurrBlockVals;
+
+            bRerunLine = 1;
+            bState = 3;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% Break the loop if EOF</span>
+    <span class="keyword">if</span> feof(fid)
+        <span class="keyword">break</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+<span class="comment">% All done - close and return results</span>
+fclose(fid);
+
+<span class="comment">% If version 2, return data sorted both by line and by peak.</span>
+<span class="keyword">if</span> nVersion == 2
+    output.dataByPeak = orderByPeak(output);
+    output.dataByLine = output.data;
+
+    <span class="comment">% Store the "global" data: noise level, [Mg], etc.</span>
+    output.dataGlobal = struct();
+
+    noiseDx = find(strcmp({output.dataByLine.name},<span class="string">'Noise : '</span>),1,<span class="string">'first'</span>);
+    <span class="keyword">if</span> ~isempty(noiseDx)
+        output.dataGlobal.noise = output.data(noiseDx).vals;
+    <span class="keyword">end</span>
+
+    phMgDx = find(strcmp({output.dataByLine.name},<span class="string">'pH	Standard deviation of pH	[Mg2+]	Standard deviation of [Mg2+]'</span>),1,<span class="string">'first'</span>);
+    <span class="keyword">if</span> ~isempty(phMgDx)
+        output.dataGlobal.pH = output.data(phMgDx).vals(:,1);
+        output.dataGlobal.pH_SD = output.data(phMgDx).vals(:,2);
+        output.dataGlobal.Mg = output.data(phMgDx).vals(:,3);
+        output.dataGlobal.Mg_SD = output.data(phMgDx).vals(:,4);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Remove duplicate .data from output. (It's now called .dataByLine instead.)</span>
+    output = rmfield(output,<span class="string">'data'</span>);
+
+    <span class="comment">% Rescale amplitude CRLBs if requested</span>
+    output.dataGlobal.bFixJmrui4CrlbBug = bFixJmrui4CrlbBug;
+    <span class="keyword">if</span> bFixJmrui4CrlbBug
+        fn = fieldnames(output.dataByPeak);
+        <span class="keyword">for</span> fnDx = 1:numel(fn)
+            output.dataByPeak.(fn{fnDx}).Standard_deviation_of_Amplitudes = <span class="keyword">...</span>
+                output.dataByPeak.(fn{fnDx}).Standard_deviation_of_Amplitudes <span class="keyword">...</span>
+                ./ output.dataGlobal.noise;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+<span class="keyword">function</span> [x] = orderByPeak(data)
+    <span class="comment">% Sort the returned information by peak name</span>
+    thePeakNames = regexprep(regexprep(data.peakNames,<span class="string">'[^A-Za-z0-9]'</span>,<span class="string">'_'</span>),<span class="string">'^([^A-Za-z])'</span>,<span class="string">'x$1'</span>);
+    theResTypes = regexprep(regexprep({data.data.name},<span class="string">' *([\[\(].*[\]\)]|: *)$'</span>,<span class="string">''</span>),<span class="string">'[^A-Za-z0-9]'</span>,<span class="string">'_'</span>);
+
+    <span class="comment">% Avoid loading the "global" data because it is of a different</span>
+    <span class="comment">% dimension. It's picked up in the calling code instead.</span>
+    <span class="comment">% N.B. We have to specify the exist names now because Matlab AMARES</span>
+    <span class="comment">% output doesn't have any "global" data so we can no longer simply skip</span>
+    <span class="comment">% the final 2 fields.</span>
+    theResTypes(cellfun(@(x) ~isempty(x),regexp(theResTypes,<span class="string">'^(Noise|pH|CSI_Shift_vector|FIDs_hash)'</span>,<span class="string">'once'</span>))) = [];
+
+    <span class="keyword">for</span> resdx=1:numel(theResTypes)
+        <span class="keyword">for</span> peakdx=1:numel(data.peakNames)
+            x.( thePeakNames{peakdx} ).( theResTypes{resdx} ) = data.data(resdx).vals(:,peakdx);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+fitted = 
+
+  struct with fields:
+
+       headers: {12&times;2 cell}
+     peakNames: {'PYRUVATE'  'PYRUVATE_HYDRATE'}
+    dataByPeak: [1&times;1 struct]
+    dataByLine: [1&times;10 struct]
+    dataGlobal: [1&times;1 struct]
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% loadJmruiAmares - Import jMRUI AMARES text output
+%
+% [output] = loadJmruiAmares(strFilename)
+%
+% OR:
+% [output] = loadJmruiAmares(strFilename,'jmrui4_crlb_fix')
+% which rescales the amplitude SDs to correct a bug in JMRUI4's AMARES
+% implementation.
+% 
+% OR:
+% [output] = loadJmruiAmares(strFilename, 1)
+% for compatibility with version 1 output format.
+%
+% Import the AMARES results from jMRUI batch job output specified in
+% strFilename.
+%
+% Example:
+%
+% fitted = loadJmruiAmares('Decay_Dissolution_28_11_19_even.txt')
+
+% Copyright Chris Rodgers, University of Oxford, 2008-11.
+% $Id: loadJmruiAmares.m 7516 2014-03-17 13:34:08Z crodgers $
+%% Child Function
+% _strsplit_pja.m_: splits a string into pieces at every occurence of its
+% input
+
+function [output] = loadJmruiAmares(strFilename, nVersion)
+
+% Check input
+error(nargchk(1, 2, nargin, 'struct'))
+
+if ~ischar(strFilename)
+    error('strFilename must be a string (not a %s).', class(strFilename))
+end
+
+bFixJmrui4CrlbBug = false;
+if nargin < 2
+    nVersion = 2;
+elseif ischar(nVersion)
+    if strcmp(nVersion,'jmrui4_crlb_fix')
+        bFixJmrui4CrlbBug = true;
+        nVersion = 2;
+    else
+        error('Unknown format for nVersion.')
+    end
+end
+
+%% Import data
+% names = cell(voxelCount,1);
+% amplitudes = zeros(voxelCount,1);
+% frequencies = zeros(voxelCount,1);
+
+[fid, msg] = fopen(strFilename,'r');
+
+% Skip this file if we can't open it
+if fid==-1
+    error('Could not open data file %s (%s)!',strFilename,msg);
+end
+
+%% Read each line of the file in turn and process
+
+% Initialise output
+output.headers = cell(0,2);
+output.data = cell(0,0);
+
+% Initialise state of reader code
+bState = 0;
+bRerunLine = 0;
+
+% Main loop for reading file
+while 1
+    if bRerunLine
+        bRerunLine = 0;
+    else
+        strLine = fgetl(fid);
+    end
+    
+    %% Debug
+%     fprintf('DBG: bState = %d, strLine = "%s"\n',bState,strLine)
+    
+    %% Test whether this line is "numeric"
+    if bState == 0
+        if any(regexp(strLine,'^\s*Points', 'once'))
+            bState  = 1; % Header done - into body now?
+            tmpNumericHeaderNames = strsplit_pja(char(9),strLine);
+        else
+            thisHeader = regexp(strLine,'^\s*([ A-Za-z0-9_,#-]*): (.*)$','tokens');
+            if numel(thisHeader)>0
+                output.headers(end+1,:) = thisHeader{1};
+            end
+        end
+        
+    %% Numeric header
+    elseif bState == 1
+        if any(regexp(strLine,'^\s*[-0-9]', 'once'))
+            tmpNumericHeaderVals = str2double(strsplit_pja(char(9),strLine));
+            
+            tmp(:,1) = tmpNumericHeaderNames;
+            tmp(:,2) = num2cell(tmpNumericHeaderVals);
+            
+            output.headers = [ output.headers; tmp];
+            
+        elseif any(regexp(strLine,'^Name of Algorithm: AMARES$', 'once'))
+            bState = 2;
+        end
+        
+    %% Peak names
+    elseif bState == 2
+        if ~isempty(strLine)
+            % There's an extra TAB on the end, chop it off
+            if strLine(end) == 9
+                strLine(end) = [];
+            end
+            
+            output.peakNames = strsplit_pja(char(9),strLine);
+            
+            bState = 3;
+        end
+        
+    %% Results block - waiting for name
+    elseif bState == 3
+        
+        if ~isempty(strLine)
+            tmpCurrBlockName = strLine;
+            tmpCurrBlockVals = [];
+            bState = 4;
+        end
+        
+    %% Results block - reading in data values
+    elseif bState == 4
+        
+        % If there's an extra TAB on the end, chop it off
+        if ~isempty(strLine) && strLine(end) == 9
+            strLine(end) = [];
+        end
+        
+        if any(regexp(strLine,'^(\s*[-0-9�]|Not known)', 'once'))
+            tmpCurrBlockVals(end+1,:) = str2double(strsplit_pja(char(9),strLine)); %#ok<AGROW>
+        else
+            % Finished results block
+            output.data(end+1).name = tmpCurrBlockName;
+            output.data(end).vals = tmpCurrBlockVals;
+            
+            bRerunLine = 1;
+            bState = 3;
+        end
+    end
+    
+    % Break the loop if EOF
+    if feof(fid)
+        break
+    end
+end
+
+% All done - close and return results
+fclose(fid);
+
+% If version 2, return data sorted both by line and by peak.
+if nVersion == 2
+    output.dataByPeak = orderByPeak(output);
+    output.dataByLine = output.data;
+    
+    % Store the "global" data: noise level, [Mg], etc.
+    output.dataGlobal = struct();
+    
+    noiseDx = find(strcmp({output.dataByLine.name},'Noise : '),1,'first');
+    if ~isempty(noiseDx)
+        output.dataGlobal.noise = output.data(noiseDx).vals;
+    end
+    
+    phMgDx = find(strcmp({output.dataByLine.name},'pH	Standard deviation of pH	[Mg2+]	Standard deviation of [Mg2+]'),1,'first');
+    if ~isempty(phMgDx)
+        output.dataGlobal.pH = output.data(phMgDx).vals(:,1);
+        output.dataGlobal.pH_SD = output.data(phMgDx).vals(:,2);
+        output.dataGlobal.Mg = output.data(phMgDx).vals(:,3);
+        output.dataGlobal.Mg_SD = output.data(phMgDx).vals(:,4);
+    end
+    
+    % Remove duplicate .data from output. (It's now called .dataByLine instead.)
+    output = rmfield(output,'data');
+    
+    % Rescale amplitude CRLBs if requested
+    output.dataGlobal.bFixJmrui4CrlbBug = bFixJmrui4CrlbBug;
+    if bFixJmrui4CrlbBug
+        fn = fieldnames(output.dataByPeak);
+        for fnDx = 1:numel(fn)
+            output.dataByPeak.(fn{fnDx}).Standard_deviation_of_Amplitudes = ...
+                output.dataByPeak.(fn{fnDx}).Standard_deviation_of_Amplitudes ...
+                ./ output.dataGlobal.noise;
+        end
+    end
+end
+end
+
+function [x] = orderByPeak(data)
+    % Sort the returned information by peak name
+    thePeakNames = regexprep(regexprep(data.peakNames,'[^A-Za-z0-9]','_'),'^([^A-Za-z])','x$1');
+    theResTypes = regexprep(regexprep({data.data.name},' *([\[\(].*[\]\)]|: *)$',''),'[^A-Za-z0-9]','_');
+
+    % Avoid loading the "global" data because it is of a different
+    % dimension. It's picked up in the calling code instead.
+    % N.B. We have to specify the exist names now because Matlab AMARES
+    % output doesn't have any "global" data so we can no longer simply skip
+    % the final 2 fields.
+    theResTypes(cellfun(@(x) ~isempty(x),regexp(theResTypes,'^(Noise|pH|CSI_Shift_vector|FIDs_hash)','once'))) = [];
+    
+    for resdx=1:numel(theResTypes)
+        for peakdx=1:numel(data.peakNames)
+            x.( thePeakNames{peakdx} ).( theResTypes{resdx} ) = data.data(resdx).vals(:,peakdx);
+        end
+    end
+end
+##### SOURCE END #####
+--></body></html>

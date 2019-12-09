@@ -1,0 +1,360 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Determining the Amplitudes of a Peak from an AMARES Output</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="ampsfromfitted.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Determining the Amplitudes of a Peak from an AMARES Output</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#5">Outputs</a></li><li><a href="#8">Child Functions</a></li><li><a href="#12">Verifying if <i>fitted</i> is Valid</a></li><li><a href="#13">Generating <i>fitted</i> if Invalid or Insufficient Input</a></li><li><a href="#14">Setting the File and Peak to Draw Amplitudes from</a></li><li><a href="#15">Notifying the User if <i>numar</i> and/or <i>peaknum</i> Inputs are Invalid</a></li><li><a href="#17">Notes</a></li></ul></div><p>The output of processAMARES, loadJmruiAmares, processAMARESSweep and summestrenova is a structure array that separates data by peak. In the case of the first function, the structure array has dimensions corresponding to how many AMARES .txt output files were used to construct it. The ampsfromfitted function allows for pulling out the amplitudes from a specific AMARES output file and from a specific peak in the <i>fitted</i> structure array.</p><h2 id="2">Inputs</h2><p><i>fitted</i>: is the structure array output of one of the following functions: loadJmruiAmares, processAMARES, processAMARESSweep or summestrenova</p><p><i>numar</i>: is the index of the AMARES file to extract the amplitudes from</p><p><i>peaknum</i>: is the index of the peak from which to extract the amplitudes from</p><h2 id="5">Outputs</h2><p><i>amps</i>: is a column vector of the amplitudes from an AMARES file and peak of interest</p><p><i>peaknames</i>: are the names of the peaks in the <i>fitted</i> structure array inside a cell</p><p><i>numpeak</i>: is the number of peaks inside the <i>fitted</i> structure array</p><h2 id="8">Child Functions</h2><p><i>isint</i>: checks if in input is an integer</p><p><i>processAMARES</i>: parses multiple .txt outputs from AMARES in JMRUI into a structure array</p><p><i>summestrenova</i>: parses a .csv custom integration file from MestReNova into a structure array</p><pre class="codeinput"><span class="keyword">function</span> [amps,peaknames,numpeak] = ampsfromfitted(fitted,numar,peaknum)
+</pre><h2 id="12">Verifying if <i>fitted</i> is Valid</h2><p>If no <i>fitted</i> input is given or the <i>fitted</i> input is not a structure array, <i>fitted</i> must be generated. Likewise, if <i>fitted</i> is a structure array but does not have the correct format, <i>fitted</i> must be generated.</p><pre class="codeinput">    fittedbool = 1;
+
+    <span class="keyword">if</span> nargin &lt; 1
+        fittedbool = 0;
+    <span class="keyword">elseif</span> string(class(fitted)) ~= <span class="string">"struct"</span>
+        fittedbool = 0;
+    <span class="keyword">elseif</span> string(class(fitted)) == <span class="string">"struct"</span>
+        <span class="keyword">try</span>
+            peakst = fitted(1).dataByPeak;
+            peaksct = struct2cell(peakst);
+            ampst = peaksct{1}.Amplitudes;
+        <span class="keyword">catch</span>
+            fittedbool = 0;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2 id="13">Generating <i>fitted</i> if Invalid or Insufficient Input</h2><p>If no <i>fitted</i> input was given, or if <i>fitted</i> is not valid, either processAMARES or summestrenova is run to generate <i>fitted</i>.</p><pre class="codeinput">    <span class="keyword">if</span> fittedbool == 0
+
+        prompt = <span class="string">'Is the data from an AMARES output or a MestReNova integration output? (A/M): '</span>;
+        inp = input(prompt,<span class="string">'s'</span>);
+        inpbool = 0;
+
+        <span class="keyword">while</span> inpbool == 0
+
+            inpbool = checkinp(inp);
+
+            <span class="keyword">if</span> inpbool == 0
+                inp = input(prompt,<span class="string">'s'</span>);
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> inpbool == 1
+            fitted = processAMARES;
+        <span class="keyword">elseif</span> inpbool == 2
+            fitted = summestrenova;
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    numara = length(fitted);
+</pre><h2 id="14">Setting the File and Peak to Draw Amplitudes from</h2><p>If no AMARES file and/or if no peak is specified, the outputted amplitudes will be from the first AMARES file and the first peak in <i>fitted</i></p><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 2
+        numar = 0;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> nargin &lt; 3
+        peaknum = 1;
+    <span class="keyword">end</span>
+</pre><h2 id="15">Notifying the User if <i>numar</i> and/or <i>peaknum</i> Inputs are Invalid</h2><p>If <i>numar</i> or <i>peaknum</i> are outside of the size of <i>fitted</i>, the default amplitudes will be outputted and a message displayed notifying the user of this.</p><pre class="codeinput">    <span class="keyword">if</span> isint(numar) ~= 1
+        numar = 0;
+    <span class="keyword">elseif</span> numar &gt; numara
+        numar = 0;
+        disp(<span class="string">'Requested set of amplitudes does not exist; the first set of amplitudes for the requested peak have been given instead'</span>)
+    <span class="keyword">end</span>
+
+    amps = 0;
+
+    peaks = fitted(1).dataByPeak;
+    peaknames = fieldnames(peaks);
+    peaksc = struct2cell(peaks);
+    numpeak = length(peaksc);
+
+    <span class="keyword">if</span> isint(peaknum) ~= 1
+        peaknum = 1;
+    <span class="keyword">elseif</span> peaknum &gt; numpeak
+        peaknum = 1;
+        disp(<span class="string">'Requested peak does not exist; the amplitudes for the first peak have been given instead'</span>)
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> numar == 0
+        <span class="keyword">for</span> el = 1:numara
+            peaks = fitted(el).dataByPeak;
+            peaksc = struct2cell(peaks);
+            ampsn = peaksc{peaknum}.Amplitudes;
+            amps = amps+ampsn;
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        peaks = fitted(numar).dataByPeak;
+        peaksc = struct2cell(peaks);
+        amps = peaksc{peaknum}.Amplitudes;
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+amps =
+
+  373.0600
+  363.5100
+  354.4800
+  348.1400
+  339.9200
+  332.5000
+  324.6600
+  317.3800
+  309.9200
+  302.6400
+  587.1600
+  575.4000
+  560.2500
+  548.1800
+  536.4700
+  524.7300
+  511.9500
+  502.3800
+  489.5800
+  479.1400
+  699.9300
+  683.1300
+  667.6300
+  652.9000
+  638.3500
+  622.4900
+  609.1900
+  593.6300
+  580.3000
+  566.8600
+
+
+peaknames =
+
+  2&times;1 cell array
+
+    {'PYRUVATE'        }
+    {'PYRUVATE_HYDRATE'}
+
+
+numpeak =
+
+     2
+
+</pre><h2 id="17">Notes</h2><p>The inputs used in the example are:</p><p><i>fitted</i>: The output of using processAMARES on 'Decay_Dissolution_17_10_19_even.txt' and 'Decay_Dissolution_17_10_19_odd.txt'</p><p><i>numar</i>: 2</p><p><i>peaknum</i>: 1</p><p>The example was run by putting:</p><p>[amps,peaknames,numpeak] = ampsfromfitted(fitted,2,1)</p><p>into the command window.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Determining the Amplitudes of a Peak from an AMARES Output
+%%
+% The output of processAMARES, loadJmruiAmares, processAMARESSweep and 
+% summestrenova is a structure array that separates data by peak. In the 
+% case of the first function, the structure array has dimensions 
+% corresponding to how many AMARES .txt output files were used to construct 
+% it. The ampsfromfitted function allows for pulling out the amplitudes 
+% from a specific AMARES output file and from a specific peak in the 
+% _fitted_ structure array.
+%% Inputs
+% _fitted_: is the structure array output of one of the following
+% functions: loadJmruiAmares, processAMARES, processAMARESSweep or
+% summestrenova
+%%
+% _numar_: is the index of the AMARES file to extract the amplitudes from
+%%
+% _peaknum_: is the index of the peak from which to extract the amplitudes
+% from
+%% Outputs
+% _amps_: is a column vector of the amplitudes from an AMARES file and peak
+% of interest
+%%
+% _peaknames_: are the names of the peaks in the _fitted_ structure array
+% inside a cell
+%%
+% _numpeak_: is the number of peaks inside the _fitted_ structure array
+%% Child Functions
+% _isint_: checks if in input is an integer
+%%
+% _processAMARES_: parses multiple .txt outputs from AMARES in JMRUI into a
+% structure array
+%%
+% _summestrenova_: parses a .csv custom integration file from MestReNova
+% into a structure array
+
+function [amps,peaknames,numpeak] = ampsfromfitted(fitted,numar,peaknum)
+
+    %% Verifying if _fitted_ is Valid
+    % If no _fitted_ input is given or the _fitted_ input is not a
+    % structure array, _fitted_ must be generated. Likewise, if _fitted_ 
+    % is a structure array but does not have the correct format, _fitted_
+    % must be generated.
+
+    fittedbool = 1;
+    
+    if nargin < 1
+        fittedbool = 0;
+    elseif string(class(fitted)) ~= "struct"
+        fittedbool = 0;
+    elseif string(class(fitted)) == "struct" 
+        try
+            peakst = fitted(1).dataByPeak;
+            peaksct = struct2cell(peakst);
+            ampst = peaksct{1}.Amplitudes;
+        catch
+            fittedbool = 0;
+        end
+    end
+    
+    %% Generating _fitted_ if Invalid or Insufficient Input
+    % If no _fitted_ input was given, or if _fitted_ is not valid, either
+    % processAMARES or summestrenova is run to generate _fitted_.
+    
+    if fittedbool == 0
+        
+        prompt = 'Is the data from an AMARES output or a MestReNova integration output? (A/M): ';
+        inp = input(prompt,'s');
+        inpbool = 0;
+        
+        while inpbool == 0
+            
+            inpbool = checkinp(inp);
+            
+            if inpbool == 0
+                inp = input(prompt,'s');
+            end
+            
+        end
+        
+        if inpbool == 1
+            fitted = processAMARES;
+        elseif inpbool == 2
+            fitted = summestrenova;
+        end
+        
+    end
+
+    numara = length(fitted);
+    
+    %% Setting the File and Peak to Draw Amplitudes from
+    % If no AMARES file and/or if no peak is specified, the outputted
+    % amplitudes will be from the first AMARES file and the first peak in
+    % _fitted_
+    
+    if nargin < 2
+        numar = 0;
+    end
+    
+    if nargin < 3
+        peaknum = 1;
+    end
+    
+    %% Notifying the User if _numar_ and/or _peaknum_ Inputs are Invalid
+    % If _numar_ or _peaknum_ are outside of the size of _fitted_, the
+    % default amplitudes will be outputted and a message displayed
+    % notifying the user of this.
+    
+    if isint(numar) ~= 1
+        numar = 0;
+    elseif numar > numara
+        numar = 0;
+        disp('Requested set of amplitudes does not exist; the first set of amplitudes for the requested peak have been given instead')
+    end  
+
+    amps = 0;
+    
+    peaks = fitted(1).dataByPeak;
+    peaknames = fieldnames(peaks); 
+    peaksc = struct2cell(peaks);
+    numpeak = length(peaksc); 
+    
+    if isint(peaknum) ~= 1
+        peaknum = 1;
+    elseif peaknum > numpeak
+        peaknum = 1;
+        disp('Requested peak does not exist; the amplitudes for the first peak have been given instead')
+    end
+    
+    if numar == 0
+        for el = 1:numara
+            peaks = fitted(el).dataByPeak;
+            peaksc = struct2cell(peaks);
+            ampsn = peaksc{peaknum}.Amplitudes;
+            amps = amps+ampsn;
+        end
+    else
+        peaks = fitted(numar).dataByPeak;
+        peaksc = struct2cell(peaks);
+        amps = peaksc{peaknum}.Amplitudes;
+    end
+      
+end
+
+%% Notes
+% The inputs used in the example are:
+%%
+% _fitted_: The output of using processAMARES on 
+% 'Decay_Dissolution_17_10_19_even.txt' and 
+% 'Decay_Dissolution_17_10_19_odd.txt'
+%%
+% _numar_: 2
+%%
+% _peaknum_: 1
+%%
+% The example was run by putting:
+%%
+% [amps,peaknames,numpeak] = ampsfromfitted(fitted,2,1)
+%%
+% into the command window.
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,161 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Verifying if an Input is a File that Contains Lines</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="isdatfile.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Verifying if an Input is a File that Contains Lines</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#2">Outputs</a></li><li><a href="#4">Checking if a File was Inputted</a></li><li><a href="#5">Checking if the Inputted File can be Opened</a></li><li><a href="#7">Checking if the Inputted File Contains Lines</a></li><li><a href="#10">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>dat</i>: is a file, represented using a character vector</p><h2 id="2">Outputs</h2><p><i>bool</i>: is a boolean that is '1' if <i>dat</i> is a file that contains lines. Otherwise, <i>bool</i> is '0'.</p><pre class="codeinput"><span class="keyword">function</span> bool = isdatfile(dat)
+</pre><pre class="codeinput">    bool = 1;
+</pre><h2 id="4">Checking if a File was Inputted</h2><p>If no file was entered to set <i>dat</i>, the function will return <i>bool</i> = 0 and state no file was inputted.</p><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 1
+        bool = 0;
+        disp(<span class="string">'Error: No file was inputted'</span>)
+    <span class="keyword">end</span>
+</pre><h2 id="5">Checking if the Inputted File can be Opened</h2><p>The functions checks if 'fopen' can open <i>dat</i>. If it cannot, the function returns <i>bool</i> = 0 and states the file cannot be opened.</p><pre class="codeinput">    <span class="keyword">if</span> nargin == 1
+</pre><pre class="codeinput">        <span class="keyword">try</span>
+            fopen(dat);
+        <span class="keyword">catch</span>
+            bool = 0;
+            disp(<span class="string">'Error: File cannot be opened'</span>)
+        <span class="keyword">end</span>
+</pre><h2 id="7">Checking if the Inputted File Contains Lines</h2><p>The function checks if 'fgetl' can read the inputted file. If 'fgetl' fails, <i>bool</i> is set to 0, and the function states the file is either invalid or does not contain lines.</p><pre class="codeinput">        <span class="keyword">try</span>
+            fid = fopen(dat);
+            fgetl(fid);
+        <span class="keyword">catch</span>
+            bool = 0;
+            disp(<span class="string">'Error: File is invalid and/or does not contain lines'</span>)
+        <span class="keyword">end</span>
+</pre><pre class="codeoutput">Error: File is invalid and/or does not contain lines
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+bool =
+
+     0
+
+</pre><h2 id="10">Notes</h2><p>The input used in the example is:</p><p><i>dat</i>: 'Example'</p><p>The example was run by putting:</p><p>bool = isdatfile('Example')</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Verifying if an Input is a File that Contains Lines
+%%
+%% Inputs
+% _dat_: is a file, represented using a character vector
+%% Outputs
+% _bool_: is a boolean that is '1' if _dat_ is a file that contains lines.
+% Otherwise, _bool_ is '0'.
+
+function bool = isdatfile(dat)
+
+    bool = 1;
+    
+    %% Checking if a File was Inputted
+    % If no file was entered to set _dat_, the function will return _bool_
+    % = 0 and state no file was inputted.
+    
+    if nargin < 1
+        bool = 0;
+        disp('Error: No file was inputted')
+    end
+    
+    %% Checking if the Inputted File can be Opened
+    % The functions checks if 'fopen' can open _dat_. If it cannot, the
+    % function returns _bool_ = 0 and states the file cannot be opened.
+    
+    if nargin == 1
+
+        try 
+            fopen(dat);
+        catch
+            bool = 0;
+            disp('Error: File cannot be opened')
+        end
+    
+        %% Checking if the Inputted File Contains Lines
+        % The function checks if 'fgetl' can read the inputted file. If 
+        % 'fgetl' fails, _bool_ is set to 0, and the function states the 
+        % file is either invalid or does not contain lines.
+    
+        try
+            fid = fopen(dat);
+            fgetl(fid);
+        catch
+            bool = 0;
+            disp('Error: File is invalid and/or does not contain lines')
+        end
+    
+    end
+    
+end
+
+%% Notes
+% The input used in the example is:
+%%
+% _dat_: 'Example'
+%%
+% The example was run by putting:
+%%
+% bool = isdatfile('Example')
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

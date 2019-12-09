@@ -1,0 +1,302 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Performing Ordinary Least Squares Linear Regression on a Dataset Split into Sections</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="linreg.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Performing Ordinary Least Squares Linear Regression on a Dataset Split into Sections</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#5">Outputs</a></li><li><a href="#9">Determining the Number of Times OLS Linear Regression Needs to be Performed</a></li><li><a href="#10">Performing OLS Linear Regression on Each Section of Each Data Series</a></li><li><a href="#12">Notes</a></li></ul></div><p>If multiple sections of data are inside one set of <i>x</i> and <i>y</i> arrays, <i>linreg</i> can perform OLS regression on the individual sections provided the indices where each section begins is given</p><h2 id="2">Inputs</h2><p><i>x</i>: is a column vector containing the data on the x-axis</p><p><i>y</i>: is an array containing the data on the y-axis. Each row representing data corresponding to a different data series with the same x-values</p><p><i>secinds</i>: is either a column or row vector containing the first index of each section of data on which OLS linear regression will be performed</p><h2 id="5">Outputs</h2><p><i>grads</i>: is an array where each column has the gradient for a section of the data and where each row represents each data series</p><p><i>ints</i>: is an array where each column has the y-intercept for a section of the data and where each row represents each data series</p><p><i>Rsquareds</i>: is an array where each column has the coefficient of determination for a section  of the data and where each row represents each data series</p><pre class="codeinput"><span class="keyword">function</span> [grads,ints,Rsquareds] = linreg(x,y,secinds)
+</pre><h2 id="9">Determining the Number of Times OLS Linear Regression Needs to be Performed</h2><pre class="codeinput">    numsecs = length(secinds);
+    rounds = length(y(1,:));
+
+    grads = zeros(numsecs,rounds);
+    ints = zeros(numsecs,rounds);
+    Rsquareds = zeros(numsecs,rounds);
+</pre><h2 id="10">Performing OLS Linear Regression on Each Section of Each Data Series</h2><pre class="codeinput">    <span class="keyword">if</span> numsecs == 1
+        <span class="keyword">if</span> rounds == 1
+
+            mdl = fitlm(x,y);
+
+            gradsa = mdl.Coefficients(2,1);
+            gradsb = table2array(gradsa);
+            grads = gradsb;
+
+            inta = mdl.Coefficients(1,1);
+            intb = table2array(inta);
+            ints = intb;
+
+            Rsquareds = mdl.Rsquared.Adjusted;
+
+        <span class="keyword">else</span>
+            <span class="keyword">for</span> el = 1:rounds
+
+                mdl = fitlm(x,y(:,el));
+
+                gradsa = mdl.Coefficients(2,1);
+                gradsb = table2array(gradsa);
+                grads(el) = gradsb;
+
+                inta = mdl.Coefficients(1,1);
+                intb = table2array(inta);
+                ints(el) = intb;
+
+                Rsquareds(el) = mdl.Rsquared.Adjusted;
+
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        <span class="keyword">for</span> el = 1:numsecs
+            <span class="keyword">for</span> ele = 1:rounds
+                <span class="keyword">if</span> el ~= numsecs
+
+                    mdl = fitlm(x(secinds(el):(secinds(el+1))-1),y(secinds(el):(secinds(el+1))-1,ele));
+
+                    gradsa = mdl.Coefficients(2,1);
+                    gradsb = table2array(gradsa);
+                    grad = gradsb;
+                    grads(el,ele) = grad;
+
+                    inta = mdl.Coefficients(1,1);
+                    intb = table2array(inta);
+                    int = intb;
+                    ints(el,ele) = int;
+
+                    Rsquared = mdl.Rsquared.Adjusted;
+                    Rsquareds(el,ele) = Rsquared;
+
+                <span class="keyword">else</span>
+
+                    mdl = fitlm(x(secinds(el):end),y(secinds(el):end,ele));
+
+                    gradsa = mdl.Coefficients(2,1);
+                    gradsb = table2array(gradsa);
+                    grad = gradsb;
+                    grads(el,ele) = grad;
+
+                    inta = mdl.Coefficients(1,1);
+                    intb = table2array(inta);
+                    int = intb;
+                    ints(el,ele) = int;
+
+                    Rsquared = mdl.Rsquared.Adjusted;
+                    Rsquareds(el,ele) = Rsquared;
+
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+grads =
+
+    1.0000    2.0000
+    2.0000    4.0000
+    3.0000    5.0000
+
+
+ints =
+
+   -0.0000   -0.0000
+   -2.0000   -4.0000
+   -7.0000   -9.0000
+
+
+Rsquareds =
+
+       NaN       NaN
+    1.0000    1.0000
+    1.0000    1.0000
+
+</pre><h2 id="12">Notes</h2><p>The inputs used in the example were:</p><p><i>x</i>: [1; 2; 3; 4; 5; 6; 7; 8; 9; 10]</p><p><i>y</i>: [1 2; 2 4; 4 8; 6 12; 8 16; 11 21; 14 26; 17 31; 20 36; 23 41]</p><p><i>secinds</i>: [1;3;6]</p><p>The example was run by putting:</p><p>[grads,ints,Rsquareds] = linreg([1; 2; 3; 4; 5; 6; 7; 8; 9; 10], [1 2; 2 4; 4 8; 6 12; 8 16; 11 21; 14 26; 17 31; 20 36; 23 41],[1;3;6])</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Performing Ordinary Least Squares Linear Regression on a Dataset Split into Sections
+%%
+% If multiple sections of data are inside one set of _x_ and _y_ arrays,
+% _linreg_ can perform OLS regression on the individual sections provided
+% the indices where each section begins is given
+%% Inputs
+% _x_: is a column vector containing the data on the x-axis
+%%
+% _y_: is an array containing the data on the y-axis. Each row representing
+% data corresponding to a different data series with the same x-values
+%%
+% _secinds_: is either a column or row vector containing the first index of
+% each section of data on which OLS linear regression will be performed
+%% Outputs
+% _grads_: is an array where each column has the gradient for a section of
+% the data and where each row represents each data series
+%%
+% _ints_: is an array where each column has the y-intercept for a section 
+% of the data and where each row represents each data series
+%%
+% _Rsquareds_: is an array where each column has the coefficient of 
+% determination for a section  of the data and where each row represents 
+% each data series
+
+function [grads,ints,Rsquareds] = linreg(x,y,secinds)
+
+    %% Determining the Number of Times OLS Linear Regression Needs to be Performed
+
+    numsecs = length(secinds);
+    rounds = length(y(1,:));
+    
+    grads = zeros(numsecs,rounds);
+    ints = zeros(numsecs,rounds);
+    Rsquareds = zeros(numsecs,rounds);
+    
+    %% Performing OLS Linear Regression on Each Section of Each Data Series
+    
+    if numsecs == 1
+        if rounds == 1
+            
+            mdl = fitlm(x,y);
+        
+            gradsa = mdl.Coefficients(2,1);
+            gradsb = table2array(gradsa);
+            grads = gradsb;
+    
+            inta = mdl.Coefficients(1,1);
+            intb = table2array(inta);
+            ints = intb;
+                
+            Rsquareds = mdl.Rsquared.Adjusted;
+            
+        else
+            for el = 1:rounds
+                
+                mdl = fitlm(x,y(:,el));
+        
+                gradsa = mdl.Coefficients(2,1);
+                gradsb = table2array(gradsa);
+                grads(el) = gradsb;
+    
+                inta = mdl.Coefficients(1,1);
+                intb = table2array(inta);
+                ints(el) = intb;
+                
+                Rsquareds(el) = mdl.Rsquared.Adjusted;
+                
+            end
+        end 
+    else
+        for el = 1:numsecs
+            for ele = 1:rounds
+                if el ~= numsecs
+        
+                    mdl = fitlm(x(secinds(el):(secinds(el+1))-1),y(secinds(el):(secinds(el+1))-1,ele));
+    
+                    gradsa = mdl.Coefficients(2,1);
+                    gradsb = table2array(gradsa);
+                    grad = gradsb;
+                    grads(el,ele) = grad;
+    
+                    inta = mdl.Coefficients(1,1);
+                    intb = table2array(inta);
+                    int = intb;
+                    ints(el,ele) = int;
+    
+                    Rsquared = mdl.Rsquared.Adjusted;
+                    Rsquareds(el,ele) = Rsquared;
+                
+                else
+                
+                    mdl = fitlm(x(secinds(el):end),y(secinds(el):end,ele));
+    
+                    gradsa = mdl.Coefficients(2,1);
+                    gradsb = table2array(gradsa);
+                    grad = gradsb;
+                    grads(el,ele) = grad;
+    
+                    inta = mdl.Coefficients(1,1);
+                    intb = table2array(inta);
+                    int = intb;
+                    ints(el,ele) = int;
+    
+                    Rsquared = mdl.Rsquared.Adjusted;
+                    Rsquareds(el,ele) = Rsquared;
+                    
+                end 
+            end
+        end
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _x_: [1; 2; 3; 4; 5; 6; 7; 8; 9; 10]
+%%
+% _y_: [1 2; 2 4; 4 8; 6 12; 8 16; 11 21; 14 26; 17 31; 20 36; 23 41]
+%%
+% _secinds_: [1;3;6]
+%% 
+% The example was run by putting:
+%%
+% [grads,ints,Rsquareds] = linreg([1; 2; 3; 4; 5; 6; 7; 8; 9; 10],
+% [1 2; 2 4; 4 8; 6 12; 8 16; 11 21; 14 26; 17 31; 20 36; 23 41],[1;3;6])
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

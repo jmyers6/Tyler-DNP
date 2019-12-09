@@ -1,0 +1,525 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Calculating Initial Estimates for the T1 Relaxation Constant of the Decay of Hyperpolarisation, Initial Magnetisation and the Flip Angle Correction Factor</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="estParamT1Decay.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Calculating Initial Estimates for the T1 Relaxation Constant of the Decay of Hyperpolarisation, Initial Magnetisation and the Flip Angle Correction Factor</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#13">Inputs</a></li><li><a href="#17">Outputs</a></li><li><a href="#26">Child Functions</a></li><li><a href="#34">Finding the Estimated Flip Angles Used in the Experiment</a></li><li><a href="#35">Parsing the Raw Data</a></li><li><a href="#36">Verifying the Number of Flip Angle Entries Found Matches the Number of Measurements</a></li><li><a href="#37">Creation of the <i>data</i> Array</a></li><li><a href="#38">Verifying Enough Flip Angles were Used in the Experiment to Estimate <i>T1</i></a></li><li><a href="#39">Finding the Indices Where the Flip Angle was Changed</a></li><li><a href="#40">Linearising the Raw Data</a></li><li><a href="#41">Calculating the Gradients, Intercepts and Coefficients of Determination of the Linearised Raw Data</a></li><li><a href="#42">Finding the Average TR for Each Section</a></li><li><a href="#43">Estimating <i>T1</i> and <i>alpha</i> from the Linear Model</a></li><li><a href="#45">Notes</a></li></ul></div><p>This function is the parent function of functions that calculate initial estimates of the T1 relaxation constant for the decay of hyperpolarisation, the flip angle correction factor and the initial magnetisation vector (which is proportional to total polarisation). The parameters are calculated by:</p><p>Splitting the data into sections determined by the flip angle used to measure the data (Ex. If the first two measurements used a 5&deg; flip angle, the next two, 10&deg; and the last two 5&deg;, the data would be split into three sections, the first set of data collected using 5&deg;, the 10&deg; data and the second set of data collected using 5&deg;) For each section, the data is treated as continuous and, each section is modelled with the following relation:</p><p><img src="estParamT1Decay_eq16003753280964755572.png" alt="$$ Mz = M0 \times cos^{t/TR}(alpha \times \theta) \times&#xA;exp\left(-\frac{t}{T1}\right) $$" style="width:222px;height:27px;"></p><p>where <i>Mz</i> represents the magnetisation in the z-direction, <i>M0</i> is the initial magnetisation in the z-direction, <i>t</i> is the time, <i>TR</i> is the average repetition time for the section (the average time interval before taking a measurement), <i>alpha</i> is the flip angle correction factor, <img src="estParamT1Decay_eq01864118634463401093.png" alt="$$ \theta $$" style="width:5px;height:8px;"> is the estimated flip angle found from the <i>flip1</i> parameter of the procpar file and <i>T1</i> is the longitudinal relaxation constant, which describes the decay of hyperpolarisation</p><p>The above relation is not strictly true, since signal is actually proportional to Mxy and the data is discrete with the sense of the exact time when a measurement is taken, but the relation yields a good first estimate</p><p>The model is applied to the data by linearising it using:</p><p><img src="estParamT1Decay_eq11782154387652640303.png" alt="$$ \ln{Mz} = \left(\frac{1}{TR}\times \ln{[cos(alpha \times \theta)]} -&#xA;\frac{1}{T1}\right)\times t+\ln{M0} $$" style="width:267px;height:27px;"></p><p>By applying a linear model to the logarithm of the signal data, the gradient of the data is:</p><p><img src="estParamT1Decay_eq03095922557500070029.png" alt="$$ \left(\frac{1}{TR}\times \ln{[cos(alpha \times \theta)]} -&#xA;\frac{1}{T1}\right) $$" style="width:161px;height:27px;"></p><p>The intercept of the data is:</p><p><img src="estParamT1Decay_eq06443802597829945225.png" alt="$$ \ln{M0} $$" style="width:28px;height:8px;"></p><p>At this stage, the value of <i>alpha</i> is iterated and T1 is calculated for each set of data. The best <i>alpha</i> value is chosen to be the one where the coefficient of variation of the T1s is minimised.</p><h2 id="13">Inputs</h2><p><i>procpar</i>: is the procpar file for the experiment, which is used to find the flip angles, repetition times (TRs) and times each measurement was taken</p><p><i>inp</i>: is 'A' if the data was quantified using AMARES from JMRUI, or it should be 'M' if the data was quantified using integration in MestReNova and the data is a custom .csv integral file</p><p><i>coilnum</i>: should only be entered if <i>inp</i> is 'M'. It is the number of coils used to collect the data.</p><p><i>field</i>: should only be entered if <i>inp</i> is 'M'. It is a cell containing the names of the peaks that have been quantified</p><h2 id="17">Outputs</h2><p><i>eT1</i>: is an array containing the estimated <i>T1</i> values for each peak quantified</p><p><i>eM0</i>: is an array containing  the estimated <i>M0</i> values for each peak quantified</p><p><i>eAlpha</i>: is an array containing the estimated <i>alpha</i> values for each peak quantified</p><p><i>data</i>: is an array, where the first column is the times each measurement was performed at, the second column is the estimated flip angle used to take each measurement and the remaining columns are the signal strength of each measurement where each subsequent column is measurements from different peaks</p><p><i>peaknames</i>: is a cell, where each element is the name of a quantified peak</p><p><i>secinds</i> &amp; <i>secvals</i>: are arrays containing the indices where the flip angle used for a measurement is changed and the value the flip angle is changed to respectively</p><p><i>grads</i>: is an array containing the gradients calculated for the linearised raw data fitted to the above model. The rows correspond to the different sections, while the columns correspond to the different quantified peaks</p><p><i>int</i>: is an array containing the y-intercepts calculated for the linearised raw data fitted to the above model. The rows correspond to the different sections, while the columns correspond to the different quantified peaks</p><p><i>Rsquareds</i>: is an arraying containing the coefficients of determination for the linearised raw data fitted to the above model. The rows correspond to the different sections, while the columns correspond to the different quantified peaks</p><h2 id="26">Child Functions</h2><p><i>flipAnglesFromProcpar</i>: returns the contents of the <i>flip1</i> parameter in the procpar file for the experiment</p><p><i>alphaparse</i>: parses the raw data files into a readible extracting the times measurements were conducted at, the measurements themselves and the names of the peaks quantified</p><p><i>resizeColumn: resizes the array containing the contents of _flip1</i> if there is non-size agreement between it and the raw data. This function serves as a data verification step</p><p>_indsFirstSetValues: returns the indices where the flip angles used are charged and the values that they were changed to</p><p><i>linreg</i>: applies the above model to the linearised raw data and calculates the gradient, intercept and coefficient of determination</p><p>_averageTRs: finds the average repetition time used in each section</p><p><i>findDecayParams</i>: uses the output from <i>linreg</i> to find the best first estimate for <i>T1</i>, <i>M0</i> and <i>alpha</i></p><pre class="codeinput"><span class="keyword">function</span> [eT1,eM0,eAlpha,data,peaknames,secinds,secvals,grads,ints,Rsquareds] = estParamT1Decay(proc,inp,dat,coilnum,field)
+</pre><pre class="codeinput">    procbool = 1;
+
+    <span class="keyword">if</span> nargin &lt; 1
+        procbool = 0;
+    <span class="keyword">end</span>
+</pre><h2 id="34">Finding the Estimated Flip Angles Used in the Experiment</h2><pre class="codeinput">    <span class="keyword">if</span> procbool == 1
+        flips = flipAnglesFromProcpar(proc);
+    <span class="keyword">else</span>
+        flips = flipAnglesFromProcpar;
+    <span class="keyword">end</span>
+</pre><h2 id="35">Parsing the Raw Data</h2><pre class="codeinput">    <span class="keyword">if</span> nargin &gt;= 5
+        [x,y,peaknames] = alphaparse([],inp,<span class="string">'N'</span>,dat,coilnum,field,proc);
+    <span class="keyword">elseif</span> nargin &gt;= 4
+        [x,y,peaknames] = alphaparse([],inp,<span class="string">'N'</span>,dat,coilnum,[],proc);
+    <span class="keyword">elseif</span> nargin &gt;= 3
+        [x,y,peaknames] = alphaparse([],inp,<span class="string">'N'</span>,dat,[],[],proc);
+    <span class="keyword">elseif</span> nargin &gt;= 2
+        [x,y,peaknames] = alphaparse([],inp,<span class="string">'N'</span>,[],[],[],proc);
+    <span class="keyword">elseif</span> nargin &gt;= 1
+        [x,y,peaknames] = alphaparse([],[],<span class="string">'N'</span>,[],[],[],proc);
+    <span class="keyword">else</span>
+        [x,y,peaknames] = alphaparse([],[],<span class="string">'N'</span>);
+    <span class="keyword">end</span>
+</pre><h2 id="36">Verifying the Number of Flip Angle Entries Found Matches the Number of Measurements</h2><p>If there is disagreement, the user is allowed to either terminate or continue with correction applied to the flip array as described below</p><pre class="codeinput">    nummeas = length(y(:,1));
+
+    nummeasflip = length(flips);
+    contbool = 0;
+
+    <span class="keyword">if</span> nummeas ~= nummeasflip
+
+        disp(<span class="string">'Error: The number of measurements is not equal to the flip angles arrayed in flip1 in the procpar'</span>)
+        prompt = <span class="string">'To continue, if there are multiple entries in flip1, they will be spread along the number of measurements. Otherwise, if flip1 is empty, flip1 will be set to 1. Type Y to continue or N to stop (Y/N): '</span>;
+        contbool = input(prompt,<span class="string">'s'</span>);
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> contbool == 1
+        flips = resizeColumn(flips);
+    <span class="keyword">end</span>
+</pre><h2 id="37">Creation of the <i>data</i> Array</h2><pre class="codeinput">    numpeak = length(peaknames);
+
+    datacols = numpeak+2;
+    data = zeros(nummeas,datacols);
+
+    data(:,1) = x;
+    data(:,2) = flips;
+    data(:,3:end) = y;
+
+    <span class="keyword">if</span> contbool == 2
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+</pre><h2 id="38">Verifying Enough Flip Angles were Used in the Experiment to Estimate <i>T1</i></h2><pre class="codeinput">    FlipSets = unique(flips);
+
+    <span class="keyword">if</span> length(FlipSets) &lt; 2
+        disp(<span class="string">'Error: Not enough flip angles arrayed to estimate T1'</span>)
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+</pre><h2 id="39">Finding the Indices Where the Flip Angle was Changed</h2><pre class="codeinput">    [secvals,secinds] = indsFirstSetValues(flips);
+</pre><h2 id="40">Linearising the Raw Data</h2><pre class="codeinput">    ylog = log(y);
+</pre><h2 id="41">Calculating the Gradients, Intercepts and Coefficients of Determination of the Linearised Raw Data</h2><pre class="codeinput">    [grads,ints,Rsquareds] = linreg(x,ylog,secinds);
+</pre><h2 id="42">Finding the Average TR for Each Section</h2><pre class="codeinput">    avTRs = averageTRs(x,secinds);
+</pre><h2 id="43">Estimating <i>T1</i> and <i>alpha</i> from the Linear Model</h2><pre class="codeinput">    [eT1,eAlpha] = findDecayParams(grads,secvals,avTRs);
+
+    intf = exp(ints(1,:));
+    eM0 = intf./sind(eAlpha.*secvals(1));
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+eT1 =
+
+   37.8503   16.0191
+
+
+eM0 =
+
+   1.0e+03 *
+
+    7.3741    5.1345
+
+
+eAlpha =
+
+    1.2730    0.0120
+
+
+data =
+
+   1.0e+03 *
+
+    0.0010    0.0050    0.7956    0.0050
+    0.0020    0.0050    0.7732    0.0055
+    0.0030    0.0050    0.7488    0.0045
+    0.0040    0.0050    0.7274    0.0038
+    0.0050    0.0050    0.7086    0.0038
+    0.0060    0.0050    0.6886    0.0033
+    0.0070    0.0050    0.6709    0.0033
+    0.0080    0.0050    0.6503    0.0031
+    0.0090    0.0050    0.6330    0.0034
+    0.0100    0.0050    0.6138    0.0030
+    0.0110    0.0100    1.1571    0.0122
+    0.0120    0.0100    1.0989    0.0113
+    0.0130    0.0100    1.0440    0.0110
+    0.0140    0.0100    0.9904    0.0101
+    0.0150    0.0100    0.9389    0.0092
+    0.0160    0.0100    0.8903    0.0042
+    0.0170    0.0100    0.8475    0.0044
+    0.0180    0.0100    0.8023    0.0036
+    0.0190    0.0100    0.7653    0.0040
+    0.0200    0.0100    0.7250    0.0033
+    0.0210    0.0150    1.0026    0.0041
+    0.0220    0.0150    0.9190    0.0039
+    0.0230    0.0150    0.8400    0.0039
+    0.0240    0.0150    0.7698    0.0035
+    0.0250    0.0150    0.7042    0.0031
+    0.0260    0.0150    0.6427    0.0028
+    0.0270    0.0150    0.5889    0.0028
+    0.0280    0.0150    0.5395    0.0024
+    0.0290    0.0150    0.4932       NaN
+    0.0300    0.0150    0.4511       NaN
+    0.0310    0.0050    0.1465    0.0018
+    0.0320    0.0050    0.1424    0.0014
+    0.0330    0.0050    0.1392    0.0006
+    0.0340    0.0050    0.1354    0.0015
+    0.0350    0.0050    0.1306    0.0011
+    0.0360    0.0050    0.1279    0.0015
+    0.0370    0.0050    0.1241    0.0013
+    0.0380    0.0050    0.1215    0.0017
+    0.0390    0.0050    0.1168    0.0005
+    0.0400    0.0050    0.1131    0.0005
+    0.0410    0.0100    0.2135    0.0020
+    0.0420    0.0100    0.2026    0.0021
+    0.0430    0.0100    0.1925    0.0019
+    0.0440    0.0100    0.1826    0.0010
+    0.0450    0.0100    0.1727    0.0007
+    0.0460    0.0100    0.1642    0.0015
+    0.0470    0.0100    0.1562    0.0009
+    0.0480    0.0100    0.1492    0.0018
+    0.0490    0.0100    0.1409    0.0014
+    0.0500    0.0100    0.1334    0.0011
+    0.0510    0.0150    0.1842    0.0014
+    0.0520    0.0150    0.1693    0.0007
+    0.0530    0.0150    0.1551    0.0015
+    0.0540    0.0150    0.1411    0.0012
+    0.0550    0.0150    0.1294    0.0011
+    0.0560    0.0150    0.1189    0.0006
+    0.0570    0.0150    0.1085    0.0010
+    0.0580    0.0150    0.1000    0.0007
+    0.0590    0.0150    0.0912    0.0008
+    0.0600    0.0150    0.0844    0.0011
+
+
+peaknames =
+
+  2&times;1 cell array
+
+    {'PYRUVATE'        }
+    {'PYRUVATE_HYDRATE'}
+
+
+secinds =
+
+     1
+    11
+    21
+    31
+    41
+    51
+
+
+secvals =
+
+     5
+    10
+    15
+     5
+    10
+    15
+
+
+grads =
+
+   -0.0286   -0.0629
+   -0.0520   -0.1683
+   -0.0888   -0.0775
+   -0.0284   -0.0797
+   -0.0519   -0.0469
+   -0.0875   -0.0364
+
+
+ints =
+
+    6.7063    1.6821
+    7.6255    4.4721
+    8.7762    3.0848
+    5.8693    2.8914
+    7.4923    2.4545
+    9.6762    2.0076
+
+
+Rsquareds =
+
+    0.9996    0.8295
+    0.9999    0.8613
+    1.0000    0.9511
+    0.9970    0.1274
+    0.9997    0.0375
+    0.9998    0.0281
+
+</pre><h2 id="45">Notes</h2><p>The inputs used in the example were:</p><p><i>proc</i>: 'procpar28_11_19_Dissolution'</p><p><i>inp</i>: 'A'</p><p><i>dat</i>: {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'}</p><p>The example was run by putting:</p><p>[eT1,eM0,eAlpha,data,peaknames,secinds,secvals,grads,ints,Rsquareds] = estParamT1Decay('procpar28_11_19_Dissolution','A', {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Calculating Initial Estimates for the T1 Relaxation Constant of the Decay of Hyperpolarisation, Initial Magnetisation and the Flip Angle Correction Factor
+%%
+% This function is the parent function of functions that calculate initial
+% estimates of the T1 relaxation constant for the decay of
+% hyperpolarisation, the flip angle correction factor and the initial
+% magnetisation vector (which is proportional to total polarisation). The
+% parameters are calculated by:
+%%
+% Splitting the data into sections determined by the flip angle used to
+% measure the data (Ex. If the first two measurements used a 5° flip angle,
+% the next two, 10° and the last two 5°, the data would be split into three
+% sections, the first set of data collected using 5°, the 10° data and the
+% second set of data collected using 5°)
+% For each section, the data is treated as continuous and, each section is 
+% modelled with the following relation:
+%% 
+% $$ Mz = M0 \times cos^{t/TR}(alpha \times \theta) \times
+% exp\left(-\frac{t}{T1}\right) $$
+%%
+% where _Mz_ represents the magnetisation in the z-direction, _M0_ is the
+% initial magnetisation in the z-direction, _t_ is the time, _TR_ is the
+% average repetition time for the section (the average time interval before
+% taking a measurement), _alpha_ is the flip angle correction factor, $$
+% \theta $$ is the estimated flip angle found from the _flip1_ parameter of
+% the procpar file and _T1_ is the longitudinal relaxation constant, which
+% describes the decay of hyperpolarisation
+%%
+% The above relation is not strictly true, since signal is actually
+% proportional to Mxy and the data is discrete with the sense of the exact
+% time when a measurement is taken, but the relation yields a good first
+% estimate
+%% 
+% The model is applied to the data by linearising it using:
+%%
+% $$ \ln{Mz} = \left(\frac{1}{TR}\times \ln{[cos(alpha \times \theta)]} -
+% \frac{1}{T1}\right)\times t+\ln{M0} $$
+%%
+% By applying a linear model to the logarithm of the signal data, the
+% gradient of the data is:
+%% 
+% $$ \left(\frac{1}{TR}\times \ln{[cos(alpha \times \theta)]} -
+% \frac{1}{T1}\right) $$
+%%
+% The intercept of the data is:
+%% 
+% $$ \ln{M0} $$
+%% 
+% At this stage, the value of _alpha_ is iterated and T1 is calculated for
+% each set of data. The best _alpha_ value is chosen to be the one where
+% the coefficient of variation of the T1s is minimised.
+%% Inputs
+% _procpar_: is the procpar file for the experiment, which is used to find
+% the flip angles, repetition times (TRs) and times each measurement was
+% taken
+%%
+% _inp_: is 'A' if the data was quantified using AMARES from JMRUI, or it
+% should be 'M' if the data was quantified using integration in MestReNova
+% and the data is a custom .csv integral file
+%%
+% _coilnum_: should only be entered if _inp_ is 'M'. It is the number of
+% coils used to collect the data.
+%%
+% _field_: should only be entered if _inp_ is 'M'. It is a cell containing
+% the names of the peaks that have been quantified
+%% Outputs
+% _eT1_: is an array containing the estimated _T1_ values for each peak
+% quantified
+%%
+% _eM0_: is an array containing  the estimated _M0_ values for each peak
+% quantified
+%%
+% _eAlpha_: is an array containing the estimated _alpha_ values for each
+% peak quantified
+%%
+% _data_: is an array, where the first column is the times each measurement
+% was performed at, the second column is the estimated flip angle used to
+% take each measurement and the remaining columns are the signal strength
+% of each measurement where each subsequent column is measurements from
+% different peaks
+%%
+% _peaknames_: is a cell, where each element is the name of a quantified
+% peak
+%%
+% _secinds_ & _secvals_: are arrays containing the indices where the flip
+% angle used for a measurement is changed and the value the flip angle is
+% changed to respectively
+%%
+% _grads_: is an array containing the gradients calculated for the
+% linearised raw data fitted to the above model. The rows correspond to the
+% different sections, while the columns correspond to the different
+% quantified peaks
+%%
+% _int_: is an array containing the y-intercepts calculated for the
+% linearised raw data fitted to the above model. The rows correspond to the
+% different sections, while the columns correspond to the different
+% quantified peaks
+%%
+% _Rsquareds_: is an arraying containing the coefficients of determination
+% for the linearised raw data fitted to the above model. The rows 
+% correspond to the different sections, while the columns correspond to the 
+% different quantified peaks
+%% Child Functions
+% _flipAnglesFromProcpar_: returns the contents of the _flip1_ parameter in
+% the procpar file for the experiment
+%%
+% _alphaparse_: parses the raw data files into a readible extracting the
+% times measurements were conducted at, the measurements themselves and the
+% names of the peaks quantified
+%%
+% _resizeColumn: resizes the array containing the contents of _flip1_ if
+% there is non-size agreement between it and the raw data. This function
+% serves as a data verification step
+%%
+% _indsFirstSetValues: returns the indices where the flip angles used are
+% charged and the values that they were changed to
+%%
+% _linreg_: applies the above model to the linearised raw data and
+% calculates the gradient, intercept and coefficient of determination
+%%
+% _averageTRs: finds the average repetition time used in each section
+%%
+% _findDecayParams_: uses the output from _linreg_ to find the best
+% first estimate for _T1_, _M0_ and _alpha_
+
+
+function [eT1,eM0,eAlpha,data,peaknames,secinds,secvals,grads,ints,Rsquareds] = estParamT1Decay(proc,inp,dat,coilnum,field)
+
+    procbool = 1;
+    
+    if nargin < 1
+        procbool = 0;
+    end
+    
+    %% Finding the Estimated Flip Angles Used in the Experiment
+    
+    if procbool == 1
+        flips = flipAnglesFromProcpar(proc);
+    else
+        flips = flipAnglesFromProcpar;
+    end
+    
+    %% Parsing the Raw Data
+    
+    if nargin >= 5
+        [x,y,peaknames] = alphaparse([],inp,'N',dat,coilnum,field,proc);
+    elseif nargin >= 4
+        [x,y,peaknames] = alphaparse([],inp,'N',dat,coilnum,[],proc);
+    elseif nargin >= 3
+        [x,y,peaknames] = alphaparse([],inp,'N',dat,[],[],proc);
+    elseif nargin >= 2
+        [x,y,peaknames] = alphaparse([],inp,'N',[],[],[],proc);
+    elseif nargin >= 1
+        [x,y,peaknames] = alphaparse([],[],'N',[],[],[],proc);
+    else
+        [x,y,peaknames] = alphaparse([],[],'N');
+    end
+    
+    %% Verifying the Number of Flip Angle Entries Found Matches the Number of Measurements
+    % If there is disagreement, the user is allowed to either terminate or
+    % continue with correction applied to the flip array as described below
+    
+    nummeas = length(y(:,1));
+    
+    nummeasflip = length(flips);
+    contbool = 0;
+    
+    if nummeas ~= nummeasflip
+        
+        disp('Error: The number of measurements is not equal to the flip angles arrayed in flip1 in the procpar')
+        prompt = 'To continue, if there are multiple entries in flip1, they will be spread along the number of measurements. Otherwise, if flip1 is empty, flip1 will be set to 1. Type Y to continue or N to stop (Y/N): ';
+        contbool = input(prompt,'s');
+        
+    end
+    
+    if contbool == 1
+        flips = resizeColumn(flips);  
+    end
+    
+    %% Creation of the _data_ Array
+    
+    numpeak = length(peaknames);
+    
+    datacols = numpeak+2;
+    data = zeros(nummeas,datacols);
+    
+    data(:,1) = x;
+    data(:,2) = flips;
+    data(:,3:end) = y;
+    
+    if contbool == 2
+        return
+    end
+    
+    %% Verifying Enough Flip Angles were Used in the Experiment to Estimate _T1_
+    
+    FlipSets = unique(flips);
+    
+    if length(FlipSets) < 2
+        disp('Error: Not enough flip angles arrayed to estimate T1')
+        return
+    end
+    
+    %% Finding the Indices Where the Flip Angle was Changed
+    
+    [secvals,secinds] = indsFirstSetValues(flips);
+    
+    %% Linearising the Raw Data
+    
+    ylog = log(y);
+    
+    %% Calculating the Gradients, Intercepts and Coefficients of Determination of the Linearised Raw Data
+    
+    [grads,ints,Rsquareds] = linreg(x,ylog,secinds);
+    
+    %% Finding the Average TR for Each Section
+    
+    avTRs = averageTRs(x,secinds);
+    
+    %% Estimating _T1_ and _alpha_ from the Linear Model
+    
+    [eT1,eAlpha] = findDecayParams(grads,secvals,avTRs);
+    
+    intf = exp(ints(1,:));
+    eM0 = intf./sind(eAlpha.*secvals(1));
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _proc_: 'procpar28_11_19_Dissolution'
+%%
+% _inp_: 'A'
+%%
+% _dat_: {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'}
+%%
+% The example was run by putting:
+%%
+% [eT1,eM0,eAlpha,data,peaknames,secinds,secvals,grads,ints,Rsquareds] = 
+% estParamT1Decay('procpar28_11_19_Dissolution','A',
+% {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

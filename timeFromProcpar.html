@@ -1,0 +1,271 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Determining the Time After the Start of an NMR Experiment Each Measurement was Taken</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="timeFromProcpar.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Determining the Time After the Start of an NMR Experiment Each Measurement was Taken</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#3">Output</a></li><li><a href="#4">Child Functions</a></li><li><a href="#7">Verifying that <i>num</i> Exists and is a Whole Number of Measurements</a></li><li><a href="#8">Verifying <i>proc</i> Exists</a></li><li><a href="#9">Determining the TR for Each Measurement</a></li><li><a href="#10">Generating <i>x</i></a></li><li><a href="#12">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>proc</i>: is the procpar file for the NMR experiment of interest</p><p><i>num</i>: is the number of measurements that were taken during the experiment</p><h2 id="3">Output</h2><p><i>x</i>: is a column vector containing all the times after the start of the experiment measurements were taken at</p><h2 id="4">Child Functions</h2><p><i>ampsfromfitted</i>: Parses the amplitudes from the .txt output from AMARES in JMRUI into an array</p><p><i>TRfromProcpar</i>: Parses the <i>tr</i> parameter from the procpar file of an NMR experiment into an array</p><pre class="codeinput"><span class="keyword">function</span> x = timeFromProcpar(proc,num)
+</pre><pre class="codeinput">    numbool = 1;
+</pre><h2 id="7">Verifying that <i>num</i> Exists and is a Whole Number of Measurements</h2><p>If <i>num</i> is not valid or does not exist, it is determined by running the ampsfromfitted function and setting <i>num</i> to the number of amplitudes (measurements) from the first AMARES file and peak.</p><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 2
+        numbool = 0;
+    <span class="keyword">elseif</span> isint(num) ~= 1
+        numbool = 0;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> numbool == 0
+        amps = ampsfromfitted;
+        num = length(amps);
+    <span class="keyword">end</span>
+
+    procbool = 0;
+</pre><h2 id="8">Verifying <i>proc</i> Exists</h2><p>In order to run timeFromProcpar, a procpar file is necessary. If there is no <i>proc</i> input, the user is called in readprocpar (child of TRfromProcpar) to enter a valid procpar file.</p><pre class="codeinput">    <span class="keyword">if</span> nargin &gt;= 1
+        procbool = 1;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> procbool == 1
+        TR = TRfromProcpar(proc);
+    <span class="keyword">else</span>
+        TR = TRfromProcpar;
+    <span class="keyword">end</span>
+</pre><h2 id="9">Determining the TR for Each Measurement</h2><p>If TR was varied, it will be in an array, where each TR should be used recursively to calculate the time a measurement took place. Otherwise, TR is a number, and the TRs array is created to the length of the number of measurements. If the number of measurements is inconsistent with the number of TRs used if TR is not an integer, TR is set to 1 to calculate the <i>x</i> column vector.</p><pre class="codeinput">    lenTR = length(TR);
+
+    <span class="keyword">if</span> lenTR == num
+
+        TRs = TR;
+
+    <span class="keyword">elseif</span> isint(TR) == 1
+
+        TRs = zeros(num,1);
+
+        <span class="keyword">for</span> el = 1:num
+            TRs(el) = TR;
+        <span class="keyword">end</span>
+
+    <span class="keyword">else</span>
+
+        disp(<span class="string">'Error: Time values cannot be determined; TR will now be assumed to be constant and equal to 1'</span>)
+
+        TRs = zeros(num,1);
+
+        <span class="keyword">for</span> el = 1:num
+            TRs(el) = 1;
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="10">Generating <i>x</i></h2><p><i>x</i> is populated via a recursive relationship, where the TR at a measurement is added to the preceding <i>x</i> value at the previous measurement.</p><pre class="codeinput">    x = zeros(num,1);
+    x(1) = TRs(1);
+
+    <span class="keyword">for</span> el = 2:num
+        x(el) = x(el-1)+TRs(el);
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+x =
+
+         300
+         600
+         900
+        1200
+        1500
+        1800
+        2100
+        2400
+        2700
+        3000
+        3300
+        3600
+        3900
+        4200
+        4500
+        4800
+        5100
+        5400
+        5700
+        6000
+        6300
+        6600
+        6900
+        7200
+        7500
+
+</pre><h2 id="12">Notes</h2><p>The inputs in the example used are:</p><p><i>proc</i>: 'procpar21_11_19'</p><p><i>num</i>: 25</p><p>The example was run by putting:</p><p>x = timeFromProcpar('procpar21_11_19',25)</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Determining the Time After the Start of an NMR Experiment Each Measurement was Taken
+%% 
+%% Inputs
+% _proc_: is the procpar file for the NMR experiment of interest
+%%
+% _num_: is the number of measurements that were taken during the
+% experiment
+%% Output
+% _x_: is a column vector containing all the times after the start of the
+% experiment measurements were taken at
+%% Child Functions
+% _ampsfromfitted_: Parses the amplitudes from the .txt output from AMARES
+% in JMRUI into an array
+%%
+% _TRfromProcpar_: Parses the _tr_ parameter from the procpar file of an
+% NMR experiment into an array
+
+function x = timeFromProcpar(proc,num)
+
+    numbool = 1;
+    
+    %% Verifying that _num_ Exists and is a Whole Number of Measurements
+    % If _num_ is not valid or does not exist, it is determined by running
+    % the ampsfromfitted function and setting _num_ to the number of
+    % amplitudes (measurements) from the first AMARES file and peak.
+
+    if nargin < 2
+        numbool = 0;
+    elseif isint(num) ~= 1
+        numbool = 0;
+    end
+    
+    if numbool == 0
+        amps = ampsfromfitted;
+        num = length(amps);
+    end
+    
+    procbool = 0;
+    
+    %% Verifying _proc_ Exists
+    % In order to run timeFromProcpar, a procpar file is necessary. If
+    % there is no _proc_ input, the user is called in readprocpar (child of
+    % TRfromProcpar) to enter a valid procpar file.
+    
+    if nargin >= 1
+        procbool = 1;
+    end
+    
+    if procbool == 1
+        TR = TRfromProcpar(proc);
+    else
+        TR = TRfromProcpar;
+    end
+    
+    %% Determining the TR for Each Measurement
+    % If TR was varied, it will be in an array, where each TR should be
+    % used recursively to calculate the time a measurement took place.
+    % Otherwise, TR is a number, and the TRs array is created to the length
+    % of the number of measurements. If the number of measurements is
+    % inconsistent with the number of TRs used if TR is not an integer, TR
+    % is set to 1 to calculate the _x_ column vector.
+    
+    lenTR = length(TR);
+    
+    if lenTR == num
+        
+        TRs = TR;
+        
+    elseif isint(TR) == 1
+        
+        TRs = zeros(num,1);
+        
+        for el = 1:num
+            TRs(el) = TR;
+        end
+        
+    else
+        
+        disp('Error: Time values cannot be determined; TR will now be assumed to be constant and equal to 1')
+    
+        TRs = zeros(num,1);
+        
+        for el = 1:num
+            TRs(el) = 1;
+        end
+        
+    end
+    
+    %% Generating _x_
+    % _x_ is populated via a recursive relationship, where the TR at a
+    % measurement is added to the preceding _x_ value at the previous
+    % measurement.
+    
+    x = zeros(num,1);
+    x(1) = TRs(1);
+    
+    for el = 2:num
+        x(el) = x(el-1)+TRs(el);
+    end
+    
+end
+
+%% Notes
+% The inputs in the example used are:
+%%
+% _proc_: 'procpar21_11_19'
+%%
+% _num_: 25
+%%
+% The example was run by putting:
+%%
+% x = timeFromProcpar('procpar21_11_19',25)
+%%
+% into the command window
+        
+##### SOURCE END #####
+--></body></html>

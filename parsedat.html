@@ -1,0 +1,178 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Parsing a File Containing Comma Delimited Data</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="parsedat.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Parsing a File Containing Comma Delimited Data</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Input</a></li><li><a href="#2">Output</a></li><li><a href="#4">Parsing the File</a></li><li><a href="#6">Notes</a></li></ul></div><h2 id="1">Input</h2><p><i>dat</i>: is a file containing comma delimited data</p><h2 id="2">Output</h2><p><i>data</i>: is an array, where each line has data that was formerly comma delimited in separate cells</p><pre class="codeinput"><span class="keyword">function</span> data = parsedat(dat)
+</pre><pre class="codeinput">    trut = 1;
+
+    fid = fopen(dat);
+
+    data = [];
+</pre><h2 id="4">Parsing the File</h2><p>The file is read line by line using the 'fgetl' function. When the file runs out of lines, 'fgetl' returns -1, which leads the loop reading the file to terminate. Otherwise, the current line is checked for the prescence of a ',' indicating the prescence of comma delimited data. If a ',' is found, the line is converted to a number and appended to the <i>data</i> array.</p><pre class="codeinput">    <span class="keyword">while</span> trut == 1
+
+        line = fgetl(fid);
+
+        <span class="keyword">if</span> line == -1
+
+            trut = 0;
+
+        <span class="keyword">else</span>
+
+            comfind = strfind(line, <span class="string">','</span>);
+            write = isempty(comfind);
+
+            <span class="keyword">if</span> write == 0
+                vals = str2num(line);
+                D = [data;vals];
+                data = D;
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    fclose(fid);
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+data =
+
+   1.0e+03 *
+
+    0.3000    0.0277
+    0.6000    0.0479
+    0.9000    0.0637
+    1.2000    0.0756
+    1.5000    0.0857
+    1.8000    0.0935
+    2.1000    0.0999
+    2.4000    0.1055
+
+</pre><h2 id="6">Notes</h2><p>The input used in the example is:</p><p><i>dat</i>: '1Pyr_8_10.dat'</p><p>The example was run by putting:</p><p>data = parsedat('1Pyr_8_10.dat')</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Parsing a File Containing Comma Delimited Data
+%%
+%% Input
+% _dat_: is a file containing comma delimited data
+%% Output
+% _data_: is an array, where each line has data that was formerly comma
+% delimited in separate cells
+
+function data = parsedat(dat)
+
+    trut = 1;
+    
+    fid = fopen(dat);
+    
+    data = []; 
+    
+    %% Parsing the File
+    % The file is read line by line using the 'fgetl' function. When the
+    % file runs out of lines, 'fgetl' returns -1, which leads the loop
+    % reading the file to terminate. Otherwise, the current line is checked
+    % for the prescence of a ',' indicating the prescence of comma
+    % delimited data. If a ',' is found, the line is converted to a number
+    % and appended to the _data_ array.
+    
+    while trut == 1 
+        
+        line = fgetl(fid);
+        
+        if line == -1 
+            
+            trut = 0;
+            
+        else
+            
+            comfind = strfind(line, ','); 
+            write = isempty(comfind);
+            
+            if write == 0 
+                vals = str2num(line); 
+                D = [data;vals]; 
+                data = D; 
+            end
+            
+        end
+        
+    end
+    
+    fclose(fid);
+    
+end
+
+%% Notes
+% The input used in the example is:
+%%
+% _dat_: '1Pyr_8_10.dat'
+%%
+% The example was run by putting:
+%%
+% data = parsedat('1Pyr_8_10.dat') 
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

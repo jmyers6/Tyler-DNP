@@ -1,0 +1,175 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Verifying if an Input is an Integer</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="isint.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Verifying if an Input is an Integer</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Input</a></li><li><a href="#2">Output</a></li><li><a href="#4">Testing if <i>num</i> is an Integer</a></li><li><a href="#7">Notes</a></li></ul></div><h2 id="1">Input</h2><p><i>num</i>: is any variable, file, etc.</p><h2 id="2">Output</h2><p><i>bool</i>: is 0 if <i>num</i> is not an integer and is 1 if <i>num</i> is an integer</p><pre class="codeinput"><span class="keyword">function</span> bool = isint(num)
+</pre><pre class="codeinput">    bool = 0;
+</pre><h2 id="4">Testing if <i>num</i> is an Integer</h2><p>All numbers in MATLAB are by default double, not int. Therefore, checking if a variable value is an integer is not completely straight forward. Firstly, if the class of <i>num</i> is a double, then the only way to verify if it is in an integer is indirectly. A property of all integers is that they are finite, so while inf, NaN etc. are double, they are not finite; therefore, checking if a double is finite can allow for filtering out inf, NaN etc. However, integers are only single whole numbers, not arrays, so the length of the result of checking if <i>num</i> is finite must also be 1. Lastly, a property of integers if that if floor division is performed on them, the result will equal the input. Therefore, if <i>num</i> is a double, checking the three described properties will determine if <i>num</i> is an integer.</p><p>However, if <i>num</i>'s class is an int class, the function should still output that <i>num</i> is an int. However, MATLAB has multiple classes of ints, yet the first three characters in all the int classes are 'int'. Therefore, by checking the condition if the first three charactersof <i>num</i>'s class are 'int', it can be determined if <i>num</i> is an int.</p><pre class="codeinput">    a = isfinite(num);
+    lena = length(a);
+    b = floor(num);
+    type = class(num);
+    c = string(strcat(type(1),type(2),type(3)));
+
+    <span class="keyword">if</span> c == <span class="string">"dou"</span>
+
+        <span class="keyword">if</span> a == 1
+
+            <span class="keyword">if</span> lena == 1
+
+                <span class="keyword">if</span> num == b
+                    bool = 1;
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">elseif</span> c == <span class="string">"int"</span>
+
+        bool = 1;
+
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+bool =
+
+     1
+
+</pre><h2 id="7">Notes</h2><p>The input used in the example is:</p><p><i>num</i>:int64(9)</p><p>The function was run by putting:</p><p>bool = isint(int64(9))</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Verifying if an Input is an Integer
+%%
+%% Input
+% _num_: is any variable, file, etc.
+%% Output
+% _bool_: is 0 if _num_ is not an integer and is 1 if _num_ is an integer
+
+function bool = isint(num)
+
+    bool = 0;
+    
+    %% Testing if _num_ is an Integer
+    % All numbers in MATLAB are by default double, not int. Therefore,
+    % checking if a variable value is an integer is not completely straight
+    % forward. Firstly, if the class of _num_ is a double, then the only
+    % way to verify if it is in an integer is indirectly. A property of all
+    % integers is that they are finite, so while inf, NaN etc. are double,
+    % they are not finite; therefore, checking if a double is finite can
+    % allow for filtering out inf, NaN etc. However, integers are only
+    % single whole numbers, not arrays, so the length of the result of
+    % checking if _num_ is finite must also be 1. Lastly, a property of
+    % integers if that if floor division is performed on them, the result
+    % will equal the input. Therefore, if _num_ is a double, checking the
+    % three described properties will determine if _num_ is an integer. 
+    %%
+    % However, if _num_'s class is an int class, the function should still
+    % output that _num_ is an int. However, MATLAB has multiple classes of
+    % ints, yet the first three characters in all the int classes are
+    % 'int'. Therefore, by checking the condition if the first three
+    % charactersof _num_'s class are 'int', it can be determined if _num_
+    % is an int.
+    
+    a = isfinite(num);
+    lena = length(a);
+    b = floor(num);
+    type = class(num);
+    c = string(strcat(type(1),type(2),type(3)));
+    
+    if c == "dou"
+    
+        if a == 1
+            
+            if lena == 1
+        
+                if num == b
+                    bool = 1;
+                end
+                
+            end
+        
+        end
+        
+    elseif c == "int"
+        
+        bool = 1;
+        
+    end
+    
+end
+
+%% Notes
+% The input used in the example is:
+%%
+% _num_:int64(9)
+%%
+% The function was run by putting:
+%%
+% bool = isint(int64(9))
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

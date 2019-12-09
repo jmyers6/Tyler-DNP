@@ -1,0 +1,1394 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>readprocpar</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="readprocpar.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Required Child Function (from John Myers)</a></li></ul></div><pre class="codeinput"><span class="comment">% readprocpar.m</span>
+<span class="comment">%</span>
+<span class="comment">%      usage: readprocpar.m()</span>
+<span class="comment">%         by: justin gardner</span>
+<span class="comment">%       date: 07/03/03</span>
+<span class="comment">%    purpose: reads procpar into matlab variable</span>
+<span class="comment">%      usage: procpar = readprocpar;</span>
+<span class="comment">%</span>
+<span class="comment">% last modified: 27/11/19 by John Myers</span>
+</pre><h2 id="2">Required Child Function (from John Myers)</h2><p><i>isdatfile</i>: checks if the inputted file is readible</p><pre class="codeinput"><span class="keyword">function</span> procpar = readprocpar(inp,procdir,verbose)
+
+
+<span class="comment">% argument check</span>
+<span class="keyword">if</span> (nargin == 0)
+  procdir = <span class="string">'./'</span>;
+  verbose = 0;
+<span class="keyword">elseif</span> (nargin == 1)
+    procdir = <span class="string">'./'</span>;
+    verbose = 0;
+<span class="keyword">elseif</span> (nargin == 2)
+<span class="comment">% 2014.05.29 AZL commented out</span>
+<span class="comment">%</span>
+<span class="comment">%   if ~strcmp(getext(procdir),'par')</span>
+<span class="comment">%     procdir = setext(procdir,'fid',0);</span>
+<span class="comment">%   end</span>
+  verbose = 0;
+<span class="keyword">elseif</span> (nargin ~= 3)
+  help <span class="string">readprocpar</span>;
+  <span class="keyword">return</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> (nargin &gt; 1)
+  <span class="keyword">if</span> (procdir(length(procdir)) ~= <span class="string">'/'</span>)
+    procdir(length(procdir)+1) = <span class="string">'/'</span>;
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> (verbose)
+  disp(<span class="string">'(readprocpar) Reading procpar...'</span>);
+<span class="keyword">end</span>
+procpar = [];
+
+<span class="comment">% open the procpar</span>
+<span class="comment">% fprocpar = fopen([procdir 'procpar'],'r');</span>
+
+<span class="keyword">if</span> nargin == 0 <span class="comment">%Allows the user to input the procpar file to process</span>
+    prompt = <span class="string">'Enter a procpar file to process: '</span>;
+    inp = input(prompt,<span class="string">'s'</span>);
+    procbool = isdatfile(inp);
+    <span class="keyword">while</span> procbool == 0
+        prompt1 = <span class="string">'Error: Please enter a valid procpar file to process: '</span>;
+        inp = input(prompt1,<span class="string">'s'</span>);
+        procbool = isdatfile(inp);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargin == 1
+    procbool = isdatfile(inp);
+    <span class="keyword">while</span> procbool == 0
+        prompt1 = <span class="string">'Error: Please enter a valid procpar file to process: '</span>;
+        inp = input(prompt1,<span class="string">'s'</span>);
+        procbool = isdatfile(inp);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+fprocpar = fopen(fullfile(procdir, inp),<span class="string">'r'</span>);
+<span class="keyword">if</span> (fprocpar == -1)
+  disp(sprintf(<span class="string">'(readprocpar) ERROR: Could not open %s'</span>,[procdir <span class="string">'procpar'</span>]));
+  <span class="keyword">return</span>
+<span class="keyword">end</span>
+
+<span class="comment">% scan through procpar looking for parameters needed for parsing</span>
+line = fgets(fprocpar);
+<span class="keyword">while</span> (line ~= -1)
+  <span class="comment">% get the first token of the line</span>
+  token = strtok(line);
+  <span class="comment">% if it is a character and not doublequote then we have an array name</span>
+  <span class="keyword">if</span> (~((token(1) &gt;= <span class="string">'0'</span>) &amp; (token(1) &lt;= <span class="string">'9'</span>)) &amp; (token(1) ~= <span class="string">'"'</span>))
+    fieldname = token;
+    <span class="comment">% get next line</span>
+    line = fgets(fprocpar);
+    <span class="comment">% first number is just length of array</span>
+    [len line] = strtok(line);
+    len = str2num(len);
+    <span class="comment">% just an array of numbers</span>
+    <span class="keyword">if</span> ((length(line) &gt; 2) &amp; (line(2) ~= <span class="string">'"'</span>))
+      eval(sprintf(<span class="string">'procpar.%s = str2num(line);'</span>,fieldname));
+      <span class="comment">% confirm length</span>
+      arraylen = eval(sprintf(<span class="string">'length(procpar.%s)'</span>,fieldname));
+      <span class="keyword">if</span> (arraylen ~= len)
+	sprintf(<span class="string">'WARNING: %s should be %i elements, but found only %i'</span>,fieldname,len,arraylen);
+      <span class="keyword">end</span>
+    <span class="comment">% character arrays</span>
+    <span class="keyword">else</span>
+      <span class="keyword">for</span> j = 1:len
+	<span class="comment">% strip leading white space</span>
+	<span class="keyword">while</span> (length(line) &amp; (line(1) == <span class="string">' '</span>))
+	  line = line(2:length(line));
+	<span class="keyword">end</span>
+	token = line;
+	<span class="comment">% make sure we have a valid string token</span>
+	<span class="keyword">if</span> (isempty(token) | (token(1) ~= <span class="string">'"'</span>))
+	  sprintf(<span class="string">'WARNING: %s missing string element %i/%i'</span>,fieldname,j,len);
+	  eval(sprintf(<span class="string">'procpar.%s{%i} = '''';'</span>,fieldname,j));
+	  j = len;
+	<span class="keyword">else</span>
+	  str = strtok(line,sprintf(<span class="string">'"\n'</span>));
+	  <span class="comment">% convert single to double quotes</span>
+	  str(findstr(str,<span class="string">''''</span>)) = <span class="string">'"'</span>;
+	  eval(sprintf(<span class="string">'procpar.%s{%i} = ''%s'';'</span>,fieldname,j,str));
+	<span class="keyword">end</span>
+	line = fgets(fprocpar);
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+  line = fgets(fprocpar);
+<span class="keyword">end</span>
+
+fclose(fprocpar);
+
+<span class="comment">% these fields will get set from the petable name if available</span>
+<span class="keyword">if</span> ~isfield(procpar,<span class="string">'accfactor'</span>),procpar.accfactor = 1;<span class="keyword">end</span>
+<span class="keyword">if</span> ~isfield(procpar,<span class="string">'tSesnseAccfactor'</span>),procpar.tSenseAccfactor = 1;<span class="keyword">end</span>
+<span class="keyword">if</span> ~isfield(procpar,<span class="string">'numshots'</span>),procpar.numshots = 1;<span class="keyword">end</span>
+
+<span class="comment">% for epi images, there are navigator echos, which</span>
+<span class="comment">% should be subtracted from the number of lines.</span>
+<span class="comment">% this can be known from the name of the petable</span>
+<span class="keyword">if</span> (isfield(procpar,<span class="string">'petable'</span>))
+  token = procpar.petable{1};
+  <span class="comment">% the petable name should be something like</span>
+  <span class="comment">% "epi132alt8k". We want the second number</span>
+  <span class="keyword">if</span> (strncmp(token,<span class="string">'epi'</span>,3))
+    j = 1;
+    <span class="comment">% go past any intial characters</span>
+    <span class="keyword">while</span>((j &lt; length(token)) &amp;&amp; (isempty(strfind(<span class="string">'0123456789'</span>,token(j))))),j=j+1;,<span class="keyword">end</span>
+    <span class="comment">% then skip the numbers</span>
+    <span class="keyword">while</span>((j &lt; length(token)) &amp;&amp; (~isempty(strfind(<span class="string">'0123456789'</span>,token(j))))),j=j+1;,<span class="keyword">end</span>
+    <span class="comment">% and skip the next characters</span>
+    <span class="keyword">while</span>((j &lt; length(token)) &amp;&amp; (isempty(strfind(<span class="string">'0123456789'</span>,token(j))))),j=j+1;,<span class="keyword">end</span>
+    <span class="comment">% find end of numbers</span>
+    k = j;
+    <span class="keyword">while</span>((k &lt; length(token)) &amp;&amp; (~isempty(strfind(<span class="string">'0123456789'</span>,token(k))))),k=k+1;,<span class="keyword">end</span>
+    procpar.numshots = str2num(token(j:k-1));
+    <span class="comment">% then skip some more numbers</span>
+    <span class="keyword">while</span>((j &lt; length(token)) &amp;&amp; (~isempty(strfind(<span class="string">'0123456789'</span>,token(j))))),j=j+1;,<span class="keyword">end</span>
+    <span class="comment">% go past any other charcters (should be k)</span>
+    <span class="keyword">while</span>((j &lt; length(token)) &amp;&amp; (isempty(strfind(<span class="string">'0123456789'</span>,token(j))))),j=j+1;,<span class="keyword">end</span>
+    <span class="comment">% and if we have anything left then get the number, that is the acceleration factor</span>
+    k = j;
+    <span class="keyword">while</span>((k &lt; length(token)) &amp;&amp; (~isempty(strfind(<span class="string">'0123456789'</span>,token(k))))),k=k+1;,<span class="keyword">end</span>
+    <span class="keyword">if</span> j &lt; length(token)
+      <span class="comment">% r means that it is a sense petable</span>
+      <span class="keyword">if</span> token(j+1:k) == <span class="string">'r'</span>
+	procpar.accfactor = str2num(token(j:k-1));
+      <span class="comment">% t means t-sense acc factor</span>
+      <span class="keyword">elseif</span> token(j+1:k) == <span class="string">'t'</span>
+	procpar.tSenseAccfactor = str2num(token(j:k-1));
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% before we always had 1 navecho for epi, but now there is a field procpar.navecho that should</span>
+    <span class="comment">% be set by Ken's prep program that reads the petable and gets the t3 field.</span>
+    <span class="keyword">if</span> ~isfield(procpar,<span class="string">'navecho'</span>),procpar.navecho = 1;<span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% the number of shots should now be read from the field nseg rather than from the petable</span>
+<span class="keyword">if</span> isfield(procpar,<span class="string">'nseg'</span>) procpar.numshots = procpar.nseg;<span class="keyword">end</span>
+
+<span class="comment">% if navecho is not set by now, then there were no navecho's</span>
+<span class="keyword">if</span> ~isfield(procpar,<span class="string">'navecho'</span>),procpar.navecho = 0;<span class="keyword">end</span>
+
+<span class="comment">% compute the number of echoes</span>
+procpar.navechoes = procpar.navecho*procpar.numshots/procpar.accfactor;
+
+<span class="keyword">if</span> (verbose),disp(<span class="string">'(readprocpar) Finished.'</span>);,<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+procpar = 
+
+  struct with fields:
+
+              gcrushfsat: 0
+                 decpat2: {''}
+                   alock: {'n'}
+              TTLvoffrt1: [0 0 0 0 0 0]
+               TTLcycles: [1 1 1 1 1 1]
+                  TTL1on: [1 2]
+            RUBblocksize: 64
+                  RUBbad: 1
+                ECGdelay: 1.0000e-04
+                      B0: 7.0538e+04
+                H1reffrq: 300.3308
+         RMScurrentlimit: 45
+            RUBbadwindow: 0.1600
+                 RUBbadw: 0
+                   RUBss: 0
+               RUBinvert: 0
+                 RUBduty: 50
+                   RUBit: 8
+                 TTL1off: [1 2]
+                 TTL5off: [1 2]
+                  TTL3on: [1 2]
+                  TTL2on: [1 2]
+                 TTL2off: [1 2]
+                 TTL3off: [1 2]
+                 TTL4off: [1 2]
+                  TTL4on: [1 2]
+                 TTL6off: [1 2]
+                  TTL5on: [1 2]
+                 TTLauto: [1 1 1 1 1 1]
+                  TTL6on: [1 2]
+               TTLstatus: [0 0 2 0 0 0]
+                  TTLoff: [1 1 1 1 1 1]
+            TTLmaxcycles: [0 0 0 0 0 0]
+                 TTLline: 1
+                   TTLex: [0 0 0 0 0 0]
+                 TTLname: {''  ''  'PDD'  ''  ''  ''}
+                    TTLn: 6
+               TTLnevols: 0
+                TTLprint: 0
+                   TTLon: [1 1 1 1 1 1]
+           TTLoffatstart: 1
+                 TTLprep: [0 0 0 0 0 0]
+                TTLstart: [1 1 1 1 1 1]
+               TTLsetoff: [0 0 0 0 0 0]
+               TTLtonrt2: {'0'  '0'  '0'  '0'  '0'  '0'}
+                 TTLtime: [0 0 0 0 0 0]
+                 TTLtall: [1 1 1 1 1 1]
+               TTLtonrt1: {'0'  '0'  '0'  '0'  '0'  '0'}
+                TTLvmenu: [1 1 1 1 1 1]
+              aipFDFtosq: {''}
+                 acqpath: {''}
+               acqcycles: 60
+               TTLvonrt2: [0 0 0 0 0 0]
+              TTLvoffrt2: [0 0 0 0 0 0]
+               TTLvonrt1: [0 0 0 0 0 0]
+              TTLvsetoff: [0 0 0 0 0 0]
+               TTLvseton: [0 0 0 0 0 0]
+                  acqdim: 1
+                acqdelay: 100
+                     age: 0
+                actionid: {'n031'}
+                 acqtype: {''}
+               acqstatus: [101 0]
+              acqwtfirst: {'y'}
+               adirtmplt: {''}
+              adir2tmplt: {''}
+              advancedRF: {'n'}
+                  aipFDF: {''}
+                  aipDir: {''}
+                     aig: {'ai'}
+              aipFDFMenu: {'off'}
+              aipRunTime: {'dicom'}
+               aipFormat: {''}
+                  aipFid: {''}
+              aipFidMenu: {'off'}
+                 aipPath: {''}
+                 aipPTag: {'n'}
+            aipStudyMenu: {'off'}
+             aipScanMenu: {'fdf'}
+                aipScale: 1
+                aipStudy: {''}
+                    alfa: 20.0000
+               aipSubdir: {''}
+              allvolumes: {'y'}
+                     cr2: 0
+                  avwdir: {''}
+             arrayelemts: 1
+              archivedir: {''}
+                      ap: {1&times;12 cell}
+                 anatomy: {''}
+                 ampmode: {'pppppppp'}
+                    aqtm: 0.8000
+                 apptype: {'im1Dglobal'}
+                arraydim: 120
+               arraySave: {''}
+                   array: {'flip1'}
+              arraydelta: 1
+             arraydscale: {'n'}
+               arraydodc: {'n'}
+               arraystop: 120
+                arraymax: 120
+               arrayflip: {'n'}
+              arraystart: 1
+                      at: 0.5112
+          arraywhitewash: {'n'}
+             blockslices: 0
+                   b1max: 846.7175
+                    awc3: 0
+                    awc1: 0
+                     awc: 0
+                    awc2: 0
+                   axisf: {'s'}
+                    axis: {'h'}
+                 b0delay: 0
+               blockRUBs: 1
+                birthday: {''  ''  ''  ''}
+              blocknacqs: 0
+                      cf: 1
+                  bvalue: 0
+                      bs: 32
+                boresize: 10
+                      bt: 0
+                   celem: 120
+                      cp: {'y'}
+                 comment: {'Dissolution_281119_Data'}
+                chessfrq: 0
+                 console: {'vnmrs'}
+                      cr: -321.6628
+              cppauseflg: {'n'}
+                     cr1: 41.5672
+           dataProcessed: 0
+                 d2array: 0
+              customflag: {'n'}
+                      ct: 1
+                     crf: 0
+            currentlimit: 300
+                      d1: 0.4885
+                  cutoff: 200
+                      d2: 0
+                      d5: 0
+                 d3array: 0
+                      d3: 0
+                      d4: 0
+                dRUBauto: 0
+                    dRUB: 0.0150
+                    dTTL: [1&times;6 double]
+                   dconi: {'dcon,gray,linear'}
+                 datname: {''}
+                  dataid: {''}
+                    date: {'Nov 28 2019'}
+                     dcg: {''}
+                  decpat: {''}
+                   dcrmv: {'y'}
+                   ddrtc: 0
+                 decpat1: {''}
+                  dss_wc: 268
+                    dmf4: 200
+                    dimY: {'lro'}
+                     dg2: {1&times;6 cell}
+                    dfrq: 75.5149
+                   delta: 236.5123
+                 decpat4: {''}
+                 decpat3: {''}
+                 decpat5: {''}
+                  delta2: 0
+                  delta1: 22.9041
+                  deltaf: 6.2626e-06
+                      dg: {1&times;6 cell}
+                   dfrq3: 0
+                   dfrq2: 0
+                   dfrq4: 0
+                     dg1: {'1:DISPLAY:sp:1,wp:1,sp1(ni):1,wp1(ni):1,sp2(ni2):1,wp2(ni2):1;1:FID:sf:3,wf:3,vf:0;1:FLAGS:aig*,dcg*,pmode*(ni),dmg*,dmg1*(ni),dmg2*(ni2);2:REFERENCING:rfl:1,rfp:1,cr:1,delta:1,,rfl1(ni):1,rfp1(ni):1,cr1(ni):1,delta1(ni):1,,rfl2(ni2):1,rfp2(ni2):1,cr2(ni2):1,delta2(ni2):1;3:CHART:sc:0,wc:0,sc2(ni):0,wc2(ni):0,,hzmm:2,vs:1,vp:1,th:1,ho:2,vo:2,axis,,pltmod,rplot;4(ni):DIMENSIONS:trace,plane(ni2);4:INTEGRAL:intmod,is:2,ins:3,io:0,,lvl:3,tlt:3;4(ni2):3D OPTIONS:fiddc3d,specdc3d,ptspec3d,ntype3d;'}
+                     dgs: {1&times;4 cell}
+                  dgproc: {1&times;7 cell}
+                   dgfov: {1&times;9 cell}
+                 dgdelay: {1&times;6 cell}
+                  dggrad: {1&times;9 cell}
+                 dgpulse: {1&times;10 cell}
+                  dgtarg: {1&times;9 cell}
+                   dgseq: {1&times;9 cell}
+                 dgslice: {1&times;5 cell}
+                    diff: {'n'}
+                     dhp: 20
+                    dimX: {'lpe'}
+                     dlp: 20
+              dimension2: 32
+              dimension1: 32
+                    dimZ: {'lpe2'}
+                  disCmd: {'clear'}
+              dimension3: 32
+             displaymode: {'ir'}
+                     dm4: {'n'}
+                     dm2: {'n'}
+                      dm: {'nnn'}
+                     dm3: {'n'}
+                    dmf2: 200
+                     dmf: 200
+                    dmf3: 200
+                dpostRUB: 0
+                    dof3: 0
+                      dn: {'none'}
+                     dmm: {'c'}
+                    dmg1: {'av1'}
+                     dmg: {'ph'}
+                    dmm3: {'c'}
+                    dmm2: {'c'}
+                    dmm4: {'c'}
+                     dn4: {''}
+                     dn3: {''}
+                     dn2: {''}
+                     dof: 0
+                     dod: 0.0100
+                    dof2: 0
+                      dp: {'y'}
+                 dorient: {''}
+                    dof4: 0
+                 dotflag: {'n'}
+                    dphi: 0
+                 dpf_wc2: 65
+                    dres: 1
+                   dpwr3: 0
+                    dpsi: 0
+                 dpreRUB: 0
+               dposttrig: 0
+                dpretrig: 0
+                   dpwr1: 0
+                    dpwr: 30
+                   dpwr2: 0
+                   dpwr5: 0
+                   dpwr4: 0
+                 dreffrq: 75.5081
+                    dseq: {''}
+                   dres4: 1
+                   dres3: 1
+                   dres2: 1
+                dsSelect: [1&times;120 double]
+                   dseq4: {''}
+                   dseq3: {''}
+                   dseq2: {''}
+                 dss_sc2: 0
+                  dss_sc: 0
+               flipfsatf: 1
+               execsetup: {'im1Dglobal("prep")'}
+                   endti: 1.5000
+                      ec: 1
+                  dtheta: 0
+                 dss_wc2: 149
+                   dutyc: 0.1000
+                editText: 0
+                    echo: 1
+                 element: 1
+                execplot: {''}
+                  endvol: 1
+                 endtrec: 1
+                 eqnoise: {'n'}
+             execprescan: {'im1Dglobal("prescan")'}
+                execprep: {'im1Dglobal("prep")'}
+             execprocess: {'im1Dglobal("proc")'}
+                 fdffile: {''}
+                  f1coef: {'1 0 0 -1'}
+                 exppath: {'/vnmr/acqqueue/acq/exp3.lab1.dpag300.dpag.ox.ac.uk_1574949440_890672'}
+                 exptype: {''}
+                      fb: 55000
+                  f2coef: {'1 0 0 -1'}
+                  fdfdir: {''}
+                  filter: 54.1000
+                   fidid: {''}
+                 fiddc3d: {'nnn'}
+                    file: {'Hyp_C13_Rat_C1_20191128_Dissolution_281119_Dissolution_281119_Data_029'}
+                   flip2: 180
+                   flip1: [1&times;60 double]
+                flipfsat: 0
+                    fsat: {'n'}
+                     fn2: 256
+                 flipsat: 0
+                fliplist: 2
+                  flipir: 0
+                  flipmt: 0
+                      fn: 65536
+                  flipws: 0
+                     fn1: 256
+                  fpmult: 1
+                fovtitle: {''}
+                  fovcon: 0
+                 fovunit: {''}
+                 fpmult2: 0
+                 fpmult1: 0.5000
+                      g3: 0
+                  ftproc: [1 0]
+                   fsexp: {'y'}
+                 fsatpat: {'sinc'}
+                fsgscale: {'n'}
+                      g1: 0
+                      g0: 0
+                      g2: 0
+                    gain: 2
+                      g5: 0
+                      g4: 0
+                   gcoil: {'156_100_Ox'}
+                     gap: 0
+                  gcrush: 0
+                   proc2: {'ft'}
+                      n2: {''}
+                    imIM: {'n'}
+                   gzmax: 106.3200
+              gpropdelay: 50
+                    gfs3: 0
+                     gf3: 0
+                  gender: {''}
+               gcrushsat: 0
+                gcrushmt: 0
+                   gdiff: 0
+                     gf1: 1
+                      gf: 0.1000
+                     gf2: 0
+                     gfs: 0
+               gf_factor: 10
+                   gflow: 0
+                    gfs2: 0
+                    gfs1: 0
+                   gpat3: {''}
+                   go_id: {'exp3.lab1.dpag300.dpag.ox.ac.uk_1574949440_890672'}
+                    gmax: 103.6200
+                    glim: 20
+              go_Options: {'au'  'sync'  'vp'  'noop'}
+                   gpat1: {''}
+                    gpat: {''}
+                   gpat2: {''}
+                 gpemult: 0
+                    gpe2: 0.0275
+                     gpe: 0.0275
+                    gpe3: 0
+                    gper: 0
+                  gpepat: {''}
+                  gsspat: {''}
+                     gro: 2.3469
+                gradunit: {''}
+              gradstepsz: 32767
+                 gradcon: 0
+               gradtitle: {''}
+                  graysl: 1
+                 grayctr: 32
+                  gspoil: 0
+                    gror: 0
+                  gropat: {''}
+                    gss2: 0
+                     gss: 0
+                    gssi: 0
+                 gxdelay: 0
+                   gvox1: 0
+                    gssr: 0
+                   gtrim: 0
+                   gvox3: 0
+                   gvox2: 0
+                      gx: 0
+                 gydelay: 0
+                      gy: 0
+                   gxmax: 103.6200
+                      gz: 0
+                   gymax: 105.1800
+                 gzdelay: 0
+                     hf2: 1.7100
+                   hdres: 9
+                    hdof: 0
+                  hdfrqw: 10
+                  hdfrqc: 0
+                    hdmf: 600
+                   hdpwr: 1
+                hdpsmode: {'n'}
+                  hdpwrf: 4095
+                  height: 0
+                  hdwave: {'SEDUCE1'}
+                   hdseq: {''}
+                     hf1: 1.7100
+                      hf: 1.7100
+                   homo3: {'n'}
+                    homo: {'n'}
+                      ho: -2.2344
+                    hold: 0
+                   homo2: {'n'}
+                    hzmm: 29.8977
+                      hs: {'nn'}
+                   homo4: {'n'}
+                     hst: 0.0080
+                      il: {'n'}
+                   ident: {''}
+               lockgain_: 0
+                  layout: {'s2pul_gated'}
+                  intmod: {'off'}
+                   image: 1
+                    imRE: {'n'}
+                    imMG: {'n'}
+                    imIR: {'n'}
+                    imPH: {'n'}
+                    imRF: {'n'}
+                     ins: 1
+                  imprep: {'n'}
+                  images: 1
+                      in: {'n'}
+                 ins2ref: 1
+                    ins2: 1
+                  insref: 1
+     iplanDefaultVoxSize: 10
+        iplanDefaultSize: 5
+                      io: 20
+            investigator: {''}
+          iplanDefaultNs: 5
+        iplanDefaultType: 0
+         iplanDefaultThk: 4
+                      is: 500
+               iplanType: 0
+            iplanMarking: 0
+                      ir: {'y'}
+                   kstep: 1
+                   liamp: 0
+                     lb2: 0
+                      lb: 5
+                     lb1: 0.3183
+                     lb3: 0
+                 lcpeak_: 0
+                 lllabel: {''}
+                   llamp: [0.0057 0.0023]
+                   lifrq: 0
+                   llfrq: [4.9902e+03 4.6420e+03]
+                    loc_: 0
+                    load: {'n'}
+               lockfreq_: 46.1026
+                   minte: {'n'}
+                  lsfrq2: 0
+                    lpe3: 2
+                     lp1: 0
+              lockpower_: 0
+              lockphase_: 0
+                      lp: 0
+                     lpe: 20
+                     lp2: 0
+                    lpe2: 20
+                  lsfid2: 0
+                   lsfid: 0
+                     lro: 20
+                  lsfrq1: 0
+                   lsfrq: 0
+                    math: {'i'}
+                     lvl: 1.3029
+                     lss: 0
+                   macro: {''}
+                  method: {'z1z2'}
+                   mcoil: 1
+                   mfslp: {'n'}
+                    mppe: 0
+                    mlro: 0
+                    mlpe: 0
+                   mintr: {'n'}
+                   mintm: {'n'}
+                 mintrec: {'y'}
+                   mlpe2: 0
+                 modules: {''}
+                    mphi: {''}
+                  mstack: 0
+                    mpss: 0
+                    mpro: 0
+                    mpsi: {''}
+                    mrfb: 0
+                  mrgain: 0
+                    mthk: 0
+                   mtfrq: 0
+                      mt: {''}
+                  mtheta: {''}
+                   mtpwr: 0
+                   mtpat: {''}
+                      n1: {''}
+                   p5pat: {''}
+                   niiMG: {'n'}
+                   nifti: {'nifti'}
+                      ne: 1
+                    name: {''}
+                      nD: 1
+                      n3: {''}
+               nacqblock: 1
+                 nblocks: 1
+                      ni: 1
+                   nfmod: 1
+                      nf: 1
+                   nfsat: 1
+                     ni3: 1
+                     ni2: 1
+                  niftit: 1
+           nifticyclebak: 1
+              nifticycle: 1
+               niftiauto: {'y'}
+              niftifiles: 1
+               niftifile: {'nii'}
+               niftipage: {'y'}
+             niftitslice: 0
+            niftitoffset: 0
+               niftitime: {'y'}
+                   niiIM: {'n'}
+               niftivols: 1
+                   niiIR: {'n'}
+                    nv_2: 0
+                 nsblock: 1
+                notebook: {''}
+                   niiRE: {'n'}
+                   niiPH: {'n'}
+                   nloop: 32
+                   nreps: 1
+                      np: 8192
+                      ns: 1
+                      nv: 0
+                   ntrec: 10
+                      nt: 1
+                 ntype3d: {'nn'}
+                     nv3: 0
+                     nv2: 0
+                    nv_1: 0
+                   p2pat: {'hard'}
+                      p1: 200
+                  orient: {'trans'}
+               operator_: {'lab1'}
+                 orient2: {''}
+                      p2: 100
+                   p1pat: {'hard'}
+                   p4pat: {''}
+                   p3pat: {''}
+                      p3: 0
+                      p4: 0
+                      p5: 0
+                   pmode: {'partial'}
+                   phfid: 0
+                  path3d: {'/home/vnmr1/vnmrsys/exp3/datadir3d'}
+               parstyle_: {'ppa'}
+                    page: {''}
+                     pad: 0
+            paramChanged: 0
+                  parver: {'VnmrJ VERSION 4.2 REVISION A'}
+              parversion: 5.1000
+                 petable: {''}
+                pescheme: 0
+                 patlist: {'pwpat'}
+                   phase: 0
+                   pfsat: 1000
+                  phase2: 0
+                   pipat: {''}
+                     phi: 0
+                  phfid2: 0
+                  phfid1: 0
+                      pi: 0
+                    phi2: 0
+                   pilot: {'y'}
+                   plane: {'f1f3'}
+                  planSs: 0
+                 pkpick_: {''}
+               planValue: {'standard getCurrentStacks'}
+              plotoption: {''}
+                   plist: {'pw'}
+                  pltmod: {'off'}
+                    ppe2: 0
+                    posY: {'pro'}
+                    pos2: 0
+                    pos1: 0
+                     pmt: 0
+                    posX: {'ppe'}
+                    pos3: 0
+               position2: {''}
+               position1: {''}
+                    posZ: {'pss0'}
+                     ppe: 0
+               postRUBss: 0
+                priority: 5
+              prescribed: {'y'}
+                  preacq: 0
+                    ppe3: 0
+                 prescan: {1&times;9 cell}
+                  presig: {'l'}
+             probestyle_: {''}
+                     pro: 0
+                  probe_: {''}
+                    proc: {'ft'}
+                   proc1: {'ft'}
+                  stheta: 0
+              scoutnodes: {''}
+              refsource2: {'sfrq'}
+                      r6: 0
+                ptspec3d: {'nnn'}
+                     psi: 0
+                 profile: {'n'}
+                 procdim: 1
+                 proccmd: {'wft'}
+               processid: 0
+               protocols: {''}
+                protocol: {''}
+                    psat: 0
+                     pss: 0
+                 pslabel: {'Hyp_C13_Rat_C1'}
+                    psi2: 0
+                    pss0: 0
+                     pws: 1000
+                   pwpat: {'hard'}
+                      pw: 4
+                    pw90: 20.0000
+                 pwrlist: {'tpwr'}
+                      r4: 0
+                      r2: 0
+                      r1: 1.5783e-05
+                      r3: 0
+                      r5: 0
+                   rcvrs: {'yy'}
+                   rawMG: {'n'}
+                     raw: {''}
+            radialAngles: 0
+                      r7: 0
+             radialShift: 0
+                   rawIM: {'n'}
+                   rawIR: {'n'}
+                  rcrush: 0
+                   rawRE: {'n'}
+                   rawPH: {'n'}
+                      rc: 1
+                 rcvrout: {''}
+                 reffrq1: 200.0570
+                   recon: {'internal'}
+                  rcvrwt: 1
+                   reacq: 0
+                    ref1: 0
+                     ref: 0
+                  reffrq: 75.5296
+                 refpos2: 0
+                  refpos: 0
+                 reffrq2: 399.9477
+                 refpos1: 0
+              refsource1: {'sfrq'}
+                 rollout: 1
+                    rfp2: 0
+                  rfcoil: {'13C_RA_2Chn_RxSurf'}
+                   resto: 4.5916e+03
+                  refval: 4.7500
+                 refstd_: {''}
+                  rfband: {'cc'}
+                  restol: 0
+              rfchnuclei: {'none C13'}
+               rfladjust: 0
+                    rfl1: 0
+                     rfl: 5.7421e+03
+                    rfl2: 0
+                     rfp: 1.4226e+03
+               rfloffset: 0
+                    rfp1: 0
+                   rgss2: 0
+                    rgpe: 0
+                 rfspoil: {'n'}
+                 rfphase: 0
+                   rgate: {'n'}
+                   rgror: 0
+                    rgro: 0
+                    rgss: 0
+                    roff: 0
+                    rof1: 16
+                   rgssi: 0
+                    rof2: 16
+              roffadjust: 0
+                  satpwr: 0
+                     sar: [0 0]
+                      sa: 1024
+                     rp1: 0
+                      rp: 15.6645
+                     rp2: 0
+              samplename: {''}
+                  sample: {''}
+                  satfrq: 0
+                     sat: {'n'}
+                     sas: 0
+                  satdly: 0
+                  satpat: {''}
+                  satpos: 0
+               sb_factor: 50
+                      sb: 0
+                  satthk: 0
+                 satpwrf: 0
+             saveglobal_: {1&times;21 cell}
+                     sb2: 0
+                     sb1: 0
+                     sb3: 0
+                    sbs3: 0
+                    sbs1: 0
+                     sbs: 0
+                    sbs2: 0
+                     sc2: 0
+                      sc: 0
+                   scans: {''}
+         simobjectfactor: 8
+             showOptions: 0
+                     sf1: 0
+                  seqcon: {'nnccn'}
+              scoutpaths: {''}
+               scoutpath: {''}
+               sdirtmplt: {''}
+                      sf: 0
+                  seqfil: {'s2pul_gated_MSD'}
+                sglarray: 1
+                    sfrq: 75.5296
+                     sf2: 0
+                sglabort: 0
+               shimpanel: 1
+              sgldisplay: 0
+                   shims: {''}
+                shownumx: 0
+               showarray: {'horiz'}
+               show_grad: 0
+                show_adv: 0
+                 show_rf: 0
+             shownumbers: {'n'}
+             showcontent: {'s'}
+            shownumstyle: {'auto'}
+                 simgray: [1&times;10 double]
+            simacqweight: {'n'}
+                shownumy: 0
+             simcircular: {'n'}
+          simnoisefactor: 0.0500
+                 simmode: {'classic'}
+                   simnt: 1
+                     sp2: 0
+                   slice: 1
+                      sl: 1
+            simulatepage: {'n'}
+                 simtype: {''}
+                  slabix: 1
+                 solvent: {'none'}
+                  slices: {'single'}
+              sliceorder: 0
+                      sn: 0
+                      sp: -4.3193e+03
+                 sorient: {''}
+                     sp1: 0
+                 sreffrq: 75.5182
+                    sphi: 0
+                specdc3d: {'nnn'}
+                 species: {''}
+               spostitle: {''}
+                    spin: 0
+                    spsi: 0
+                     ssc: 0
+                    ss_o: 0
+                      ss: 0
+               starttrec: 0.0100
+                  sslist: {''}
+                startvol: 1
+                   tpwr3: 0
+                 thkunit: {''}
+                   t_pro: 0
+                 t_dgvox: {''}
+                     sw1: 1.1703e+03
+                svftmplt: {''}
+                studyid_: {'s_2019112706'}
+                   study: {''}
+                      sw: 8.0128e+03
+                   t1est: 0.4000
+                     sw3: 0
+                     sw2: 1.1703e+03
+                      t1: 0.2360
+                  tDELTA: 0
+                      t2: 0.1880
+                 t_array: {''}
+                    t_ns: 1
+                  t_lpe2: 0
+                   t_lpe: 0
+                   t_gap: 0
+                   t_lro: 0
+                  t_lpe3: 0
+                  t_mark: 0
+                  t_pos3: 0
+                  t_pos1: 0
+                   t_phi: 0
+                  t_pos2: 0
+                  t_ppe2: 0
+                   t_ppe: 0
+                  t_ppe3: 0
+                tcrushmt: 0
+                  t_vphi: 0
+                   t_thk: 0
+                   t_pss: 0
+                   t_psi: 0
+                 t_theta: 0
+                  t_vox2: 0
+                  t_vox1: 0
+                  t_vox3: 0
+                    tau1: 0
+                t_vtheta: 0
+                  t_vpsi: 0
+                     tau: 0
+                  tcrush: 0
+                    tau2: 0
+              tcrushfsat: 0
+                      th: 14
+                    temp: 29
+                  tdelta: 0
+               tcrushsat: 0
+                      te: [0.0500 0.0792 0.1256 0.1991 0.3155 0.5000]
+                   tflow: 0
+                 tempFTS: 25
+                     thk: 2
+                   theta: 0
+                    th2d: 0.8000
+                  theta2: 0
+                  thkcon: 0
+                thk2fact: 1
+                thktitle: {''}
+                   timer: 0
+          time_processed: {'20191128T135823'}
+                time_exp: {'5 min, 27 sec'}
+                   ticks: 0
+                      ti: [0.0500 0.1000 0.2000 0.4000 0.8000 1.6000]
+           time_complete: {'20191128T135823'}
+            time_plotted: {''}
+          time_submitted: {'20191128T135720'}
+                time_run: {'20191128T135722'}
+              time_saved: {'20191128T135824'}
+    time_submitted_local: {'20191128T135720X01PMThuNov'}
+            time_svfdate: {'20191128T135720'}
+                    tpe2: 8.5446e-04
+                      tm: 0
+                     tin: {'n'}
+                 timersp: 5
+                     tlt: -0.0293
+                     tof: 4.5916e+03
+                      tn: {'C13'}
+                     tpe: 8.5446e-04
+                   tpwr1: 42
+                    tpwr: 58
+                    tpe3: 0
+                   tpwr2: 60
+                  tpwr1f: 3768
+                  tpwr2f: 4091
+                     wnt: {'f full wft dssh'}
+               vpostitle: {''}
+                      vf: 263.6188
+                  trelax: 0
+                  tpwrif: 0
+               tpwrfsatf: 0
+                   tpwr5: 0
+                   tpwr4: 0
+                tpwrfsat: 0
+                   tpwri: 0
+                tpwrsatf: 0
+                 tpwrmtf: 0
+                  tpwrmt: 0
+                 tpwrsat: 0
+                   trace: {'f1'}
+                      tr: 1
+                    trec: 0
+                     tze: 1
+                    tset: 0
+                   trise: 1.4000e-04
+                 trigger: 1
+                    tror: 0
+                    tssr: 0
+                  tspoil: 1.0000e-03
+                     ttl: {'n'}
+                    tzs1: 0.6000
+                    tze2: 1
+                    tze1: 1
+                     tzs: 0.6000
+                username: {'vnmr1'}
+                    tzs2: 0.6000
+                 verbose: {'n'}
+                    vox1: 0
+               volumercv: {'n'}
+                      vo: 0
+                   vloc_: {'A0'}
+                  volnv2: 0
+               volumexmt: {'y'}
+                 volumes: 0
+                 vorient: {''}
+                      vp: 0
+                    vox3: 0
+                    vox2: 0
+                voxtitle: {''}
+                    vpfi: 0
+                     vpf: 0
+                    vphi: 0
+                   wdone: {'xmwexp'}
+                  vtheta: 0
+                      vs: 8.0363e+03
+                    vpsi: 0
+                 vproto_: {''}
+                  vrack_: 1
+                  vsproj: 1.7075e+03
+                    vs2d: 7.4398e+04
+                     vtc: 25
+                     wbs: {''}
+                  vzone_: 1
+                  vtwait: 300
+                     wc2: 149
+                      wc: 268
+                    wexp: {'abortoff procplot save acqWexp aborton'}
+                    werr: {'xmwerr'}
+                  weight: 0
+                 wetfsat: {'n'}
+                     wf1: 0.1094
+                      wf: 0.5112
+                     wf2: 0.1094
+                     yz2: 0
+                      x1: 1900
+                   wspat: {'sinc'}
+                      ws: {'n'}
+                     wp1: 1.1703e+03
+                      wp: 8.0126e+03
+                     wp2: 1.1703e+03
+                   wsfrq: 0
+                ws_delta: 0
+                   wshim: {'n'}
+                 wtfile1: {''}
+                  wtfile: {''}
+                 wtfile2: {''}
+                      xy: 200
+                      x4: 0
+                    x2y2: 0
+                      x3: 0
+                   xdiag: 0
+                      y3: 0
+                     xz2: 0
+                      xz: 280
+                      y1: -800
+                      yz: 0
+                      y4: 0
+                    z3xy: 0
+                    z2xy: 0
+                      z2: 0
+                      z1: 0
+                     z0_: 0
+                     z1c: -900
+                  z2x2y2: 0
+                     z2c: -100
+                    z2x3: 0
+                     z3x: 0
+                      z3: 0
+                    z2y3: 0
+                     z3c: 0
+                    z3x3: 0
+                  z3x2y2: 0
+                     z4y: 0
+                     z4c: 0
+                    z3y3: 0
+                     z3y: 0
+                      z4: 0
+                  z4x2y2: 0
+                     z4x: 0
+                    z4xy: 0
+                      z8: 0
+                      z6: 0
+                     z5x: 0
+                      z5: 0
+                     z5y: 0
+                      z7: 0
+                   zx2y2: 0
+                zerofill: {'y'}
+                    zero: 0
+                     zxy: 0
+                     zx3: 0
+                     zy3: 0
+               accfactor: 1
+         tSenseAccfactor: 1
+                numshots: 1
+                 navecho: 0
+               navechoes: 0
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% readprocpar.m
+%
+%      usage: readprocpar.m()
+%         by: justin gardner
+%       date: 07/03/03
+%    purpose: reads procpar into matlab variable
+%      usage: procpar = readprocpar;
+%       
+% last modified: 27/11/19 by John Myers
+%% Required Child Function (from John Myers)
+% _isdatfile_: checks if the inputted file is readible
+function procpar = readprocpar(inp,procdir,verbose)
+
+
+% argument check
+if (nargin == 0)
+  procdir = './';
+  verbose = 0;
+elseif (nargin == 1)
+    procdir = './';
+    verbose = 0;
+elseif (nargin == 2) 
+% 2014.05.29 AZL commented out
+%
+%   if ~strcmp(getext(procdir),'par')
+%     procdir = setext(procdir,'fid',0);
+%   end
+  verbose = 0;
+elseif (nargin ~= 3)
+  help readprocpar;
+  return
+end
+if (nargin > 1)
+  if (procdir(length(procdir)) ~= '/')
+    procdir(length(procdir)+1) = '/';
+  end
+end
+
+if (verbose)
+  disp('(readprocpar) Reading procpar...');
+end
+procpar = [];
+
+% open the procpar
+% fprocpar = fopen([procdir 'procpar'],'r');
+
+if nargin == 0 %Allows the user to input the procpar file to process
+    prompt = 'Enter a procpar file to process: ';
+    inp = input(prompt,'s');
+    procbool = isdatfile(inp);
+    while procbool == 0
+        prompt1 = 'Error: Please enter a valid procpar file to process: ';
+        inp = input(prompt1,'s');
+        procbool = isdatfile(inp);
+    end
+end
+
+if nargin == 1
+    procbool = isdatfile(inp);
+    while procbool == 0
+        prompt1 = 'Error: Please enter a valid procpar file to process: ';
+        inp = input(prompt1,'s');
+        procbool = isdatfile(inp);
+    end
+end
+
+fprocpar = fopen(fullfile(procdir, inp),'r');
+if (fprocpar == -1)
+  disp(sprintf('(readprocpar) ERROR: Could not open %s',[procdir 'procpar']));
+  return
+end
+
+% scan through procpar looking for parameters needed for parsing
+line = fgets(fprocpar);
+while (line ~= -1) 
+  % get the first token of the line
+  token = strtok(line);
+  % if it is a character and not doublequote then we have an array name
+  if (~((token(1) >= '0') & (token(1) <= '9')) & (token(1) ~= '"'))
+    fieldname = token;
+    % get next line
+    line = fgets(fprocpar);
+    % first number is just length of array
+    [len line] = strtok(line);
+    len = str2num(len);
+    % just an array of numbers
+    if ((length(line) > 2) & (line(2) ~= '"'))
+      eval(sprintf('procpar.%s = str2num(line);',fieldname));
+      % confirm length
+      arraylen = eval(sprintf('length(procpar.%s)',fieldname));
+      if (arraylen ~= len)
+	sprintf('WARNING: %s should be %i elements, but found only %i',fieldname,len,arraylen);
+      end
+    % character arrays
+    else
+      for j = 1:len
+	% strip leading white space
+	while (length(line) & (line(1) == ' '))
+	  line = line(2:length(line));
+	end
+	token = line;
+	% make sure we have a valid string token
+	if (isempty(token) | (token(1) ~= '"'))
+	  sprintf('WARNING: %s missing string element %i/%i',fieldname,j,len);
+	  eval(sprintf('procpar.%s{%i} = '''';',fieldname,j));
+	  j = len;
+	else
+	  str = strtok(line,sprintf('"\n'));
+	  % convert single to double quotes
+	  str(findstr(str,'''')) = '"';
+	  eval(sprintf('procpar.%s{%i} = ''%s'';',fieldname,j,str));
+	end
+	line = fgets(fprocpar);
+      end
+    end
+  end
+  line = fgets(fprocpar);
+end
+
+fclose(fprocpar);
+
+% these fields will get set from the petable name if available
+if ~isfield(procpar,'accfactor'),procpar.accfactor = 1;end
+if ~isfield(procpar,'tSesnseAccfactor'),procpar.tSenseAccfactor = 1;end
+if ~isfield(procpar,'numshots'),procpar.numshots = 1;end
+
+% for epi images, there are navigator echos, which
+% should be subtracted from the number of lines.
+% this can be known from the name of the petable
+if (isfield(procpar,'petable'))
+  token = procpar.petable{1};
+  % the petable name should be something like
+  % "epi132alt8k". We want the second number
+  if (strncmp(token,'epi',3)) 
+    j = 1;
+    % go past any intial characters
+    while((j < length(token)) && (isempty(strfind('0123456789',token(j))))),j=j+1;,end
+    % then skip the numbers
+    while((j < length(token)) && (~isempty(strfind('0123456789',token(j))))),j=j+1;,end
+    % and skip the next characters
+    while((j < length(token)) && (isempty(strfind('0123456789',token(j))))),j=j+1;,end
+    % find end of numbers
+    k = j;
+    while((k < length(token)) && (~isempty(strfind('0123456789',token(k))))),k=k+1;,end
+    procpar.numshots = str2num(token(j:k-1));
+    % then skip some more numbers
+    while((j < length(token)) && (~isempty(strfind('0123456789',token(j))))),j=j+1;,end
+    % go past any other charcters (should be k)
+    while((j < length(token)) && (isempty(strfind('0123456789',token(j))))),j=j+1;,end
+    % and if we have anything left then get the number, that is the acceleration factor
+    k = j;
+    while((k < length(token)) && (~isempty(strfind('0123456789',token(k))))),k=k+1;,end
+    if j < length(token)
+      % r means that it is a sense petable
+      if token(j+1:k) == 'r'
+	procpar.accfactor = str2num(token(j:k-1));
+      % t means t-sense acc factor	
+      elseif token(j+1:k) == 't'
+	procpar.tSenseAccfactor = str2num(token(j:k-1));
+      end
+    end
+    % before we always had 1 navecho for epi, but now there is a field procpar.navecho that should
+    % be set by Ken's prep program that reads the petable and gets the t3 field.
+    if ~isfield(procpar,'navecho'),procpar.navecho = 1;end
+  end
+end
+
+% the number of shots should now be read from the field nseg rather than from the petable
+if isfield(procpar,'nseg') procpar.numshots = procpar.nseg;end
+
+% if navecho is not set by now, then there were no navecho's
+if ~isfield(procpar,'navecho'),procpar.navecho = 0;end
+
+% compute the number of echoes
+procpar.navechoes = procpar.navecho*procpar.numshots/procpar.accfactor;
+
+if (verbose),disp('(readprocpar) Finished.');,end
+##### SOURCE END #####
+--></body></html>

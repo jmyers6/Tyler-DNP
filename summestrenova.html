@@ -1,0 +1,306 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Generating a Structure Array from the Results of Integration Using MestReNova</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="summestrenova.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Generating a Structure Array from the Results of Integration Using MestReNova</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#3">Output</a></li><li><a href="#4">Child Functions</a></li><li><a href="#7">Calling the User if Insufficient or Invalid Inputs have been Entered</a></li><li><a href="#8">Summing Data from Simultaneous Detection from Multiple Coils</a></li><li><a href="#9">Generating the <i>fitted</i> Structure Array</a></li><li><a href="#11">Notes</a></li></ul></div><p>The function processes MestReNova's custom integral .csv file, where the file is comma delimited and the columns are the parameters: 'counts' and 'abs integral values'</p><h2 id="2">Inputs</h2><p><i>countAbs</i>: is the .csv output file from MestReNova <i>coilnum</i>: is the number of coils used to detect the NMR signal in the experiment <i>field</i>: is a cell containing the names of each peak quantified in a separate element</p><h2 id="3">Output</h2><p><i>fitted</i>: is a structure array of the same layout as the one produced by the loadJmruiAmares function among others</p><h2 id="4">Child Functions</h2><p><i>isint</i>: checks if an input is an integer or not</p><p><i>readmatrixrig</i>: is a more rigorous version of the readmatrix function that does not throw exceptions</p><pre class="codeinput"><span class="keyword">function</span> fitted = summestrenova(countAbs,coilnum,field)
+</pre><h2 id="7">Calling the User if Insufficient or Invalid Inputs have been Entered</h2><pre class="codeinput">    <span class="keyword">if</span> nargin &lt; 1
+        prompt = <span class="string">'Please input a MestReNova integral series file: '</span>;
+        countAbs = input(prompt,<span class="string">'s'</span>);
+    <span class="keyword">elseif</span> isempty(countAbs) == 1
+        prompt = <span class="string">'Please input a MestReNova integral series file: '</span>;
+        countAbs = input(prompt,<span class="string">'s'</span>);
+    <span class="keyword">end</span>
+
+    bool = 0;
+
+    <span class="keyword">while</span> bool == 0
+
+        <span class="keyword">if</span> nargin &lt; 2
+            promptc = <span class="string">'Enter the number of coils of data to sum: '</span>;
+            coilnum = input(promptc);
+            bool = isint(coilnum);
+        <span class="keyword">elseif</span> isempty(coilnum) == 1
+            promptc = <span class="string">'Enter the number of coils of data to sum: '</span>;
+            coilnum = input(promptc);
+            bool = isint(coilnum);
+        <span class="keyword">else</span>
+            bool = isint(coilnum);
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> bool == 0
+            disp(<span class="string">'Error: Non-integral number of coils entered'</span>)
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    data = readmatrixrig(countAbs);
+
+    numpeak = length(data(1,:))-2;
+
+    fieldbool = 0;
+
+    <span class="keyword">if</span> nargin == 3
+        <span class="keyword">if</span> string(class(field)) == <span class="string">"cell"</span>
+            <span class="keyword">if</span> length(field) == numpeak
+                fieldbool = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> fieldbool == 0
+
+        field = cell(numpeak,1);
+
+        <span class="keyword">if</span> numpeak == 1
+
+            promptp = <span class="string">'Please enter a name for the peak: '</span>;
+            field{1,1} = input(promptp,<span class="string">'s'</span>);
+
+        <span class="keyword">else</span>
+
+            promptp = <span class="string">'Please enter a name for the first peak (lst column after the count from the left): '</span>;
+            field{1,1} = input(promptp,<span class="string">'s'</span>);
+
+            <span class="keyword">for</span> el = 2:numpeak
+
+                promptpn = <span class="string">'Please enter a name for the next peak: '</span>;
+                field{el,1} = input(promptpn,<span class="string">'s'</span>);
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="8">Summing Data from Simultaneous Detection from Multiple Coils</h2><pre class="codeinput">    <span class="keyword">if</span> coilnum &gt; 1
+
+        nummeat = length(data(:,1));
+        indarray = 1:coilnum:nummeat;
+        dataf = data(indarray,:);
+
+        <span class="keyword">for</span> el = 2:coilnum
+            indarrayn = el:coilnum:nummeat;
+            dataf = dataf+data(indarrayn,:);
+        <span class="keyword">end</span>
+
+    <span class="keyword">else</span>
+
+        dataf = data;
+
+    <span class="keyword">end</span>
+</pre><h2 id="9">Generating the <i>fitted</i> Structure Array</h2><pre class="codeinput">    <span class="keyword">for</span> el = 1:numpeak
+        datac = el+1;
+        fitted.dataByPeak.(field{el}) = struct(<span class="string">'Amplitudes'</span>,dataf(:,datac));
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+fitted = 
+
+  struct with fields:
+
+    dataByPeak: [1&times;1 struct]
+
+</pre><h2 id="11">Notes</h2><p>The example inputs used are:</p><p><i>countAbs</i>: 'Decay_Dissolution_17_10_19.csv'</p><p><i>coilnum</i>: 2</p><p><i>field</i>: {'PYRUVATE','PYRUVATE_HYDRATE'}</p><p>The example was run by putting:</p><p>fitted = summestrenova('Decay_Dissolution_17_10_19.csv',2,{'PYRUVATE', 'PYRUVATE_HYDRATE'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Generating a Structure Array from the Results of Integration Using MestReNova
+%%
+% The function processes MestReNova's custom integral .csv file, where the
+% file is comma delimited and the columns are the parameters: 'counts' and
+% 'abs integral values'
+%% Inputs
+% _countAbs_: is the .csv output file from MestReNova
+% _coilnum_: is the number of coils used to detect the NMR signal in the
+% experiment
+% _field_: is a cell containing the names of each peak quantified in a
+% separate element
+%% Output
+% _fitted_: is a structure array of the same layout as the one produced by
+% the loadJmruiAmares function among others
+%% Child Functions
+% _isint_: checks if an input is an integer or not
+%%
+% _readmatrixrig_: is a more rigorous version of the readmatrix function
+% that does not throw exceptions
+
+function fitted = summestrenova(countAbs,coilnum,field) 
+
+    %% Calling the User if Insufficient or Invalid Inputs have been Entered
+    
+    if nargin < 1 
+        prompt = 'Please input a MestReNova integral series file: ';
+        countAbs = input(prompt,'s');
+    elseif isempty(countAbs) == 1
+        prompt = 'Please input a MestReNova integral series file: ';
+        countAbs = input(prompt,'s');
+    end
+    
+    bool = 0;
+    
+    while bool == 0
+        
+        if nargin < 2 
+            promptc = 'Enter the number of coils of data to sum: ';
+            coilnum = input(promptc);
+            bool = isint(coilnum);
+        elseif isempty(coilnum) == 1
+            promptc = 'Enter the number of coils of data to sum: ';
+            coilnum = input(promptc);
+            bool = isint(coilnum);
+        else
+            bool = isint(coilnum);
+        end
+        
+        if bool == 0
+            disp('Error: Non-integral number of coils entered')
+        end
+        
+    end
+    
+    data = readmatrixrig(countAbs);
+    
+    numpeak = length(data(1,:))-2;
+    
+    fieldbool = 0;
+    
+    if nargin == 3
+        if string(class(field)) == "cell"
+            if length(field) == numpeak
+                fieldbool = 1;
+            end
+        end
+    end
+    
+    if fieldbool == 0 
+    
+        field = cell(numpeak,1);
+    
+        if numpeak == 1
+        
+            promptp = 'Please enter a name for the peak: ';
+            field{1,1} = input(promptp,'s');
+        
+        else
+        
+            promptp = 'Please enter a name for the first peak (lst column after the count from the left): ';
+            field{1,1} = input(promptp,'s');
+        
+            for el = 2:numpeak
+            
+                promptpn = 'Please enter a name for the next peak: ';
+                field{el,1} = input(promptpn,'s');
+            
+            end
+        
+        end
+        
+    end
+    
+    %% Summing Data from Simultaneous Detection from Multiple Coils
+    
+    if coilnum > 1 
+        
+        nummeat = length(data(:,1));
+        indarray = 1:coilnum:nummeat;
+        dataf = data(indarray,:);
+        
+        for el = 2:coilnum
+            indarrayn = el:coilnum:nummeat;
+            dataf = dataf+data(indarrayn,:);
+        end
+        
+    else
+        
+        dataf = data;
+        
+    end
+    
+    %% Generating the _fitted_ Structure Array
+    
+    for el = 1:numpeak 
+        datac = el+1;
+        fitted.dataByPeak.(field{el}) = struct('Amplitudes',dataf(:,datac));
+    end
+    
+end
+        
+%% Notes
+% The example inputs used are:
+%%
+% _countAbs_: 'Decay_Dissolution_17_10_19.csv'
+%%
+% _coilnum_: 2
+%%
+% _field_: {'PYRUVATE','PYRUVATE_HYDRATE'}
+%%
+% The example was run by putting:
+%%
+% fitted =
+% summestrenova('Decay_Dissolution_17_10_19.csv',2,{'PYRUVATE',
+% 'PYRUVATE_HYDRATE'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

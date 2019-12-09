@@ -1,0 +1,434 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Processing Multiple .txt AMARES Outpus into One Structure Array</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="processAMARES.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Processing Multiple .txt AMARES Outpus into One Structure Array</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Input</a></li><li><a href="#3">Output</a></li><li><a href="#4">Child Functions</a></li><li><a href="#7">Calling the User to Individually Enter Files to Process</a></li><li><a href="#9">Adding More AMARES Files to the Output <i>fitted</i></a></li><li><a href="#10">Entering Files Individually if <i>inp</i> is Invalid</a></li><li><a href="#13">Verifying <i>inp</i> is Valid and Processing <i>inp</i></a></li><li><a href="#16">Notes</a></li></ul></div><p>This function is similar to loadJmruiAmares, but allows for keeping related AMARES files in together in one output. Instead of a 1x1 structure array being generated, a 1xnumber of files size structure array is generated instead. This function also allows for manually entering in the files to be concatenated if necessary.</p><h2 id="2">Input</h2><p><i>inp</i>: is a cell containing each .txt AMARES output file in a separate element. In the case of only processing one file, <i>inp</i> is a 1x1 cell, where the sole element is the file to be processed</p><h2 id="3">Output</h2><p><i>fitted</i>: is a structure array of the files stored in <i>inp</i></p><h2 id="4">Child Functions</h2><p><i>loadJmruiAmares</i>: parses the .txt output from AMARES in JMRUI into a structure array</p><p><i>validateAMARES</i>: verifies that a file can be passed into <i>loadJmruiAmares</i> without throwing an exception</p><pre class="codeinput"><span class="keyword">function</span> fitted = processAMARES(inp)
+</pre><h2 id="7">Calling the User to Individually Enter Files to Process</h2><p>If no files are inputted or invalid files entered, the user will instead be called to enter files to process one by one.</p><pre class="codeinput">    runbool = 0;
+    canrun = 1;
+
+    <span class="keyword">while</span> runbool == 0
+
+        <span class="keyword">if</span> nargin == 0
+</pre><pre class="codeinput">            prompt = <span class="string">'Enter an AMARES .txt file to process: '</span>;
+            prompt1 = <span class="string">'Please enter a valid AMARES .txt file to process: '</span>;
+            inp = input(prompt,<span class="string">'s'</span>);
+            bool = validateAMARES(inp);
+
+            <span class="keyword">while</span> bool == 0
+                inp = input(prompt1,<span class="string">'s'</span>);
+                bool = validateAMARES(inp);
+            <span class="keyword">end</span>
+
+            fitted = loadJmruiAmares(inp);
+
+            promptn = <span class="string">'Would you like to enter another AMARES .txt file to process? (Y/N): '</span>;
+            promptn1 = <span class="string">'Error: Please enter Y to process another AMARES .txt file or N to quit: '</span>;
+            inp = input(promptn,<span class="string">'s'</span>);
+
+            boolyn = checkYN(inp);
+
+            <span class="keyword">while</span> boolyn == 0
+                inp = input(promptn1,<span class="string">'s'</span>);
+                boolyn = checkYN(inp);
+            <span class="keyword">end</span>
+</pre><h2 id="9">Adding More AMARES Files to the Output <i>fitted</i></h2><pre class="codeinput">            <span class="keyword">while</span> boolyn == 1
+
+                prompta = <span class="string">'Enter the next AMARES .txt file to process: '</span>;
+                inp = input(prompta,<span class="string">'s'</span>);
+
+                bool = validateAMARES(inp);
+
+                <span class="keyword">while</span> bool == 0
+                    inp = input(prompt1,<span class="string">'s'</span>);
+                    bool = validateAMARES(inp);
+                <span class="keyword">end</span>
+
+                fitteda = loadJmruiAmares(inp);
+
+                fitted = [fitted, fitteda];
+
+                promptn = <span class="string">'Would you like to enter another AMARES .txt file to process? (Y/N): '</span>;
+                inp = input(promptn,<span class="string">'s'</span>);
+
+                boolyn = checkYN(inp);
+
+                <span class="keyword">while</span> boolyn == 0
+                    inp = input(promptn1,<span class="string">'s'</span>);
+                    boolyn = checkYN(inp);
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+            runbool = 1;
+</pre><h2 id="10">Entering Files Individually if <i>inp</i> is Invalid</h2><pre class="codeinput">        <span class="keyword">elseif</span> canrun == 0
+</pre><pre class="codeinput">            prompt = <span class="string">'Enter an AMARES .txt file to process: '</span>;
+            prompt1 = <span class="string">'Please enter a valid AMARES .txt file to process: '</span>;
+            inp = input(prompt,<span class="string">'s'</span>);
+            bool = validateAMARES(inp);
+
+            <span class="keyword">while</span> bool == 0
+                inp = input(prompt1,<span class="string">'s'</span>);
+                bool = validateAMARES(inp);
+            <span class="keyword">end</span>
+
+            fitted = loadJmruiAmares(inp);
+
+            promptn = <span class="string">'Would you like to enter another AMARES .txt file to process? (Y/N): '</span>;
+            promptn1 = <span class="string">'Error: Please enter Y to process another AMARES .txt file or N to quit: '</span>;
+            inp = input(promptn,<span class="string">'s'</span>);
+
+            boolyn = checkYN(inp);
+
+            <span class="keyword">while</span> boolyn == 0
+                inp = input(promptn1,<span class="string">'s'</span>);
+                boolyn = checkYN(inp);
+            <span class="keyword">end</span>
+
+            <span class="keyword">while</span> boolyn == 1
+
+                prompta = <span class="string">'Enter the next AMARES .txt file to process: '</span>;
+                inp = input(prompta,<span class="string">'s'</span>);
+
+                bool = validateAMARES(inp);
+
+                <span class="keyword">while</span> bool == 0
+                    inp = input(prompt1,<span class="string">'s'</span>);
+                    bool = validateAMARES(inp);
+                <span class="keyword">end</span>
+
+                fitteda = loadJmruiAmares(inp);
+
+                fitted = [fitted, fitteda];
+
+                promptn = <span class="string">'Would you like to enter another AMARES .txt file to process? (Y/N): '</span>;
+                inp = input(promptn,<span class="string">'s'</span>);
+
+                boolyn = checkYN(inp);
+
+                <span class="keyword">while</span> boolyn == 0
+                    inp = input(promptn1,<span class="string">'s'</span>);
+                    boolyn = checkYN(inp);
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+            runbool = 1;
+</pre><h2 id="13">Verifying <i>inp</i> is Valid and Processing <i>inp</i></h2><pre class="codeinput">        <span class="keyword">else</span>
+
+            <span class="keyword">if</span> string(class(inp)) == <span class="string">"cell"</span>
+
+                len = length(inp);
+
+                bool = 1;
+
+                <span class="keyword">for</span> el = 1:len
+
+                    checkbool = validateAMARES(inp{el});
+
+                    <span class="keyword">if</span> checkbool == 0
+                        bool = 0;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+
+                <span class="keyword">if</span> bool == 1
+
+                    fitted = loadJmruiAmares(char(inp{1}));
+
+                    <span class="keyword">for</span> el = 2:len
+                        fitteda = loadJmruiAmares(char(inp{el}));
+                        fitted = [fitted,fitteda];
+                    <span class="keyword">end</span>
+
+                    runbool = 1;
+
+                <span class="keyword">else</span>
+
+                    canrun = 0;
+
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+fitted = 
+
+  1&times;2 struct array with fields:
+
+    headers
+    peakNames
+    dataByPeak
+    dataByLine
+    dataGlobal
+
+</pre><h2 id="16">Notes</h2><p>The input used in the example is:</p><p><i>inp</i>: {'Decay_Dissolution_17_10_19_even.txt','Decay_Dissolution_17_10_19_odd.txt'}</p><p>The example was run by putting:</p><p>fitted = processAMARES({'Decay_Dissolution_17_10_19_even.txt','Decay_Dissolution_17_10_19_odd.txt'})</p><p>into the command window.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Processing Multiple .txt AMARES Outpus into One Structure Array
+%%
+% This function is similar to loadJmruiAmares, but allows for keeping
+% related AMARES files in together in one output. Instead of a 1x1
+% structure array being generated, a 1xnumber of files size structure array
+% is generated instead. This function also allows for manually entering in
+% the files to be concatenated if necessary.
+%% Input
+% _inp_: is a cell containing each .txt AMARES output file in a separate
+% element. In the case of only processing one file, _inp_ is a 1x1 cell,
+% where the sole element is the file to be processed
+%% Output
+% _fitted_: is a structure array of the files stored in _inp_
+%% Child Functions
+% _loadJmruiAmares_: parses the .txt output from AMARES in JMRUI into a
+% structure array
+%%
+% _validateAMARES_: verifies that a file can be passed into
+% _loadJmruiAmares_ without throwing an exception
+
+function fitted = processAMARES(inp)
+
+%% Calling the User to Individually Enter Files to Process
+% If no files are inputted or invalid files entered, the user will instead 
+% be called to enter files to process one by one.
+
+    runbool = 0;
+    canrun = 1;
+    
+    while runbool == 0
+
+        if nargin == 0
+        
+            prompt = 'Enter an AMARES .txt file to process: '; 
+            prompt1 = 'Please enter a valid AMARES .txt file to process: ';
+            inp = input(prompt,'s');
+            bool = validateAMARES(inp);
+        
+            while bool == 0
+                inp = input(prompt1,'s');
+                bool = validateAMARES(inp);
+            end
+        
+            fitted = loadJmruiAmares(inp);
+    
+            promptn = 'Would you like to enter another AMARES .txt file to process? (Y/N): ';
+            promptn1 = 'Error: Please enter Y to process another AMARES .txt file or N to quit: ';
+            inp = input(promptn,'s');
+    
+            boolyn = checkYN(inp);
+        
+            while boolyn == 0
+                inp = input(promptn1,'s');
+                boolyn = checkYN(inp);
+            end
+            
+            %% Adding More AMARES Files to the Output _fitted_
+    
+            while boolyn == 1
+        
+                prompta = 'Enter the next AMARES .txt file to process: ';
+                inp = input(prompta,'s');
+            
+                bool = validateAMARES(inp);
+            
+                while bool == 0
+                    inp = input(prompt1,'s');
+                    bool = validateAMARES(inp);
+                end
+                
+                fitteda = loadJmruiAmares(inp);
+        
+                fitted = [fitted, fitteda];
+        
+                promptn = 'Would you like to enter another AMARES .txt file to process? (Y/N): ';
+                inp = input(promptn,'s');
+    
+                boolyn = checkYN(inp);
+        
+                while boolyn == 0
+                    inp = input(promptn1,'s');
+                    boolyn = checkYN(inp);
+                end
+        
+            end
+            
+            runbool = 1;
+            
+        %% Entering Files Individually if _inp_ is Invalid
+            
+        elseif canrun == 0
+            
+            prompt = 'Enter an AMARES .txt file to process: '; 
+            prompt1 = 'Please enter a valid AMARES .txt file to process: ';
+            inp = input(prompt,'s');
+            bool = validateAMARES(inp);
+        
+            while bool == 0
+                inp = input(prompt1,'s');
+                bool = validateAMARES(inp);
+            end
+        
+            fitted = loadJmruiAmares(inp);
+    
+            promptn = 'Would you like to enter another AMARES .txt file to process? (Y/N): ';
+            promptn1 = 'Error: Please enter Y to process another AMARES .txt file or N to quit: ';
+            inp = input(promptn,'s');
+    
+            boolyn = checkYN(inp);
+        
+            while boolyn == 0
+                inp = input(promptn1,'s');
+                boolyn = checkYN(inp);
+            end
+    
+            while boolyn == 1
+        
+                prompta = 'Enter the next AMARES .txt file to process: ';
+                inp = input(prompta,'s');
+            
+                bool = validateAMARES(inp);
+            
+                while bool == 0
+                    inp = input(prompt1,'s');
+                    bool = validateAMARES(inp);
+                end
+                
+                fitteda = loadJmruiAmares(inp);
+        
+                fitted = [fitted, fitteda];
+        
+                promptn = 'Would you like to enter another AMARES .txt file to process? (Y/N): ';
+                inp = input(promptn,'s');
+    
+                boolyn = checkYN(inp);
+        
+                while boolyn == 0
+                    inp = input(promptn1,'s');
+                    boolyn = checkYN(inp);
+                end
+        
+            end
+            
+            runbool = 1;
+            
+        %% Verifying _inp_ is Valid and Processing _inp_
+        
+        else
+        
+            if string(class(inp)) == "cell"
+        
+                len = length(inp);
+            
+                bool = 1;
+            
+                for el = 1:len
+                    
+                    checkbool = validateAMARES(inp{el});
+                    
+                    if checkbool == 0
+                        bool = 0;
+                    end
+                end
+            
+                if bool == 1
+        
+                    fitted = loadJmruiAmares(char(inp{1}));
+        
+                    for el = 2:len
+                        fitteda = loadJmruiAmares(char(inp{el}));
+                        fitted = [fitted,fitteda];
+                    end
+                    
+                    runbool = 1;
+                    
+                else
+                    
+                    canrun = 0;
+                
+                end
+                
+            end
+            
+        end
+        
+    end
+    
+end
+                
+%% Notes
+% The input used in the example is:
+%%
+% _inp_: {'Decay_Dissolution_17_10_19_even.txt','Decay_Dissolution_17_10_19_odd.txt'}
+%%
+% The example was run by putting:
+%%
+% fitted = processAMARES({'Decay_Dissolution_17_10_19_even.txt','Decay_Dissolution_17_10_19_odd.txt'})
+%%
+% into the command window.
+    
+##### SOURCE END #####
+--></body></html>
