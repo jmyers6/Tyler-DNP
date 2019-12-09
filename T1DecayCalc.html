@@ -1,0 +1,448 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Calculating the T1 Relaxation Constant for Decay of Hyperpolarisation and Initial Magnetisation</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="T1DecayCalc.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Calculating the T1 Relaxation Constant for Decay of Hyperpolarisation and Initial Magnetisation</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#7">Inputs</a></li><li><a href="#11">Outputs</a></li><li><a href="#19">Child Functions</a></li><li><a href="#22">Calculating Estimates for the <i>T1</i>, <i>M0</i> and <i>alpha</i> Parameters</a></li><li><a href="#24">Calculating <i>T1</i>, <i>M0</i>, <i>alpha</i> and <i>COD</i> for each Quantified Peak</a></li><li><a href="#27">Notes</a></li></ul></div><p>The T1 relaxation constant is calculated, along with the initial magnetisation (this is the magnetisation in the z-direction and is directly proportional to the degree of hyperpolarisation). Additionally, a correction factor, <i>alpha</i>, is calculated to adjust the predicted flip angles from the magnet to the ones that were actually used in the experiment. The parameters are calculated using the following relation:</p><p><img src="T1DecayCalc_eq05318342279758867367.png" alt="$$ Mxy_{measurement} = Mz_{previous~measurement} \times cos(\theta)&#xA;\times exp\left(-\frac{t}{T1}\right) \times sin(\theta) $$" style="width:342px;height:27px;"></p><p>where:</p><p><img src="T1DecayCalc_eq03997322531530368545.png" alt="$$ Mz_{previous~measurement} =&#xA;\frac{Mxy_{previous~measurement}}{sin(\theta_{previous~measurement})} $$" style="width:225px;height:26px;"></p><p>and the first <i>Mz</i> is <i>M0</i>, the initial magnetisation</p><p>and <img src="T1DecayCalc_eq01864118634463401093.png" alt="$$ \theta $$" style="width:5px;height:8px;"> is the flip angle of the measurement</p><h2 id="7">Inputs</h2><p><i>procpar</i>: is the procpar file for the experiment, which is used to find the flip angles, repetition times (TRs) and times each measurement was taken</p><p><i>inp</i>: is 'A' if the data was quantified using AMARES from JMRUI, or it should be 'M' if the data was quantified using integration in MestReNova and the data is a custom .csv integral file</p><p><i>coilnum</i>: should only be entered if <i>inp</i> is 'M'. It is the number of coils used to collect the data.</p><p><i>field</i>: should only be entered if <i>inp</i> is 'M'. It is a cell containing the names of the peaks that have been quantified</p><h2 id="11">Outputs</h2><p><i>T1</i>: is an array of the T1 relaxation constants for each peak quantified</p><p><i>M0</i>: is an array of the initial magnetisations in the z-direction for each peak quantified</p><p><i>alpha</i>: is an array of the flip angle correction factors. These values correct the flip angles stored in <i>flip1</i> in the procpar file to the actual values used</p><p><i>CODs</i>: is an array of the coefficients of determination for the fit of data to the model. It is calculated using:</p><p><img src="T1DecayCalc_eq09002099406405415699.png" alt="$$ COD = 1-\frac{SS_{res}}{SS_{tot}} $$" style="width:87px;height:25px;"></p><p>(see the wikipedia entry for more details)</p><p><i>data</i>: is an array containing the raw data from the experiment. The first column is the times each measurement was collected in seconds; the second column is the estimated flip angle used for each measurement in degrees; the remaining columns are the signal strengths of each measurement for each peak</p><p><i>secinds</i> &amp; <i>secvals</i>: are arrays containing the indices where the flip angle used for a measurement is changed and the value the flip angle is changed to respectively</p><h2 id="19">Child Functions</h2><p><i>estParamT1Decay</i>: generates a first estimate for <i>T1</i>, <i>M0</i> and <i>alpha</i>. It also parses the raw data files into a readible format</p><p><i>T1DecayFunction</i>: calculates the signal strength values from the model using inputted <i>T1</i>, <i>M0</i> and <i>alpha</i> parameters as well as the times and flip angles used</p><pre class="codeinput"><span class="keyword">function</span> [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum,field)
+</pre><h2 id="22">Calculating Estimates for the <i>T1</i>, <i>M0</i> and <i>alpha</i> Parameters</h2><p><i>estParamT1Decay</i> is used to calculate initial estimates to feed into <i>lsqcurvefit</i> later</p><pre class="codeinput">    <span class="keyword">if</span> nargin == 5
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat,coilnum,field);
+    <span class="keyword">elseif</span> nargin == 4
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat,coilnum);
+    <span class="keyword">elseif</span> nargin == 3
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat);
+    <span class="keyword">elseif</span> nargin == 2
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp);
+    <span class="keyword">elseif</span> nargin == 1
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc);
+    <span class="keyword">else</span>
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay;
+    <span class="keyword">end</span>
+
+    numpeak = length(peaknames);
+    M0 = zeros(numpeak,1);
+    alpha = zeros(numpeak,1);
+    T1 = zeros(numpeak,1);
+    CODs = zeros(numpeak,1);
+
+    <span class="keyword">for</span> el = 1:numpeak
+</pre><h2 id="24">Calculating <i>T1</i>, <i>M0</i>, <i>alpha</i> and <i>COD</i> for each Quantified Peak</h2><pre class="codeinput">        x0 = [eM0(el),eAlpha(el),eT1(el)];
+
+        xdataf(:,1) = data(:,1);
+        xdataf(:,2) = data(:,2);
+        sigdata = data(:,el+2);
+
+        minAlpha = 0.001;
+        maxAlpha = floor(90/max(data(:,2)));
+
+        <span class="keyword">if</span> x0(2) &lt; minAlpha
+            x0(2) = minAlpha;
+        <span class="keyword">end</span>
+
+        lb = [0 0.001 0];
+        ub = [inf maxAlpha inf];
+        options = optimoptions(<span class="string">'lsqcurvefit'</span>, <span class="keyword">...</span>
+            <span class="string">'MaxFunctionEvaluations'</span>, 3000,<span class="string">'TolFun'</span>,1e-9);
+        <span class="keyword">try</span>
+
+            [xn,~,residuals] = lsqcurvefit(@T1DecayFunction,x0,xdataf,sigdata,lb,ub,options);
+            M0(el) = xn(1);
+            alpha(el) = xn(2);
+            T1(el) = xn(3);
+            SSres = sum(residuals)*sum(residuals);
+            SStot = var(sigdata)*(length(sigdata)-1);
+            CODs(el) = 1-(SSres/SStot);
+
+        <span class="keyword">catch</span>
+            peak = peaknames{el};
+            error = strcat(<span class="string">'Error: Cannot evaluate T1 for data from the peak corresponding to '</span>, {<span class="string">' '</span>}, peak);
+            disp(error)
+            M0store = M0(1:el-1);
+            alphastore = alpha(1:el-1);
+            T1store = T1(1:el-1);
+            CODsStore = CODs(1:el-1);
+            peaknameStoreb = peaknames{1:el-1};
+
+            <span class="keyword">if</span> el &lt; numpeak
+                peaknameStoree = peaknames{el+1:numpeak};
+                peaknames = {peaknameStoreb, peaknameStoree};
+            <span class="keyword">else</span>
+                peaknames = {peaknameStoreb};
+            <span class="keyword">end</span>
+
+            numpeak = numpeak-1;
+            M0 = zeros(numpeak,1);
+            alpha = zeros(numpeak,1);
+            T1 = zeros(numpeak,1);
+            CODs = zeros(numpeak,1);
+            M0(1:el-1) = M0store;
+            alpha(1:el-1) = alphastore;
+            T1(1:el-1) = T1store;
+            CODs(1:el-1) = CODsStore;
+
+        <span class="keyword">end</span>
+</pre><pre class="codeoutput">
+Local minimum possible.
+
+lsqcurvefit stopped because the final change in the sum of squares relative to 
+its initial value is less than the value of the function tolerance.
+
+</pre><pre class="codeoutput">    'Error: Cannot evaluate T1 for data from the peak corresponding to PYRUVATE_HYDRATE'
+
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+T1 =
+
+   44.4454
+
+
+M0 =
+
+   6.9490e+03
+
+
+alpha =
+
+    1.3592
+
+
+CODs =
+
+    0.9997
+
+
+data =
+
+   1.0e+03 *
+
+    0.0010    0.0050    0.7956    0.0050
+    0.0020    0.0050    0.7732    0.0055
+    0.0030    0.0050    0.7488    0.0045
+    0.0040    0.0050    0.7274    0.0038
+    0.0050    0.0050    0.7086    0.0038
+    0.0060    0.0050    0.6886    0.0033
+    0.0070    0.0050    0.6709    0.0033
+    0.0080    0.0050    0.6503    0.0031
+    0.0090    0.0050    0.6330    0.0034
+    0.0100    0.0050    0.6138    0.0030
+    0.0110    0.0100    1.1571    0.0122
+    0.0120    0.0100    1.0989    0.0113
+    0.0130    0.0100    1.0440    0.0110
+    0.0140    0.0100    0.9904    0.0101
+    0.0150    0.0100    0.9389    0.0092
+    0.0160    0.0100    0.8903    0.0042
+    0.0170    0.0100    0.8475    0.0044
+    0.0180    0.0100    0.8023    0.0036
+    0.0190    0.0100    0.7653    0.0040
+    0.0200    0.0100    0.7250    0.0033
+    0.0210    0.0150    1.0026    0.0041
+    0.0220    0.0150    0.9190    0.0039
+    0.0230    0.0150    0.8400    0.0039
+    0.0240    0.0150    0.7698    0.0035
+    0.0250    0.0150    0.7042    0.0031
+    0.0260    0.0150    0.6427    0.0028
+    0.0270    0.0150    0.5889    0.0028
+    0.0280    0.0150    0.5395    0.0024
+    0.0290    0.0150    0.4932       NaN
+    0.0300    0.0150    0.4511       NaN
+    0.0310    0.0050    0.1465    0.0018
+    0.0320    0.0050    0.1424    0.0014
+    0.0330    0.0050    0.1392    0.0006
+    0.0340    0.0050    0.1354    0.0015
+    0.0350    0.0050    0.1306    0.0011
+    0.0360    0.0050    0.1279    0.0015
+    0.0370    0.0050    0.1241    0.0013
+    0.0380    0.0050    0.1215    0.0017
+    0.0390    0.0050    0.1168    0.0005
+    0.0400    0.0050    0.1131    0.0005
+    0.0410    0.0100    0.2135    0.0020
+    0.0420    0.0100    0.2026    0.0021
+    0.0430    0.0100    0.1925    0.0019
+    0.0440    0.0100    0.1826    0.0010
+    0.0450    0.0100    0.1727    0.0007
+    0.0460    0.0100    0.1642    0.0015
+    0.0470    0.0100    0.1562    0.0009
+    0.0480    0.0100    0.1492    0.0018
+    0.0490    0.0100    0.1409    0.0014
+    0.0500    0.0100    0.1334    0.0011
+    0.0510    0.0150    0.1842    0.0014
+    0.0520    0.0150    0.1693    0.0007
+    0.0530    0.0150    0.1551    0.0015
+    0.0540    0.0150    0.1411    0.0012
+    0.0550    0.0150    0.1294    0.0011
+    0.0560    0.0150    0.1189    0.0006
+    0.0570    0.0150    0.1085    0.0010
+    0.0580    0.0150    0.1000    0.0007
+    0.0590    0.0150    0.0912    0.0008
+    0.0600    0.0150    0.0844    0.0011
+
+
+peaknames =
+
+  1&times;1 cell array
+
+    {'PYRUVATE'}
+
+
+secinds =
+
+     1
+    11
+    21
+    31
+    41
+    51
+
+
+secvals =
+
+     5
+    10
+    15
+     5
+    10
+    15
+
+</pre><h2 id="27">Notes</h2><p>The inputs used in the example were:</p><p><i>proc</i>: 'procpar28_11_19_Dissolution'</p><p><i>inp</i>: 'A'</p><p><i>dat</i>: {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'}</p><p>The example was run by putting:</p><p>[T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc('procpar28_11_19_Dissolution','A', {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Calculating the T1 Relaxation Constant for Decay of Hyperpolarisation and Initial Magnetisation
+%%
+% The T1 relaxation constant is calculated, along with the initial
+% magnetisation (this is the magnetisation in the z-direction and is
+% directly proportional to the degree of hyperpolarisation). Additionally,
+% a correction factor, _alpha_, is calculated to adjust the predicted flip
+% angles from the magnet to the ones that were actually used in the
+% experiment. The parameters are calculated using the following relation:
+%%
+% $$ Mxy_{measurement} = Mz_{previous~measurement} \times cos(\theta)
+% \times exp\left(-\frac{t}{T1}\right) \times sin(\theta) $$
+%%
+% where:
+%% 
+% $$ Mz_{previous~measurement} =
+% \frac{Mxy_{previous~measurement}}{sin(\theta_{previous~measurement})} $$
+%% 
+% and the first _Mz_ is _M0_, the initial magnetisation
+%% 
+% and $$ \theta $$ is the flip angle of the measurement
+%% Inputs
+% _procpar_: is the procpar file for the experiment, which is used to find
+% the flip angles, repetition times (TRs) and times each measurement was
+% taken
+%%
+% _inp_: is 'A' if the data was quantified using AMARES from JMRUI, or it
+% should be 'M' if the data was quantified using integration in MestReNova
+% and the data is a custom .csv integral file
+%%
+% _coilnum_: should only be entered if _inp_ is 'M'. It is the number of
+% coils used to collect the data.
+%%
+% _field_: should only be entered if _inp_ is 'M'. It is a cell containing
+% the names of the peaks that have been quantified
+%% Outputs
+% _T1_: is an array of the T1 relaxation constants for each peak quantified
+%%
+% _M0_: is an array of the initial magnetisations in the z-direction for
+% each peak quantified
+%%
+% _alpha_: is an array of the flip angle correction factors. These values
+% correct the flip angles stored in _flip1_ in the procpar file to the
+% actual values used
+%%
+% _CODs_: is an array of the coefficients of determination for the fit of
+% data to the model. It is calculated using:
+%%
+% $$ COD = 1-\frac{SS_{res}}{SS_{tot}} $$
+%%
+% (see the wikipedia entry for more details)
+%%
+% _data_: is an array containing the raw data from the experiment. The
+% first column is the times each measurement was collected in seconds; the
+% second column is the estimated flip angle used for each measurement in
+% degrees; the remaining columns are the signal strengths of each
+% measurement for each peak
+%%
+% _secinds_ & _secvals_: are arrays containing the indices where the flip
+% angle used for a measurement is changed and the value the flip angle is
+% changed to respectively
+%% Child Functions
+% _estParamT1Decay_: generates a first estimate for _T1_, _M0_ and _alpha_.
+% It also parses the raw data files into a readible format
+%% 
+% _T1DecayFunction_: calculates the signal strength values from the model
+% using inputted _T1_, _M0_ and _alpha_ parameters as well as the times and
+% flip angles used
+
+function [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum,field)
+
+    %% Calculating Estimates for the _T1_, _M0_ and _alpha_ Parameters
+    % _estParamT1Decay_ is used to calculate initial estimates to feed into
+    % _lsqcurvefit_ later
+
+    if nargin == 5
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat,coilnum,field);
+    elseif nargin == 4
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat,coilnum);
+    elseif nargin == 3
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp,dat);
+    elseif nargin == 2
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc,inp);
+    elseif nargin == 1
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay(proc);
+    else
+        [eT1,eM0,eAlpha,data,peaknames,secinds,secvals] = estParamT1Decay;
+    end
+    
+    numpeak = length(peaknames);
+    M0 = zeros(numpeak,1);
+    alpha = zeros(numpeak,1);
+    T1 = zeros(numpeak,1);
+    CODs = zeros(numpeak,1);
+    
+    for el = 1:numpeak
+        
+        %% Calculating _T1_, _M0_, _alpha_ and _COD_ for each Quantified Peak
+
+        x0 = [eM0(el),eAlpha(el),eT1(el)];
+    
+        xdataf(:,1) = data(:,1);
+        xdataf(:,2) = data(:,2);
+        sigdata = data(:,el+2);
+        
+        minAlpha = 0.001;
+        maxAlpha = floor(90/max(data(:,2)));
+        
+        if x0(2) < minAlpha
+            x0(2) = minAlpha;
+        end
+
+        lb = [0 0.001 0]; 
+        ub = [inf maxAlpha inf]; 
+        options = optimoptions('lsqcurvefit', ...
+            'MaxFunctionEvaluations', 3000,'TolFun',1e-9); 
+        try
+            
+            [xn,~,residuals] = lsqcurvefit(@T1DecayFunction,x0,xdataf,sigdata,lb,ub,options); 
+            M0(el) = xn(1);
+            alpha(el) = xn(2);
+            T1(el) = xn(3);
+            SSres = sum(residuals)*sum(residuals);
+            SStot = var(sigdata)*(length(sigdata)-1);
+            CODs(el) = 1-(SSres/SStot);
+            
+        catch
+            peak = peaknames{el};
+            error = strcat('Error: Cannot evaluate T1 for data from the peak corresponding to ', {' '}, peak);
+            disp(error)
+            M0store = M0(1:el-1);
+            alphastore = alpha(1:el-1);
+            T1store = T1(1:el-1);
+            CODsStore = CODs(1:el-1);
+            peaknameStoreb = peaknames{1:el-1};
+            
+            if el < numpeak
+                peaknameStoree = peaknames{el+1:numpeak};
+                peaknames = {peaknameStoreb, peaknameStoree};
+            else
+                peaknames = {peaknameStoreb};
+            end
+            
+            numpeak = numpeak-1;
+            M0 = zeros(numpeak,1);
+            alpha = zeros(numpeak,1);
+            T1 = zeros(numpeak,1);
+            CODs = zeros(numpeak,1);
+            M0(1:el-1) = M0store;
+            alpha(1:el-1) = alphastore;
+            T1(1:el-1) = T1store;
+            CODs(1:el-1) = CODsStore;
+            
+        end
+        
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _proc_: 'procpar28_11_19_Dissolution'
+%%
+% _inp_: 'A'
+%%
+% _dat_: {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'}
+%%
+% The example was run by putting: 
+%%
+% [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = 
+% T1DecayCalc('procpar28_11_19_Dissolution','A',
+% {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

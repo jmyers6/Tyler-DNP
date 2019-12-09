@@ -1,0 +1,366 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Generating Plots Showing Signal Strength as a Function of Flip Angle and T1 Decay and Showing Decay of Hyperpolarisation</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-09"><meta name="DC.source" content="graphT1Decay.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Generating Plots Showing Signal Strength as a Function of Flip Angle and T1 Decay and Showing Decay of Hyperpolarisation</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#6">Outputs</a></li><li><a href="#8">Child Functions</a></li><li><a href="#12">Calculating Parameters of the Fitted Decay Curve</a></li><li><a href="#13">Plotting the Raw Data and Overlaying the Fitted Curve</a></li><li><a href="#18">Plotting Mz at Each Measurement and the Fitted Curve</a></li><li><a href="#21">Notes</a></li></ul></div><p>Two plots are generated for each quantified peak. One plot shows the signal strength as a function of time (T1 decay) and the flip angles used to generate each measurement. The other plot shows Mz (hyperpolarisation) as a function of flip angles used at each measurement and time (T1 decay)</p><h2 id="2">Inputs</h2><p><i>procpar</i>: is the procpar file for the experiment, which is used to find the flip angles, repetition times (TRs) and times each measurement was taken</p><p><i>inp</i>: is 'A' if the data was quantified using AMARES from JMRUI, or it should be 'M' if the data was quantified using integration in MestReNova and the data is a custom .csv integral file</p><p><i>coilnum</i>: should only be entered if <i>inp</i> is 'M'. It is the number of coils used to collect the data.</p><p><i>field</i>: should only be entered if <i>inp</i> is 'M'. It is a cell containing the names of the peaks that have been quantified</p><h2 id="6">Outputs</h2><p>Scatter plot of raw data with fitted curve used to predict the T1 decay constant</p><p>Scatter plot of Mz vs. Time with the fitted curve (NB Mz is calculated using the flip angles in the procpar file and flip angle correction factor <i>alpha</i>)</p><h2 id="8">Child Functions</h2><p><i>T1DecayCalc</i>: calculates the <i>T1</i>, <i>M0</i> and <i>alpha</i> constants for each peak. It also calculates the fit of the model to the data and parses the raw data files into a readible format</p><p><i>T1DecayFunction</i>: calculates the signal strength values from the model using inputted <i>T1</i>, <i>M0</i> and <i>alpha</i> parameters as well as the times and flip angles used</p><p><i>T1DecayFunctionMz</i>: calculates the Mz values from the model using inputted <i>T1</i>, <i>M0</i> and <i>alpha</i> parameters as well as the times and flip angles used</p><pre class="codeinput"><span class="keyword">function</span> graphT1Decay(proc,inp,dat,coilnum,field)
+</pre><h2 id="12">Calculating Parameters of the Fitted Decay Curve</h2><p><i>T1</i> is the relaxation constant of the hyperpolarisation returning to thermal equilibrium. <i>M0</i> is the initial total magnetisation in arbitrary units (amount of hyperpolarisation). <i>alpha</i> is the flip angle correction factor applied to all flip angles in the flip1 parameter in the procpar file. <i>CODs</i> is the coefficients of determinations of the fit of the model to the data. <i>data</i> is an array containing the raw data and estimated flip angles. <i>peaknames</i> is a cell containing the names of each peak quantified. <i>secinds</i> and <i>secvals</i> are arrays containing the indices where the estimated flip angle is changed and what the estimated flip angles are for each part of the data set respectively</p><pre class="codeinput">    <span class="keyword">if</span> nargin &gt;= 5
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum,field);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">elseif</span> nargin &gt;= 4
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">elseif</span> nargin &gt;= 3
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">elseif</span> nargin &gt;= 2
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">elseif</span> nargin &gt;= 1
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">else</span>
+        proc = readprocpar;
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc);
+        TR = TRfromProcpar(proc);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> length(secinds) &lt; 2
+        disp(<span class="string">'Not enough flip angles were used to calculate decay parameters'</span>)
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">
+Local minimum possible.
+
+lsqcurvefit stopped because the final change in the sum of squares relative to 
+its initial value is less than the value of the function tolerance.
+
+    'Error: Cannot evaluate T1 for data from the peak corresponding to PYRUVATE_HYDRATE'
+
+</pre><h2 id="13">Plotting the Raw Data and Overlaying the Fitted Curve</h2><p>The fitted curve obeys the following relation: <img src="graphT1Decay_eq05635117766864761681.png" alt="$$ Mxy_{measurement} (measured~signal) = Mz_{previous~measurement} \times cos(flip~angle~correction~factor (alpha) \times est.~Flip~ Angle) \times exp\left(-\frac{TR}{T1}\right) \times sin(alpha \times est.~Flip~Angle) $$" style="width:804px;height:27px;"></p><p><i>Mz</i> of the previous measurement is calculated with the following:</p><p><img src="graphT1Decay_eq05323553187679997130.png" alt="$$ Mz_{previous~measurement} = \frac{Mxy_{previous~&#xA;measurement}}{sin(alpha \times est.~Flip~Angle_{previous~&#xA;measurement}} $$" style="width:331px;height:26px;"></p><p>The <i>Mz</i> of the first measurement is <i>M0</i></p><p>Each part of the data set that was collected using a different estimated flip angle is plotted with a different colour, which is shown on the legend</p><pre class="codeinput">    <span class="keyword">for</span> el = 1:length(peaknames)
+
+        figure(<span class="string">'Position'</span>,[0 0 600 450])
+        fitfun = T1DecayFunction([M0(el) alpha(el) T1(el)],data(:,1:2));
+        <span class="keyword">if</span> length(TR) == 1
+            equ = strcat(<span class="string">"Mxy = Mz(prev. measurement) x cos("</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle)'</span>,<span class="keyword">...</span>
+                <span class="string">'x exp(-'</span>,num2str(TR),<span class="string">'/'</span>,num2str(T1(el)),<span class="string">'s)'</span>,{<span class="string">' '</span>}, <span class="string">'x sin('</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle)'</span>,{<span class="string">', '</span>},<span class="string">'Rsquared = '</span>,num2str(CODs(el)));
+        <span class="keyword">else</span>
+            equ = strcat(<span class="string">"Mxy = Mz(prev. measurement) x cos("</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle)'</span>,<span class="keyword">...</span>
+                <span class="string">'x exp(-TR/'</span>,num2str(T1(el)),<span class="string">'s)'</span>,{<span class="string">' '</span>}, <span class="string">'x sin('</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle)'</span>,{<span class="string">', '</span>},<span class="string">'Rsquared = '</span>,num2str(CODs(el)));
+        <span class="keyword">end</span>
+        plot(data(:,1),fitfun)
+        hold <span class="string">on</span>
+        Legend = cell(length(secinds)+1,1);
+        Legend{1} = equ;
+
+        <span class="keyword">for</span> ele = 1:length(secinds)
+            <span class="keyword">if</span> ele == length(secinds)
+                scatter(data(secinds(ele):end,1),data(secinds(ele):end,el+2))
+            <span class="keyword">else</span>
+                scatter(data(secinds(ele):secinds(ele+1)-1,1),data(secinds(ele):secinds(ele+1)-1,el+2))
+            <span class="keyword">end</span>
+            legent = strcat(num2str(secvals(ele)),<span class="string">"&deg; Est. Flip Angle"</span>);
+            Legend{ele+1} = legent;
+        <span class="keyword">end</span>
+
+        xlabel(<span class="string">'Time /s'</span>)
+        ylabel(<span class="string">'Signal Strength /Arbitrary Units'</span>)
+        title(strcat(<span class="string">"Signal Strength vs. Time for the T1 Decay of"</span>,{<span class="string">' '</span>},peaknames{el}))
+        legend(Legend)
+
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="graphT1Decay_01.png" alt="" width="1200"> <h2 id="18">Plotting Mz at Each Measurement and the Fitted Curve</h2><p>The fitted equation is the same as above except the equation does not have the last sin term since:</p><p><img src="graphT1Decay_eq11925362621225763807.png" alt="$$ Mxy = Mz \times sin(flip angle) $$" style="width:139px;height:11px;"></p><pre class="codeinput">    <span class="keyword">for</span> el = 1:length(peaknames)
+
+        figure(<span class="string">'Position'</span>,[0 0 600 450])
+        fitfun = T1DecayFunctionMz([M0(el) alpha(el) T1(el)],data(:,1:2));
+        y = [M0(el);fitfun];
+        x = [0;data(:,1)];
+        <span class="keyword">if</span> length(TR) == 1
+            equ = strcat(<span class="string">"Mz = Mz(prev. measurement) x cos("</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle) x exp(-'</span>,num2str(TR),<span class="string">'/'</span>,num2str(T1(el)),<span class="string">'s)'</span>,{<span class="string">', '</span>},<span class="string">'Rsquared = '</span>,num2str(CODs(el)));
+        <span class="keyword">else</span>
+            equ = strcat(<span class="string">"Mz = Mz(prev. measurement) x cos("</span>,num2str(alpha(el)),{<span class="string">' '</span>},<span class="string">'x est. Flip Angle) x exp(-TR/'</span>,num2str(T1(el)),<span class="string">'s)'</span>,{<span class="string">', '</span>},<span class="string">'Rsquared = '</span>,num2str(CODs(el)));
+        <span class="keyword">end</span>
+        plot(x,y)
+        hold <span class="string">on</span>
+        Legend = cell(length(secinds)+1,1);
+        Legend{1} = equ;
+
+        data(:,el+2) = data(:,el+2)./sind(data(:,2).*alpha(el));
+
+        <span class="keyword">for</span> ele = 1:length(secinds)
+            <span class="keyword">if</span> ele == length(secinds)
+                scatter(data(secinds(ele):end,1),data(secinds(ele):end,el+2))
+            <span class="keyword">else</span>
+                scatter(data(secinds(ele):secinds(ele+1)-1,1),data(secinds(ele):secinds(ele+1)-1,el+2))
+            <span class="keyword">end</span>
+            legent = strcat(num2str(secvals(ele)),<span class="string">"&deg; Est. Flip Angle"</span>);
+            Legend{ele+1} = legent;
+        <span class="keyword">end</span>
+
+        xlabel(<span class="string">'Time /s'</span>)
+        ylabel(<span class="string">'Mz /Arbitrary Units'</span>)
+        title(strcat(<span class="string">"Mz vs. Time for the T1 Decay of"</span>,{<span class="string">' '</span>},peaknames{el}))
+        legend(Legend)
+
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="graphT1Decay_02.png" alt="" width="1200"> <pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="21">Notes</h2><p>The inputs used in the example were:</p><p><i>proc</i>: 'procpar28_11_19_Dissolution'</p><p><i>inp</i>: 'A'</p><p><i>dat</i>: {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'}</p><p>The example was run by putting:</p><p>graphT1Decay('procpar28_11_19_Dissolution','A', {'Decay_Dissolution_28_11_19_even.txt', 'Decay_Dissolution_28_11_19_odd.txt'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Generating Plots Showing Signal Strength as a Function of Flip Angle and T1 Decay and Showing Decay of Hyperpolarisation
+%%
+% Two plots are generated for each quantified peak. One plot shows the
+% signal strength as a function of time (T1 decay) and the flip angles used
+% to generate each measurement. The other plot shows Mz (hyperpolarisation)
+% as a function of flip angles used at each measurement and time (T1 decay)
+%% Inputs
+% _procpar_: is the procpar file for the experiment, which is used to find
+% the flip angles, repetition times (TRs) and times each measurement was
+% taken
+%%
+% _inp_: is 'A' if the data was quantified using AMARES from JMRUI, or it
+% should be 'M' if the data was quantified using integration in MestReNova
+% and the data is a custom .csv integral file
+%%
+% _coilnum_: should only be entered if _inp_ is 'M'. It is the number of
+% coils used to collect the data.
+%%
+% _field_: should only be entered if _inp_ is 'M'. It is a cell containing
+% the names of the peaks that have been quantified
+%% Outputs
+% Scatter plot of raw data with fitted curve used to predict the T1 decay
+% constant
+%%
+% Scatter plot of Mz vs. Time with the fitted curve (NB Mz is calculated
+% using the flip angles in the procpar file and flip angle correction
+% factor _alpha_)
+%% Child Functions
+% _T1DecayCalc_: calculates the _T1_, _M0_ and _alpha_ constants for each
+% peak. It also calculates the fit of the model to the data and parses the
+% raw data files into a readible format
+%%
+% _T1DecayFunction_: calculates the signal strength values from the model
+% using inputted _T1_, _M0_ and _alpha_ parameters as well as the times and
+% flip angles used
+%%
+% _T1DecayFunctionMz_: calculates the Mz values from the model using 
+% inputted _T1_, _M0_ and _alpha_ parameters as well as the times and
+% flip angles used
+
+function graphT1Decay(proc,inp,dat,coilnum,field)
+
+    %% Calculating Parameters of the Fitted Decay Curve
+    % _T1_ is the relaxation constant of the hyperpolarisation returning to
+    % thermal equilibrium. _M0_ is the initial total magnetisation in
+    % arbitrary units (amount of hyperpolarisation). _alpha_ is the flip
+    % angle correction factor applied to all flip angles in the flip1
+    % parameter in the procpar file. _CODs_ is the coefficients of
+    % determinations of the fit of the model to the data. _data_ is an
+    % array containing the raw data and estimated flip angles. _peaknames_
+    % is a cell containing the names of each peak quantified. _secinds_ and
+    % _secvals_ are arrays containing the indices where the estimated flip
+    % angle is changed and what the estimated flip angles are for each
+    % part of the data set respectively
+
+    if nargin >= 5
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum,field);
+        TR = TRfromProcpar(proc);
+    elseif nargin >= 4
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat,coilnum);
+        TR = TRfromProcpar(proc);
+    elseif nargin >= 3
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp,dat);
+        TR = TRfromProcpar(proc);
+    elseif nargin >= 2
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc,inp);
+        TR = TRfromProcpar(proc);
+    elseif nargin >= 1
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc);
+        TR = TRfromProcpar(proc);
+    else
+        proc = readprocpar;
+        [T1,M0,alpha,CODs,data,peaknames,secinds,secvals] = T1DecayCalc(proc);
+        TR = TRfromProcpar(proc);
+    end
+    
+    if length(secinds) < 2
+        disp('Not enough flip angles were used to calculate decay parameters')
+        return
+    end
+    
+    %% Plotting the Raw Data and Overlaying the Fitted Curve
+    % The fitted curve obeys the following relation:
+    % $$ Mxy_{measurement} (measured~signal) = Mz_{previous~measurement}
+    % \times cos(flip~angle~correction~factor (alpha) \times est.~Flip~
+    % Angle) \times exp\left(-\frac{TR}{T1}\right) \times sin(alpha \times
+    % est.~Flip~Angle) $$
+    %%
+    % _Mz_ of the previous measurement is calculated with the following:
+    %%
+    % $$ Mz_{previous~measurement} = \frac{Mxy_{previous~
+    % measurement}}{sin(alpha \times est.~Flip~Angle_{previous~
+    % measurement}} $$
+    %%
+    % The _Mz_ of the first measurement is _M0_
+    %%
+    % Each part of the data set that was collected using a different
+    % estimated flip angle is plotted with a different colour, which is
+    % shown on the legend
+    
+    for el = 1:length(peaknames)
+    
+        figure('Position',[0 0 600 450])
+        fitfun = T1DecayFunction([M0(el) alpha(el) T1(el)],data(:,1:2));
+        if length(TR) == 1
+            equ = strcat("Mxy = Mz(prev. measurement) x cos(",num2str(alpha(el)),{' '},'x est. Flip Angle)',...
+                'x exp(-',num2str(TR),'/',num2str(T1(el)),'s)',{' '}, 'x sin(',num2str(alpha(el)),{' '},'x est. Flip Angle)',{', '},'Rsquared = ',num2str(CODs(el)));
+        else
+            equ = strcat("Mxy = Mz(prev. measurement) x cos(",num2str(alpha(el)),{' '},'x est. Flip Angle)',...
+                'x exp(-TR/',num2str(T1(el)),'s)',{' '}, 'x sin(',num2str(alpha(el)),{' '},'x est. Flip Angle)',{', '},'Rsquared = ',num2str(CODs(el)));
+        end
+        plot(data(:,1),fitfun)
+        hold on
+        Legend = cell(length(secinds)+1,1);
+        Legend{1} = equ;
+        
+        for ele = 1:length(secinds)
+            if ele == length(secinds)
+                scatter(data(secinds(ele):end,1),data(secinds(ele):end,el+2))
+            else
+                scatter(data(secinds(ele):secinds(ele+1)-1,1),data(secinds(ele):secinds(ele+1)-1,el+2))
+            end
+            legent = strcat(num2str(secvals(ele)),"° Est. Flip Angle");
+            Legend{ele+1} = legent;
+        end
+        
+        xlabel('Time /s')
+        ylabel('Signal Strength /Arbitrary Units')
+        title(strcat("Signal Strength vs. Time for the T1 Decay of",{' '},peaknames{el}))
+        legend(Legend)
+        
+    end
+    
+    %% Plotting Mz at Each Measurement and the Fitted Curve
+    % The fitted equation is the same as above except the equation does not
+    % have the last sin term since:
+    %%
+    % $$ Mxy = Mz \times sin(flip angle) $$
+    
+    for el = 1:length(peaknames)
+    
+        figure('Position',[0 0 600 450])
+        fitfun = T1DecayFunctionMz([M0(el) alpha(el) T1(el)],data(:,1:2));
+        y = [M0(el);fitfun];
+        x = [0;data(:,1)];
+        if length(TR) == 1
+            equ = strcat("Mz = Mz(prev. measurement) x cos(",num2str(alpha(el)),{' '},'x est. Flip Angle) x exp(-',num2str(TR),'/',num2str(T1(el)),'s)',{', '},'Rsquared = ',num2str(CODs(el)));
+        else
+            equ = strcat("Mz = Mz(prev. measurement) x cos(",num2str(alpha(el)),{' '},'x est. Flip Angle) x exp(-TR/',num2str(T1(el)),'s)',{', '},'Rsquared = ',num2str(CODs(el)));
+        end
+        plot(x,y)
+        hold on
+        Legend = cell(length(secinds)+1,1);
+        Legend{1} = equ;
+        
+        data(:,el+2) = data(:,el+2)./sind(data(:,2).*alpha(el));
+        
+        for ele = 1:length(secinds)
+            if ele == length(secinds)
+                scatter(data(secinds(ele):end,1),data(secinds(ele):end,el+2))
+            else
+                scatter(data(secinds(ele):secinds(ele+1)-1,1),data(secinds(ele):secinds(ele+1)-1,el+2))
+            end
+            legent = strcat(num2str(secvals(ele)),"° Est. Flip Angle");
+            Legend{ele+1} = legent;
+        end
+        
+        xlabel('Time /s')
+        ylabel('Mz /Arbitrary Units')
+        title(strcat("Mz vs. Time for the T1 Decay of",{' '},peaknames{el}))
+        legend(Legend)
+        
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _proc_: 'procpar28_11_19_Dissolution'
+%%
+% _inp_: 'A'
+%%
+% _dat_: {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'}
+%%
+% The example was run by putting: 
+%%
+% graphT1Decay('procpar28_11_19_Dissolution','A',
+% {'Decay_Dissolution_28_11_19_even.txt',
+% 'Decay_Dissolution_28_11_19_odd.txt'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>
