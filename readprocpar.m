@@ -9,66 +9,37 @@
 % last modified: 27/11/19 by John Myers
 %% Required Child Function (from John Myers)
 % _isdatfile_: checks if the inputted file is readible
-function procpar = readprocpar(inp,procdir,verbose)
+function procpar = readprocpar(inp)
 
+    procpar = [];
 
-% argument check
-if (nargin == 0)
-  procdir = './';
-  verbose = 0;
-elseif (nargin == 1)
-    procdir = './';
-    verbose = 0;
-elseif (nargin == 2) 
-% 2014.05.29 AZL commented out
-%
-%   if ~strcmp(getext(procdir),'par')
-%     procdir = setext(procdir,'fid',0);
-%   end
-  verbose = 0;
-elseif (nargin ~= 3)
-  help readprocpar;
-  return
-end
-if (nargin > 1)
-  if (procdir(length(procdir)) ~= '/')
-    procdir(length(procdir)+1) = '/';
-  end
-end
-
-if (verbose)
-  disp('(readprocpar) Reading procpar...');
-end
-procpar = [];
-
-% open the procpar
-% fprocpar = fopen([procdir 'procpar'],'r');
-
-if nargin == 0 %Allows the user to input the procpar file to process
-    prompt = 'Enter a procpar file to process: ';
-    inp = input(prompt,'s');
-    procbool = isdatfile(inp);
-    while procbool == 0
-        prompt1 = 'Error: Please enter a valid procpar file to process: ';
-        inp = input(prompt1,'s');
+    if nargin == 0 %Allows the user to input the procpar file to process
+    
+        prompt = 'Enter a procpar file to process: ';
+        inp = input(prompt,'s');
         procbool = isdatfile(inp);
+    
+        while procbool == 0
+            prompt1 = 'Error: Please enter a valid procpar file to process: ';
+            inp = input(prompt1,'s');
+            procbool = isdatfile(inp);
+        end
+    
     end
-end
 
-if nargin == 1
-    procbool = isdatfile(inp);
-    while procbool == 0
-        prompt1 = 'Error: Please enter a valid procpar file to process: ';
-        inp = input(prompt1,'s');
+    if nargin == 1
+    
         procbool = isdatfile(inp);
+    
+        while procbool == 0
+            prompt1 = 'Error: Please enter a valid procpar file to process: ';
+            inp = input(prompt1,'s');
+            procbool = isdatfile(inp);
+        end
+    
     end
-end
-
-fprocpar = fopen(fullfile(procdir, inp),'r');
-if (fprocpar == -1)
-  disp(sprintf('(readprocpar) ERROR: Could not open %s',[procdir 'procpar']));
-  return
-end
+    
+    fprocpar = fopen(inp,'r');
 
 % scan through procpar looking for parameters needed for parsing
 line = fgets(fprocpar);
@@ -81,7 +52,7 @@ while (line ~= -1)
     % get next line
     line = fgets(fprocpar);
     % first number is just length of array
-    [len line] = strtok(line);
+    [len, line] = strtok(line);
     len = str2num(len);
     % just an array of numbers
     if ((length(line) > 2) & (line(2) ~= '"'))
@@ -173,5 +144,4 @@ if ~isfield(procpar,'navecho'),procpar.navecho = 0;end
 
 % compute the number of echoes
 procpar.navechoes = procpar.navecho*procpar.numshots/procpar.accfactor;
-
-if (verbose),disp('(readprocpar) Finished.');,end
+end
