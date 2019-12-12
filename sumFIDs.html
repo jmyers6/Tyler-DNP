@@ -1,0 +1,423 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Combining MRI Data Collected using Multiple Channels via Whitened Singular Value Decomposition (WSVD)</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-12"><meta name="DC.source" content="sumFIDs.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Combining MRI Data Collected using Multiple Channels via Whitened Singular Value Decomposition (WSVD)</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Inputs</a></li><li><a href="#5">Output</a></li><li><a href="#6">Child Functions</a></li><li><a href="#13">Verifying the Validity of <i>dat</i> Input</a></li><li><a href="#14">Calling the User if <i>dat</i> is Missing or Invalid</a></li><li><a href="#15">Opening the .txt mRUI FID Files into an Array</a></li><li><a href="#16">Defining the <i>rawSpectra</i> Variable to be Passed into <i>svdReconstructFrequencyDomain</i></a></li><li><a href="#17">Defining the <i>noiseMask</i> Variable to be Passed into <i>svdReconstructFrequencyDomain</i></a></li><li><a href="#18">Calculating the Weighted Values of the Inputted Files and Summing the Multi-Channel Data</a></li><li><a href="#19">Writing the Outputted Summed Fid File</a></li><li><a href="#21">Notes</a></li></ul></div><p>Data in MRI machines is often collected using multiple channels to maximise the likelihood of the sample being detectd by at least one channel. However, interpreting the data is non-trivial. WSVD combines the data from all channels in a manner that maximises the signal to noise ratio (SNR).</p><p>NB Depending on the amount of data, this function can take multiple minute to run, since it was implemented using MATLAB alone, which is less optimised for parsing than other languages, such as Perl</p><h2 id="3">Inputs</h2><p><i>dat</i>: is a cell containing .txt mRUI files from JMRUI. Each file contains the phased data from one channel from the same experiment</p><p><i>noiseind</i>: is an array containing the start and end indices of parts of the FID files that contain noise. For example, for 1-pyruvate, the first 2000 measured points out of 4096 do not contain any signal and all the points after 2600 do not contain any signal; therfore, noiseind = [1 2000 2600 4096] indicating points 1-2000 are noise and points 2600-4096 of the FID inputs are noise</p><h2 id="5">Output</h2><p>A file is written containing the summed data, where the name is given by the first element of the <i>dat</i> cell with the word 'Final' added before the .txt extention</p><h2 id="6">Child Functions</h2><p><i>isint</i>: checks if an input is an integer</p><p><i>numofMeasurements</i>: reads the number of points measured per signal and the number of signals in each element of <i>dat</i></p><p><i>readmatrixrig</i>: is a version of the readmatrix function less prone to throwing exceptions</p><p><i>removeNaNs</i>: removes any rows within an array, where any element in the row is NaN (Not a Number)</p><p><i>svdReconstructFrequencyDomain</i>: calculates the factors each set of data should be multiplied with before summing them together</p><p><i>writeToFIDtxt</i>: writes the summed channel data into a new .txt mRUI file, which is outputted</p><pre class="codeinput"><span class="keyword">function</span> sumFIDs(dat,noiseind)
+</pre><h2 id="13">Verifying the Validity of <i>dat</i> Input</h2><pre class="codeinput">    datbool = 1;
+
+    <span class="keyword">if</span> nargin &lt; 0
+        datbool = 0;
+    <span class="keyword">elseif</span> string(class(dat)) ~= <span class="string">"cell"</span>
+        disp(<span class="string">'Error: invalid input. Input must be a cell (use { })'</span>)
+        datbool = 0;
+    <span class="keyword">end</span>
+</pre><h2 id="14">Calling the User if <i>dat</i> is Missing or Invalid</h2><p><i>dat</i> must be a cell containing the FID .txt mRUI files. If <i>dat</i> is not a cell, the user will be called to enter how many FID files need to be summed, before being prompted to enter the FID files one by one</p><pre class="codeinput">    <span class="keyword">if</span> datbool == 0
+
+        prompt = <span class="string">'Enter the number of FID files to be summed: '</span>;
+
+        numents = input(prompt,<span class="string">'s'</span>);
+        nument = str2double(numents);
+
+        cont = isint(nument);
+
+        <span class="keyword">while</span> cont == 0
+            disp(<span class="string">'Error: The number of FID files to be summed must be an integral number'</span>)
+            numents = input(prompt,<span class="string">'s'</span>);
+            nument = str2double(numents);
+
+            cont = isint(nument);
+        <span class="keyword">end</span>
+
+        dat = cell(nument,1);
+
+        <span class="keyword">for</span> el = 1:nument
+
+            prompt1 = <span class="string">'Enter a FID file to be summed: '</span>;
+            FIDh = input(prompt1,<span class="string">'s'</span>);
+            cont = 0;
+
+            <span class="keyword">while</span> cont == 0
+                <span class="keyword">try</span>
+                    readmatrix(FIDh);
+                    cont = 1;
+                <span class="keyword">catch</span>
+                    cont = 0;
+                    disp(<span class="string">'Error: File cannot be read'</span>)
+                    FIDh = input(prompt1,<span class="string">'s'</span>);
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+            dat{el} = FIDh;
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2 id="15">Opening the .txt mRUI FID Files into an Array</h2><p>The files are opened into an array individually. In the original files, where there are lines stating when the next set of data begins, upon being imported, they are read as 'NaN', so these lines are then removed. Afterwards, the array is stored in an element in a cell that contains all such matrices (one for each inputted file)</p><pre class="codeinput">    numcoil = length(dat);
+    FIDcell = cell(1,numcoil);
+    [pointsPerSig,numSigs] = numofMeasurements(dat{1});
+
+    <span class="keyword">for</span> el = 1:numcoil
+        FIDup = readmatrixrig(dat{el});
+        len = pointsPerSig*numSigs;
+        FIDp = removeNaNs(FIDup,len);
+        FIDcell{el} = FIDp;
+    <span class="keyword">end</span>
+</pre><h2 id="16">Defining the <i>rawSpectra</i> Variable to be Passed into <i>svdReconstructFrequencyDomain</i></h2><p>The function that calculates the factors each spectrum should be multiplied with before summation requires the phased frequency domain data. Arbitrarily, the real frequency domain is chosen from each inputted file and parsed into a column of the <i>rawSpectra</i> array</p><pre class="codeinput">    rawSpectra = zeros(len,numcoil);
+
+    <span class="keyword">for</span> el = 1:numcoil
+        rawSpectra(:,el) = FIDcell{el}(:,3);
+    <span class="keyword">end</span>
+</pre><h2 id="17">Defining the <i>noiseMask</i> Variable to be Passed into <i>svdReconstructFrequencyDomain</i></h2><p>As stated above, to calculate the relative factor each inputted file needs to multiplied with before summation, the <i>svdReconstructFrequencyDomain</i> function needs to know, which parts of the function correspond to noise and which parts correspond to signal. Odd indices in the <i>noiseind</i> input define the index, where noise begins in the data, while even indices in the <i>noiseind</i> input define the index in the inputted files, where noise ends and signal begins. Where there is noise, those indices in noiseMask are set to 1, and where there is signal, the indices are set to 0. Before being passed into the weighting function, the array is converted into a logical array</p><pre class="codeinput">    noiseMask = zeros(pointsPerSig,1);
+
+    noiseindbool = 0;
+
+    <span class="keyword">if</span> nargin == 2
+        <span class="keyword">if</span> isempty(noiseind) == 0
+            <span class="keyword">if</span> string(class(noiseind)) == <span class="string">"double"</span>
+                <span class="keyword">if</span> isint(length(noiseind/2)) == 1
+                    <span class="keyword">if</span> sort(noiseind) == noiseind
+                        noiseindbool = 1;
+                    <span class="keyword">else</span>
+                        disp(<span class="string">'Error: Invalid input. Default noise mask for 1-pyruvate will be used'</span>)
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    disp(<span class="string">'Error: Invalid input. Default noise mask for 1-pyruvate will be used'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                disp(<span class="string">'Error: Invalid input. Default noise mask for 1-pyruvate will be used'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> noiseindbool == 0
+        noiseind = [1 2000 2600 4096];
+    <span class="keyword">end</span>
+
+    secs = length(noiseind)*0.5;
+    sind = 1;
+    eind = 2;
+
+    <span class="keyword">for</span> el = 1:secs
+
+        <span class="keyword">for</span> ele = noiseind(sind):noiseind(eind)
+            noiseMask(ele) = 1;
+        <span class="keyword">end</span>
+
+        sind = sind+2;
+        eind = eind+2;
+
+    <span class="keyword">end</span>
+
+    noiseMask = logical(noiseMask);
+    noiseMask = repmat(noiseMask,numSigs);
+    noiseMask = noiseMask(:,1);
+</pre><h2 id="18">Calculating the Weighted Values of the Inputted Files and Summing the Multi-Channel Data</h2><p>Every element within each .txt mRUI FID file is multiplied by the weight factor calculated using WSVD. All of the FID files are then summed together element by element</p><pre class="codeinput">    [~,~,~,svdWeights] = svdReconstructFrequencyDomain(rawSpectra,noiseMask);
+
+    <span class="keyword">for</span> el = 1:numcoil
+        FIDcell{el} = FIDcell{el}.*svdWeights(el);
+    <span class="keyword">end</span>
+
+    FID = FIDcell{1};
+
+    <span class="keyword">if</span> numcoil &gt; 1
+        <span class="keyword">for</span> el = 2:numcoil
+            FID = FID+FIDcell{el};
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2 id="19">Writing the Outputted Summed Fid File</h2><pre class="codeinput">    writeToFIDtxt(dat{1},FID)
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="21">Notes</h2><p>The input used in the example was:</p><p><i>dat</i>: {'Decay_DissolutionFID_1Pyr_09_12_19_even.txt','Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'}</p><p>The example was run by putting:</p><p>sumFIDs({'Decay_DissolutionFID_1Pyr_09_12_19_even.txt', 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'})</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Combining MRI Data Collected using Multiple Channels via Whitened Singular Value Decomposition (WSVD)
+%%
+% Data in MRI machines is often collected using multiple channels to
+% maximise the likelihood of the sample being detectd by at least one
+% channel. However, interpreting the data is non-trivial. WSVD combines the
+% data from all channels in a manner that maximises the signal to noise
+% ratio (SNR). 
+%%
+% NB Depending on the amount of data, this function can take multiple
+% minute to run, since it was implemented using MATLAB alone, which is less
+% optimised for parsing than other languages, such as Perl
+%% Inputs
+% _dat_: is a cell containing .txt mRUI files from JMRUI. Each file
+% contains the phased data from one channel from the same experiment
+%% 
+% _noiseind_: is an array containing the start and end indices of parts of
+% the FID files that contain noise. For example, for 1-pyruvate, the first
+% 2000 measured points out of 4096 do not contain any signal and all the
+% points after 2600 do not contain any signal; therfore, noiseind = [1 2000
+% 2600 4096] indicating points 1-2000 are noise and points 2600-4096 of the
+% FID inputs are noise
+%% Output
+% A file is written containing the summed data, where the name is given by
+% the first element of the _dat_ cell with the word 'Final' added before
+% the .txt extention
+%% Child Functions
+% _isint_: checks if an input is an integer
+%%
+% _numofMeasurements_: reads the number of points measured per signal and
+% the number of signals in each element of _dat_
+%%
+% _readmatrixrig_: is a version of the readmatrix function less prone to
+% throwing exceptions
+%%
+% _removeNaNs_: removes any rows within an array, where any element in the
+% row is NaN (Not a Number)
+%%
+% _svdReconstructFrequencyDomain_: calculates the factors each set of data
+% should be multiplied with before summing them together
+%%
+% _writeToFIDtxt_: writes the summed channel data into a new .txt mRUI
+% file, which is outputted
+
+function sumFIDs(dat,noiseind)
+
+    %% Verifying the Validity of _dat_ Input
+
+    datbool = 1;
+
+    if nargin < 0
+        datbool = 0;
+    elseif string(class(dat)) ~= "cell"
+        disp('Error: invalid input. Input must be a cell (use { })')
+        datbool = 0;
+    end
+    
+    %% Calling the User if _dat_ is Missing or Invalid
+    % _dat_ must be a cell containing the FID .txt mRUI files. If _dat_ is
+    % not a cell, the user will be called to enter how many FID files need
+    % to be summed, before being prompted to enter the FID files one by one
+    
+    if datbool == 0
+        
+        prompt = 'Enter the number of FID files to be summed: ';
+        
+        numents = input(prompt,'s');
+        nument = str2double(numents);
+        
+        cont = isint(nument);
+        
+        while cont == 0
+            disp('Error: The number of FID files to be summed must be an integral number')
+            numents = input(prompt,'s');
+            nument = str2double(numents);
+        
+            cont = isint(nument);
+        end
+        
+        dat = cell(nument,1);
+        
+        for el = 1:nument
+            
+            prompt1 = 'Enter a FID file to be summed: ';
+            FIDh = input(prompt1,'s');
+            cont = 0;
+            
+            while cont == 0
+                try
+                    readmatrix(FIDh);
+                    cont = 1;
+                catch
+                    cont = 0;
+                    disp('Error: File cannot be read')
+                    FIDh = input(prompt1,'s');
+                end
+            end
+            
+            dat{el} = FIDh;
+            
+        end
+        
+    end
+    
+    %% Opening the .txt mRUI FID Files into an Array
+    % The files are opened into an array individually. In the original
+    % files, where there are lines stating when the next set of data
+    % begins, upon being imported, they are read as 'NaN', so these lines
+    % are then removed. Afterwards, the array is stored in an element in a
+    % cell that contains all such matrices (one for each inputted file)
+
+    numcoil = length(dat);
+    FIDcell = cell(1,numcoil);
+    [pointsPerSig,numSigs] = numofMeasurements(dat{1});
+    
+    for el = 1:numcoil
+        FIDup = readmatrixrig(dat{el});
+        len = pointsPerSig*numSigs;
+        FIDp = removeNaNs(FIDup,len);
+        FIDcell{el} = FIDp;
+    end
+    
+    %% Defining the _rawSpectra_ Variable to be Passed into _svdReconstructFrequencyDomain_
+    % The function that calculates the factors each spectrum should be
+    % multiplied with before summation requires the phased frequency domain
+    % data. Arbitrarily, the real frequency domain is chosen from each
+    % inputted file and parsed into a column of the _rawSpectra_ array
+    
+    rawSpectra = zeros(len,numcoil);
+    
+    for el = 1:numcoil
+        rawSpectra(:,el) = FIDcell{el}(:,3);
+    end
+    
+    %% Defining the _noiseMask_ Variable to be Passed into _svdReconstructFrequencyDomain_
+    % As stated above, to calculate the relative factor each inputted file
+    % needs to multiplied with before summation, the
+    % _svdReconstructFrequencyDomain_ function needs to know, which parts
+    % of the function correspond to noise and which parts correspond to
+    % signal. Odd indices in the _noiseind_ input define the index, where
+    % noise begins in the data, while even indices in the _noiseind_ input
+    % define the index in the inputted files, where noise ends and signal
+    % begins. Where there is noise, those indices in noiseMask are set to
+    % 1, and where there is signal, the indices are set to 0. Before being
+    % passed into the weighting function, the array is converted into a
+    % logical array
+    
+    noiseMask = zeros(pointsPerSig,1);
+    
+    noiseindbool = 0;
+    
+    if nargin == 2
+        if isempty(noiseind) == 0
+            if string(class(noiseind)) == "double"
+                if isint(length(noiseind/2)) == 1
+                    if sort(noiseind) == noiseind
+                        noiseindbool = 1;
+                    else
+                        disp('Error: Invalid input. Default noise mask for 1-pyruvate will be used')
+                    end
+                else
+                    disp('Error: Invalid input. Default noise mask for 1-pyruvate will be used')
+                end
+            else
+                disp('Error: Invalid input. Default noise mask for 1-pyruvate will be used')
+            end
+        end
+    end
+    
+    if noiseindbool == 0
+        noiseind = [1 2000 2600 4096];
+    end
+    
+    secs = length(noiseind)*0.5;
+    sind = 1;
+    eind = 2;
+    
+    for el = 1:secs
+    
+        for ele = noiseind(sind):noiseind(eind)
+            noiseMask(ele) = 1;
+        end
+        
+        sind = sind+2;
+        eind = eind+2;
+        
+    end
+    
+    noiseMask = logical(noiseMask);
+    noiseMask = repmat(noiseMask,numSigs);
+    noiseMask = noiseMask(:,1);
+    
+    %% Calculating the Weighted Values of the Inputted Files and Summing the Multi-Channel Data
+    % Every element within each .txt mRUI FID file is multiplied by the
+    % weight factor calculated using WSVD. All of the FID files are then
+    % summed together element by element
+    
+    [~,~,~,svdWeights] = svdReconstructFrequencyDomain(rawSpectra,noiseMask);
+    
+    for el = 1:numcoil
+        FIDcell{el} = FIDcell{el}.*svdWeights(el);
+    end
+    
+    FID = FIDcell{1};
+    
+    if numcoil > 1
+        for el = 2:numcoil
+            FID = FID+FIDcell{el};
+        end
+    end
+    
+    %% Writing the Outputted Summed Fid File
+    
+    writeToFIDtxt(dat{1},FID)
+    
+end
+
+%% Notes
+% The input used in the example was:
+%%
+% _dat_: {'Decay_DissolutionFID_1Pyr_09_12_19_even.txt','Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'}
+%%
+% The example was run by putting:
+%% 
+% sumFIDs({'Decay_DissolutionFID_1Pyr_09_12_19_even.txt',
+% 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'})
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>

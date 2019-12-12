@@ -1,0 +1,369 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Editing a .txt mRUI File that Can be Opened by JMRUI</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-12"><meta name="DC.source" content="writeToFIDtxt.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Editing a .txt mRUI File that Can be Opened by JMRUI</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Inputs</a></li><li><a href="#5">Output</a></li><li><a href="#6">Child Functions</a></li><li><a href="#8">Verifying Sufficient and Valid Inputs</a></li><li><a href="#9">Writing the Name of the Output File</a></li><li><a href="#10">Preventing Addition of a Return in the Outputted File</a></li><li><a href="#11">Ignoring the First Two Occurences of Signal</a></li><li><a href="#12">Appending Data from the Input Array into the Output File</a></li><li><a href="#14">Notes</a></li></ul></div><p>In cases where only all of the data in a file needs to be replaced, but none of the words, such as when summing data from multiple channels, this function uses one of the files to be summed as a base and replaces all of the data in it using the information stored in an inputted array</p><h2 id="2">Inputs</h2><p><i>fid</i>: is a .txt mRUI file to be used as a base for building the new file. It must have the same number of signals as the file being made</p><p><i>array</i>: is a numeric array where the columns from left to right store the: real data in the time domain, imaginary data in the time domain, real data in the frequency domain and imaginary data in the frequency domain that will be used to replace the data stored in the base file (<i>fid</i>)</p><p>_pointsPerSig: is the number of measurements per signal</p><h2 id="5">Output</h2><p>A .txt mRUI file that is openable by JMRUI is made that contains the data from the <i>array</i> input</p><h2 id="6">Child Functions</h2><p><i>numofMeasurements</i>: determines the number of measurements taken per signal and the number of signals in the inputted FID file</p><pre class="codeinput"><span class="keyword">function</span> writeToFIDtxt(fid,array)
+</pre><h2 id="8">Verifying Sufficient and Valid Inputs</h2><p>The <i>array</i> input is nearly always large, so if it is not valid, the function will terminate.</p><pre class="codeinput">    fidbool = 1;
+
+    <span class="keyword">if</span> nargin &lt; 2
+        disp(<span class="string">'Error: No replacement data entered in array. Terminating'</span>)
+        <span class="keyword">return</span>
+    <span class="keyword">elseif</span> string(class(array)) ~= <span class="string">"double"</span>
+        disp(<span class="string">'Error: Invalid replacement array. Terminating'</span>)
+        <span class="keyword">return</span>
+    <span class="keyword">elseif</span> isdatfile(fid) == 0
+        disp(<span class="string">'Error: Invalid file entered'</span>)
+        fidbool = 0;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> fidbool == 0
+        cont = 0;
+        <span class="keyword">while</span> cont == 0
+            fid = input(<span class="string">'Input a valid .txt mRUI file to act as a base for the new data'</span>,<span class="string">'s'</span>);
+            <span class="keyword">try</span>
+                readmatrix(fid)
+                cont = 1;
+            <span class="keyword">catch</span>
+                disp(<span class="string">'Error: Invalid file entered'</span>)
+                cont = 0;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    pointsPerSig = numofMeasurements(fid);
+
+    fin = fopen(fid,<span class="string">'r'</span>);
+
+    fidlen = length(fid);
+    fidlooplen = fidlen-4;
+
+    fidf = [];
+</pre><h2 id="9">Writing the Name of the Output File</h2><p>The output file is named the same as the input base file, <i>fid</i>, except before the extension, the word 'Final' is added</p><pre class="codeinput">    <span class="keyword">for</span> el = 1:fidlooplen
+        temstr = strcat(fidf,fid(el));
+        fidf = temstr;
+    <span class="keyword">end</span>
+
+    fidout = strcat(fidf,<span class="string">'Final.txt'</span>);
+
+    fout = fopen(fidout,<span class="string">'w'</span>);
+</pre><h2 id="10">Preventing Addition of a Return in the Outputted File</h2><p>The outputted file is written line by line, so to prevent an extra return at the end of the file, the file is read one line ahead of the line to be written, so the function knows which line is the last line before the last line is reached</p><pre class="codeinput">    linestore = fgetl(fin);
+
+    arrayind = 1;
+
+    trut = 1;
+    tr = 0;
+</pre><h2 id="11">Ignoring the First Two Occurences of Signal</h2><p>The data in <i>array</i> is added to the output file the line after an occurence of the word 'Signal'. However, the first two occurences of the word are in the preamble, so they should be ignored</p><pre class="codeinput">    <span class="keyword">while</span> trut == 1
+
+        line = fgetl(fin);
+
+        <span class="keyword">if</span> contains(linestore,<span class="string">'Signal'</span>) == 1
+            <span class="keyword">if</span> tr == 1
+                trut = 0;
+            <span class="keyword">else</span>
+                tr = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        fprintf(fout,<span class="string">'%s\n'</span>,linestore);
+        linestore = line;
+
+    <span class="keyword">end</span>
+</pre><h2 id="12">Appending Data from the Input Array into the Output File</h2><p>Data in the <i>array</i> matrix is appended to the output file after lines containing the word 'Signal'. When the word 'Signal' is found, the function is primed to begin appending data by setting <i>readarray</i> to 1. This indicates that starting from the following line, data should be read from <i>array</i> into the output file. <i>arrayind</i> indicates the row in <i>array</i> that should be written into the output file. <i>count</i> keeps track of how many entries have been sent to be written into the output file. When <i>count</i> equals the number of measurements per signal, <i>readarray</i> is reset to 0 to prevent the array from continuing to be written into the output file until the next occurence of the word 'Signal'. When the end of the file is reached, 'line' equals -1, which indicates that when 'linestore' is appended to the output file, no return should be added.</p><pre class="codeinput">    tru = 1;
+    readarray = 0;
+    count = 0;
+
+    <span class="keyword">while</span> tru == 1
+
+        line = fgetl(fin);
+
+        <span class="keyword">if</span> contains(linestore,<span class="string">'Signal'</span>) == 1
+            readarray = 1;
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> readarray == 2
+
+            linout = array(arrayind,:);
+            linestore = num2str(linout,<span class="string">'%.4E\t'</span>);
+            arrayind = arrayind+1;
+            count = count+1;
+
+            <span class="keyword">if</span> count == pointsPerSig
+                count = 0;
+                readarray = 0;
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> line == -1
+            tru = 0;
+            fprintf(fout,<span class="string">'%s'</span>,linestore);
+        <span class="keyword">else</span>
+            fprintf(fout,<span class="string">'%s\n'</span>,linestore);
+            linestore = line;
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> readarray == 1
+            readarray = 2;
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    fclose(fin);
+    fclose(fout);
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="14">Notes</h2><p>The inputs used in the example were:</p><p><i>fid</i>: 'Decay_DissolutionFID_1Pyr_09_12_19_even.txt'</p><p><i>array</i>: The result of summing the above example for <i>fid</i> with 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'</p><p>The example was run by putting</p><p>writeToFIDtxt('Decay_DissolutionFID_1Pyr_09_12_19_even.txt',array)</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Editing a .txt mRUI File that Can be Opened by JMRUI
+%%
+% In cases where only all of the data in a file needs to be replaced, but
+% none of the words, such as when summing data from multiple channels, this
+% function uses one of the files to be summed as a base and replaces all of
+% the data in it using the information stored in an inputted array
+%% Inputs
+% _fid_: is a .txt mRUI file to be used as a base for building the new
+% file. It must have the same number of signals as the file being made
+%%
+% _array_: is a numeric array where the columns from left to right store
+% the: real data in the time domain, imaginary data in the time domain,
+% real data in the frequency domain and imaginary data in the frequency
+% domain that will be used to replace the data stored in the base file
+% (_fid_)
+%%
+% _pointsPerSig: is the number of measurements per signal
+%% Output
+% A .txt mRUI file that is openable by JMRUI is made that contains the data
+% from the _array_ input
+%% Child Functions
+% _numofMeasurements_: determines the number of measurements taken per
+% signal and the number of signals in the inputted FID file
+
+function writeToFIDtxt(fid,array)
+
+    %% Verifying Sufficient and Valid Inputs
+    % The _array_ input is nearly always large, so if it is not valid, the
+    % function will terminate.
+
+    fidbool = 1;
+    
+    if nargin < 2
+        disp('Error: No replacement data entered in array. Terminating')
+        return
+    elseif string(class(array)) ~= "double"
+        disp('Error: Invalid replacement array. Terminating')
+        return
+    elseif isdatfile(fid) == 0
+        disp('Error: Invalid file entered')
+        fidbool = 0;
+    end
+    
+    if fidbool == 0
+        cont = 0;
+        while cont == 0
+            fid = input('Input a valid .txt mRUI file to act as a base for the new data','s');
+            try
+                readmatrix(fid)
+                cont = 1;
+            catch
+                disp('Error: Invalid file entered')
+                cont = 0;
+            end
+        end
+    end
+
+    pointsPerSig = numofMeasurements(fid);
+
+    fin = fopen(fid,'r');
+    
+    fidlen = length(fid);
+    fidlooplen = fidlen-4;
+    
+    fidf = [];
+    
+    %% Writing the Name of the Output File
+    % The output file is named the same as the input base file, _fid_,
+    % except before the extension, the word 'Final' is added
+    
+    for el = 1:fidlooplen
+        temstr = strcat(fidf,fid(el));
+        fidf = temstr;
+    end
+    
+    fidout = strcat(fidf,'Final.txt');
+    
+    fout = fopen(fidout,'w');
+    
+    %% Preventing Addition of a Return in the Outputted File
+    % The outputted file is written line by line, so to prevent an extra
+    % return at the end of the file, the file is read one line ahead of the
+    % line to be written, so the function knows which line is the last line
+    % before the last line is reached
+    
+    linestore = fgetl(fin);
+    
+    arrayind = 1;
+    
+    trut = 1;
+    tr = 0;
+    
+    %% Ignoring the First Two Occurences of Signal
+    % The data in _array_ is added to the output file the line after an
+    % occurence of the word 'Signal'. However, the first two occurences of
+    % the word are in the preamble, so they should be ignored
+    
+    while trut == 1
+        
+        line = fgetl(fin);
+        
+        if contains(linestore,'Signal') == 1
+            if tr == 1
+                trut = 0;
+            else
+                tr = 1;
+            end
+        end
+        
+        fprintf(fout,'%s\n',linestore);
+        linestore = line;
+        
+    end
+    
+    %% Appending Data from the Input Array into the Output File
+    % Data in the _array_ matrix is appended to the output file after lines
+    % containing the word 'Signal'. When the word 'Signal' is found, the
+    % function is primed to begin appending data by setting _readarray_ to
+    % 1. This indicates that starting from the following line, data should
+    % be read from _array_ into the output file. _arrayind_ indicates the
+    % row in _array_ that should be written into the output file. _count_
+    % keeps track of how many entries have been sent to be written into the
+    % output file. When _count_ equals the number of measurements per
+    % signal, _readarray_ is reset to 0 to prevent the array from
+    % continuing to be written into the output file until the next
+    % occurence of the word 'Signal'. When the end of the file is reached,
+    % 'line' equals -1, which indicates that when 'linestore' is appended
+    % to the output file, no return should be added.
+    
+    tru = 1;
+    readarray = 0;
+    count = 0;
+    
+    while tru == 1
+        
+        line = fgetl(fin);
+        
+        if contains(linestore,'Signal') == 1
+            readarray = 1;
+        end
+        
+        if readarray == 2
+            
+            linout = array(arrayind,:);
+            linestore = num2str(linout,'%.4E\t');
+            arrayind = arrayind+1;
+            count = count+1;
+            
+            if count == pointsPerSig
+                count = 0;
+                readarray = 0;
+            end
+            
+        end
+        
+        if line == -1
+            tru = 0;
+            fprintf(fout,'%s',linestore);
+        else
+            fprintf(fout,'%s\n',linestore);
+            linestore = line;
+        end
+        
+        if readarray == 1
+            readarray = 2;
+        end
+        
+    end
+    
+    fclose(fin);
+    fclose(fout);
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _fid_: 'Decay_DissolutionFID_1Pyr_09_12_19_even.txt'
+%%
+% _array_: The result of summing the above example for _fid_ with 
+% 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt'
+%%
+% The example was run by putting
+%%
+% writeToFIDtxt('Decay_DissolutionFID_1Pyr_09_12_19_even.txt',array)
+%% 
+% into the command window
+            
+##### SOURCE END #####
+--></body></html>
