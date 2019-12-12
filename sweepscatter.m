@@ -173,7 +173,7 @@ function [f,val1,val2] = sweepscatter(x,y,sys,dat,mic,inp,coilnum,field,titl,pea
     hold on
     
     f = fit(x,y(:,1),'fourier8');
-    plot(f,'k')
+    plot(x,y(:,1),'k')
     
     rangeint = (max(x)-min(x))/1000; 
     range = min(x):rangeint:max(x);
@@ -202,7 +202,7 @@ function [f,val1,val2] = sweepscatter(x,y,sys,dat,mic,inp,coilnum,field,titl,pea
             scatter(x,y(:,el),'filled')
     
             f = fit(x,y(:,el),'fourier8');
-            plot(f,'k')
+            plot(x,y(:,el),'k')
     
             rangeint = (max(x)-min(x))/1000; 
             range = min(x):rangeint:max(x);
