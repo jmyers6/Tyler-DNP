@@ -1,0 +1,334 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>svdReconstructFrequencyDomain</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-12"><meta name="DC.source" content="svdReconstructFrequencyDomain.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Child Functions</a></li><li><a href="#3">Example Input</a></li><li><a href="#9">Allocate storage for some results</a></li><li><a href="#10">Measure noise statistics from data (unless instructed otherwise)</a></li><li><a href="#11">Compute optimal reconstruction using SVD</a></li><li><a href="#12">Added 2 Feb 2014:</a></li></ul></div><pre class="codeinput"><span class="comment">% Reconstruct optimum spectrum from a phased array</span>
+<span class="comment">%</span>
+<span class="comment">% [svdRecombination, svdQuality, svdCoilAmplitudes, svdWeights] = svdReconstructFrequencyDomain(rawSpectra, noiseMask, ...)</span>
+<span class="comment">%</span>
+<span class="comment">% rawSpectra must be an N x M matrix (N = frequency points, M = receive array elements)</span>
+<span class="comment">% noiseMask must be an N x 1 logical matrix (N = frequency points).</span>
+<span class="comment">%           true --&gt; this point is baseline noise.</span>
+<span class="comment">%           false --&gt; this point contains signal.</span>
+
+<span class="comment">% Copyright Chris Rodgers, University of Oxford, 2008.</span>
+<span class="comment">% $Id: svdReconstructFrequencyDomain.m 8164 2014-12-16 10:31:48Z will $</span>
+</pre><h2 id="2">Child Functions</h2><p>normalise: normalises an input</p><h2 id="3">Example Input</h2><p><i>rawSpectra</i>: are the real values from the frequency domains of the phased FID files from the 'Decay_DissolutionFID_1Pyr_09_12_19_even.txt' and 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt' files</p><p><i>noiseMask</i>: is a (4096x60) x 1 logical array, where for every set of 4096 (which is the number of points measured per signal in the FID files) points 1-2000 and 2600-4096 are 1, since they are noise and the rest are 0, since they are signal.</p><p>The example was run by putting:</p><p>[~, svdQuality, svdCoilAmplitudes, svdWeights] = svdReconstructFrequencyDomain(rawSpectra, noiseMask)</p><p>into the command window (the first variable was not ouputted in the example, since it is over 200 000 lines long)</p><pre class="codeinput"><span class="keyword">function</span> [svdRecombination, svdQuality, svdCoilAmplitudes, svdWeights] = svdReconstructFrequencyDomain(rawSpectra, noiseMask, varargin)
+</pre><pre class="codeinput"><span class="keyword">if</span> nargin&lt;3
+    options = struct();
+<span class="keyword">elseif</span> nargin==3
+    options = varargin{1};
+<span class="keyword">else</span>
+    <span class="comment">% Wrap any cell arrays before passing in to struct()</span>
+    <span class="keyword">for</span> idx=2:2:numel(varargin)
+        <span class="keyword">if</span> iscell(varargin{idx})
+            varargin{idx} = {varargin{idx}};
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    options = struct(varargin{:});
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isfield(options,<span class="string">'debug'</span>)
+    options.debug = 0;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isfield(options,<span class="string">'phaseRefChannel'</span>)
+    options.phaseRefChannel = 1;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> numel(size(rawSpectra))&gt;2
+    error(<span class="string">'rawSpectra must be an N x M matrix (N = frequency points, M = receive array elements)'</span>)
+<span class="keyword">end</span>
+</pre><h2 id="9">Allocate storage for some results</h2><pre class="codeinput"><span class="comment">%sizeSpectra = size(rawSpectra,1);</span>
+nCoils = size(rawSpectra,2);
+</pre><h2 id="10">Measure noise statistics from data (unless instructed otherwise)</h2><pre class="codeinput"><span class="keyword">if</span> isfield(options,<span class="string">'noiseCov'</span>) &amp;&amp; ~ischar(options.noiseCov)
+  <span class="comment">% Noise covariance matrix has been supplied</span>
+  noiseCov=options.noiseCov;
+<span class="keyword">elseif</span> isfield(options,<span class="string">'noiseCov'</span>) &amp;&amp; strcmp(options.noiseCov,<span class="string">'disable'</span>)
+    <span class="comment">% Disable noise prewhitening</span>
+    noiseCov=eye(nCoils)*0.5;
+<span class="keyword">elseif</span> isfield(options,<span class="string">'noiseCov'</span>) &amp;&amp; strcmp(options.noiseCov,<span class="string">'diag'</span>)
+    <span class="comment">% Use only the noise variances (not off diagonal elements)...</span>
+    noiseCov=diag(diag(cov(rawSpectra(noiseMask,:))));
+<span class="keyword">elseif</span> ~isfield(options,<span class="string">'noiseCov'</span>) || strcmp(options.noiseCov,<span class="string">'normal'</span>)
+    <span class="comment">% Estimate from data (DEFAULT)</span>
+    noiseCov=cov(rawSpectra(noiseMask,:));
+<span class="keyword">else</span>
+    error(<span class="string">'Option "noiseCov" has an unknown value.'</span>)
+<span class="keyword">end</span>
+
+[noiseVec, noiseVal] = eig(noiseCov);
+
+<span class="comment">% (This formula is a simple adaptation of that in</span>
+<span class="comment">% testNoiseUncorrelationNmrFft2.m, adding sim.imagingFrequency to the mix.)</span>
+scaleMatrixFft = noiseVec*diag(sqrt(0.5)./sqrt(diag(noiseVal)));
+invScaleMatrixFft = inv(scaleMatrixFft);
+
+scaledSpectra=rawSpectra*scaleMatrixFft;
+
+<span class="keyword">if</span> options.debug
+    disp(<span class="string">'DEBUG: Please confirm that this matrix is approximately 0.5*eye(nCoils)'</span>)
+    cov(scaledSpectra(noiseMask,:))
+
+    disp(<span class="string">'Noise covariance matrix eigenvalues:'</span>)
+    disp(noiseVal)
+
+    figure(9);clf;mypcolor(1:nCoils,1:nCoils,abs(noiseCov));colorbar
+    set(gca,<span class="string">'YTick'</span>,1:nCoils,<span class="string">'YTickLabel'</span>,options.coilNames,<span class="keyword">...</span>
+        <span class="string">'XTick'</span>,1:nCoils,<span class="string">'XTickLabel'</span>,options.elementNames)
+<span class="keyword">end</span>
+</pre><h2 id="11">Compute optimal reconstruction using SVD</h2><pre class="codeinput">[u,s,v]=svd(scaledSpectra,<span class="string">'econ'</span>);
+<span class="comment">% SVD quality indicator</span>
+svdQuality(1) = ((s(1,1)/norm(diag(s)))*sqrt(nCoils)-1)/(sqrt(nCoils)-1);
+
+<span class="comment">% Coil amplitudes</span>
+svdCoilAmplitudes=v(:,1)'*invScaleMatrixFft;
+<span class="comment">% There's an arbitrary scaling here such that the first coil weight is</span>
+<span class="comment">% real and positive</span>
+
+
+
+
+<span class="comment">% Option to set a arbitrary rescaling phase which overides that of the</span>
+<span class="comment">% arbitrary choice of the first element.</span>
+<span class="keyword">if</span> isfield(options,<span class="string">'overideRescalePhase'</span>)
+    svdRescale = norm(svdCoilAmplitudes)*exp(1i*options.overideRescalePhase);
+<span class="keyword">else</span>
+    svdRescale = norm(svdCoilAmplitudes)*normalise(svdCoilAmplitudes(options.phaseRefChannel));
+<span class="keyword">end</span>
+
+
+svdCoilAmplitudes=svdCoilAmplitudes / svdRescale;
+
+<span class="keyword">if</span> options.debug
+    fprintf(<span class="string">'DEBUG: SVD quality indicator = %g\n'</span>,svdQuality);
+    fprintf(<span class="string">'SVD coil amplitudes:\n'</span>);
+    disp(svdCoilAmplitudes)
+<span class="keyword">end</span>
+
+svdRecombination = u(:,1)*s(1,1)*svdRescale;
+</pre><h2 id="12">Added 2 Feb 2014:</h2><p>svdWeights = 0.5*svdCoilAmplitudes'*inv(noiseCov) * conj(svdRephase) * svdRephase; % V4 version. Fails. Wrong matrix sizes.</p><pre class="codeinput">svdWeights = 0.5*inv(noiseCov) * svdCoilAmplitudes' * conj(svdRescale) * svdRescale; <span class="comment">% Try this. Not derived carefully. But tested numerically and it gives the same answer to within 1e-15.</span>
+</pre><pre class="codeoutput">
+svdQuality =
+
+    0.6482
+
+
+svdCoilAmplitudes =
+
+    0.5358    0.8444
+
+
+svdWeights =
+
+   -1.5597
+    2.1740
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Reconstruct optimum spectrum from a phased array
+%
+% [svdRecombination, svdQuality, svdCoilAmplitudes, svdWeights] = svdReconstructFrequencyDomain(rawSpectra, noiseMask, ...)
+%
+% rawSpectra must be an N x M matrix (N = frequency points, M = receive array elements)
+% noiseMask must be an N x 1 logical matrix (N = frequency points).
+%           true REPLACE_WITH_DASH_DASH> this point is baseline noise.
+%           false REPLACE_WITH_DASH_DASH> this point contains signal.
+
+% Copyright Chris Rodgers, University of Oxford, 2008.
+% $Id: svdReconstructFrequencyDomain.m 8164 2014-12-16 10:31:48Z will $
+%% Child Functions
+% normalise: normalises an input
+%% Example Input
+% _rawSpectra_: are the real values from the frequency domains of the
+% phased FID files from the 'Decay_DissolutionFID_1Pyr_09_12_19_even.txt'
+% and 'Decay_DissolutionFID_1Pyr_09_12_19_odd.txt' files
+%%
+% _noiseMask_: is a (4096x60) x 1 logical array, where for every set of
+% 4096 (which is the number of points measured per signal in the FID files)
+% points 1-2000 and 2600-4096 are 1, since they are noise and the rest are
+% 0, since they are signal.
+%%
+% The example was run by putting:
+%%
+% [~, svdQuality, svdCoilAmplitudes, svdWeights] = 
+% svdReconstructFrequencyDomain(rawSpectra, noiseMask)
+%%
+% into the command window (the first variable was not ouputted in the
+% example, since it is over 200 000 lines long)
+
+function [svdRecombination, svdQuality, svdCoilAmplitudes, svdWeights] = svdReconstructFrequencyDomain(rawSpectra, noiseMask, varargin)
+
+if nargin<3
+    options = struct();
+elseif nargin==3
+    options = varargin{1};
+else
+    % Wrap any cell arrays before passing in to struct()
+    for idx=2:2:numel(varargin)
+        if iscell(varargin{idx})
+            varargin{idx} = {varargin{idx}};
+        end
+    end
+    
+    options = struct(varargin{:});
+end
+
+if ~isfield(options,'debug')
+    options.debug = 0;
+end
+
+if ~isfield(options,'phaseRefChannel')
+    options.phaseRefChannel = 1;
+end
+
+if numel(size(rawSpectra))>2
+    error('rawSpectra must be an N x M matrix (N = frequency points, M = receive array elements)')
+end
+
+%% Allocate storage for some results
+%sizeSpectra = size(rawSpectra,1);
+nCoils = size(rawSpectra,2);
+
+%% Measure noise statistics from data (unless instructed otherwise)
+if isfield(options,'noiseCov') && ~ischar(options.noiseCov)
+  % Noise covariance matrix has been supplied
+  noiseCov=options.noiseCov;
+elseif isfield(options,'noiseCov') && strcmp(options.noiseCov,'disable')
+    % Disable noise prewhitening
+    noiseCov=eye(nCoils)*0.5;
+elseif isfield(options,'noiseCov') && strcmp(options.noiseCov,'diag')
+    % Use only the noise variances (not off diagonal elements)...
+    noiseCov=diag(diag(cov(rawSpectra(noiseMask,:))));
+elseif ~isfield(options,'noiseCov') || strcmp(options.noiseCov,'normal')
+    % Estimate from data (DEFAULT)
+    noiseCov=cov(rawSpectra(noiseMask,:));
+else
+    error('Option "noiseCov" has an unknown value.')
+end
+
+[noiseVec, noiseVal] = eig(noiseCov);
+
+% (This formula is a simple adaptation of that in
+% testNoiseUncorrelationNmrFft2.m, adding sim.imagingFrequency to the mix.)
+scaleMatrixFft = noiseVec*diag(sqrt(0.5)./sqrt(diag(noiseVal)));
+invScaleMatrixFft = inv(scaleMatrixFft);
+
+scaledSpectra=rawSpectra*scaleMatrixFft;
+
+if options.debug
+    disp('DEBUG: Please confirm that this matrix is approximately 0.5*eye(nCoils)')
+    cov(scaledSpectra(noiseMask,:))
+    
+    disp('Noise covariance matrix eigenvalues:')
+    disp(noiseVal)
+
+    figure(9);clf;mypcolor(1:nCoils,1:nCoils,abs(noiseCov));colorbar
+    set(gca,'YTick',1:nCoils,'YTickLabel',options.coilNames,...
+        'XTick',1:nCoils,'XTickLabel',options.elementNames)
+end
+
+%% Compute optimal reconstruction using SVD
+[u,s,v]=svd(scaledSpectra,'econ');
+% SVD quality indicator
+svdQuality(1) = ((s(1,1)/norm(diag(s)))*sqrt(nCoils)-1)/(sqrt(nCoils)-1);
+
+% Coil amplitudes
+svdCoilAmplitudes=v(:,1)'*invScaleMatrixFft;
+% There's an arbitrary scaling here such that the first coil weight is
+% real and positive
+
+
+ 
+
+% Option to set a arbitrary rescaling phase which overides that of the
+% arbitrary choice of the first element.
+if isfield(options,'overideRescalePhase')
+    svdRescale = norm(svdCoilAmplitudes)*exp(1i*options.overideRescalePhase);
+else
+    svdRescale = norm(svdCoilAmplitudes)*normalise(svdCoilAmplitudes(options.phaseRefChannel));
+end
+
+
+svdCoilAmplitudes=svdCoilAmplitudes / svdRescale;
+
+if options.debug
+    fprintf('DEBUG: SVD quality indicator = %g\n',svdQuality);
+    fprintf('SVD coil amplitudes:\n');
+    disp(svdCoilAmplitudes)
+end
+
+svdRecombination = u(:,1)*s(1,1)*svdRescale;
+
+%% Added 2 Feb 2014:
+% svdWeights = 0.5*svdCoilAmplitudes'*inv(noiseCov) * conj(svdRephase) * svdRephase; % V4 version. Fails. Wrong matrix sizes.
+
+svdWeights = 0.5*inv(noiseCov) * svdCoilAmplitudes' * conj(svdRescale) * svdRescale; % Try this. Not derived carefully. But tested numerically and it gives the same answer to within 1e-15.
+
+##### SOURCE END #####
+--></body></html>

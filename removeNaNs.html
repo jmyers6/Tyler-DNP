@@ -1,0 +1,229 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Removing any Rows in an Inputted Array Containing NaN</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-12-12"><meta name="DC.source" content="removeNaNs.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Removing any Rows in an Inputted Array Containing NaN</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inputs</a></li><li><a href="#3">Output</a></li><li><a href="#5">Verifying the Existence and Validity of the Inputted Array</a></li><li><a href="#6">Verifying if the Size of the Output Array has been Specified</a></li><li><a href="#7">Iterating through the Input Array Search for NaNs</a></li><li><a href="#9">Notes</a></li></ul></div><h2 id="1">Inputs</h2><p><i>iarray</i>: is a numeric array, where some rows contain NaN (Not a number)</p><p><i>len</i>: is the number of rows in the output array. This parameter should be specified, especially if the input and ouput arrays are large, so that MATLAB properly allocates memory for the task</p><h2 id="3">Output</h2><p><i>array</i>: is the outputted numeric array after the NaNs have been removed from <i>iarray</i></p><pre class="codeinput"><span class="keyword">function</span> array = removeNaNs(iarray,len)
+</pre><h2 id="5">Verifying the Existence and Validity of the Inputted Array</h2><pre class="codeinput">    cont = 1;
+
+    <span class="keyword">if</span> nargin == 0
+        cont = 0;
+    <span class="keyword">elseif</span> string(class(iarray)) ~= <span class="string">"double"</span>
+        cont = 0;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> cont == 0
+        disp(<span class="string">'Error: Invalid input. Input must be a numeric array'</span>)
+        <span class="keyword">return</span>
+    <span class="keyword">end</span>
+
+    cols = length(iarray(1,:));
+</pre><h2 id="6">Verifying if the Size of the Output Array has been Specified</h2><p>If the size of the ouput array is specified, the function runs much faster</p><pre class="codeinput">    lenbool = 1;
+
+    <span class="keyword">if</span> nargin &lt; 2
+        lenbool = 0;
+    <span class="keyword">elseif</span> isint(len) == 0
+        lenbool = 0;
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> lenbool == 1
+        array = zeros(len,cols);
+    <span class="keyword">else</span>
+        array = [];
+    <span class="keyword">end</span>
+
+    numel = length(iarray(:,1));
+
+    count = 1;
+</pre><h2 id="7">Iterating through the Input Array Search for NaNs</h2><p>For every row without NaNs, the row is appended to the outputted array</p><pre class="codeinput">    <span class="keyword">for</span> el = 1:numel
+
+        entbool = 1;
+
+        <span class="keyword">for</span> ele = 1:cols
+            <span class="keyword">if</span> isnan(iarray(el,ele))
+                entbool = 0;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> entbool == 1
+            <span class="keyword">if</span> lenbool == 1
+                array(count,:) = iarray(el,:);
+                count = count+1;
+            <span class="keyword">else</span>
+                array = [array;iarray(el,:)];
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">
+array =
+
+           5
+           8
+          45
+          54
+        3787
+           1
+         777
+
+</pre><h2 id="9">Notes</h2><p>The inputs used in the example were:</p><p><i>iarray</i>: [5;8;45;NaN;54;3787;1;NaN;NaN;777]</p><p><i>len</i>: 7</p><p>The example was run by putting:</p><p>array = removeNaNs([5;8;45;NaN;54;3787;1;NaN;NaN;777],7)</p><p>into the command window</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Removing any Rows in an Inputted Array Containing NaN
+%%
+%% Inputs
+% _iarray_: is a numeric array, where some rows 
+% contain NaN (Not a number)
+%%
+% _len_: is the number of rows in the output array. This parameter should 
+% be specified, especially if the input and ouput arrays are large, so that
+% MATLAB properly allocates memory for the task
+%% Output
+% _array_: is the outputted numeric array after the NaNs have been removed
+% from _iarray_
+
+function array = removeNaNs(iarray,len)
+
+    %% Verifying the Existence and Validity of the Inputted Array
+
+    cont = 1;
+
+    if nargin == 0
+        cont = 0;
+    elseif string(class(iarray)) ~= "double"
+        cont = 0;
+    end
+    
+    if cont == 0
+        disp('Error: Invalid input. Input must be a numeric array')
+        return
+    end
+
+    cols = length(iarray(1,:));
+    
+    %% Verifying if the Size of the Output Array has been Specified
+    % If the size of the ouput array is specified, the function runs much
+    % faster
+    
+    lenbool = 1;
+    
+    if nargin < 2
+        lenbool = 0;
+    elseif isint(len) == 0
+        lenbool = 0;
+    end
+    
+    if lenbool == 1
+        array = zeros(len,cols);
+    else
+        array = [];
+    end
+    
+    numel = length(iarray(:,1));
+    
+    count = 1;
+    
+    %% Iterating through the Input Array Search for NaNs
+    % For every row without NaNs, the row is appended to the outputted
+    % array
+    
+    for el = 1:numel
+        
+        entbool = 1;
+        
+        for ele = 1:cols
+            if isnan(iarray(el,ele))
+                entbool = 0;
+            end
+        end
+        
+        if entbool == 1
+            if lenbool == 1
+                array(count,:) = iarray(el,:);
+                count = count+1;
+            else
+                array = [array;iarray(el,:)];
+            end
+        end
+        
+    end
+    
+end
+
+%% Notes
+% The inputs used in the example were:
+%%
+% _iarray_: [5;8;45;NaN;54;3787;1;NaN;NaN;777]
+%%
+% _len_: 7
+%%
+% The example was run by putting:
+%%
+% array = removeNaNs([5;8;45;NaN;54;3787;1;NaN;NaN;777],7) 
+%%
+% into the command window
+##### SOURCE END #####
+--></body></html>
